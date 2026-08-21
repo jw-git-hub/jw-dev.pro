@@ -1,0 +1,14 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import PageStub from '../../components/chrome/PageStub.astro';
+import { localeFromUrl, useTranslations, homePath } from '../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<BaseLayout title={t('e404.title')} description={t('e404.lead')} noindex langPath="/">
+  <PageStub title={t('e404.title')} lead={t('e404.lead')}>
+    <p class="page-cta"><a class="btn p" href={homePath(locale)}>{t('e404.cta')}</a></p>
+  </PageStub>
+</BaseLayout>

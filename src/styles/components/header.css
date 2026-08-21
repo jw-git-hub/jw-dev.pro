@@ -1,0 +1,210 @@
+/**
+ * Шапка — DESIGN-GUIDE §13. Фиксированная, стеклянная, при прокрутке
+ * ужимается: класс `stuck` вешает header.js при scrollY > 18.
+ *
+ * Высота бара вынесена в --bar, потому что от неё зависит не только сама
+ * шапка, но и высота мобильной шторки. Два места с одним числом разъезжаются.
+ *
+ * Стекло собрано на псевдоэлементах, а не на фоне: заливка и шум должны
+ * менять прозрачность независимо друг от друга при переходе в `stuck`.
+ */
+
+.hdr {
+  --bar: var(--hdr);
+
+  position: fixed;
+  top: 0;
+  right: 0;
+  left: 0;
+  z-index: 50;
+  backdrop-filter: blur(11px) saturate(122%);
+  -webkit-backdrop-filter: blur(11px) saturate(122%);
+  transition: 0.5s var(--e);
+}
+
+.hdr.stuck {
+  --bar: 60px;
+
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+}
+
+/**
+ * Пока шторка открыта, шапка отдаёт блюр ей.
+ * Элемент с backdrop-filter создаёт backdrop root: вложенный фильтр видит
+ * только содержимое родителя и страницу под ним уже не размывает.
+ * Это же правило в макете называется html.noblur (§5).
+ */
+.hdr:has(.mnav-holder[open]) {
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.hdr::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-bottom: 1px solid rgb(255 255 255 / 8%);
+  background: rgb(255 255 255 / 4%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 22%),
+    0 20px 44px -34px rgb(0 0 0 / 95%);
+  opacity: 0.42;
+  transition: opacity 0.5s var(--e);
+}
+
+.hdr::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: var(--noise);
+  opacity: 0.02;
+  mix-blend-mode: overlay;
+  transition: opacity 0.5s var(--e);
+  pointer-events: none;
+}
+
+.hdr.stuck::before {
+  opacity: 1;
+}
+
+.hdr.stuck::after {
+  opacity: 0.03;
+}
+
+.hdr > * {
+  position: relative;
+  z-index: 2;
+}
+
+.hdr-in {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  height: var(--bar);
+  transition: height 0.5s var(--e);
+}
+
+.brand {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  margin-left: auto;
+}
+
+.nav a {
+  position: relative;
+  padding: 9px 14px;
+  border-radius: 999px;
+  color: var(--ink2);
+  font-size: 14px;
+  font-weight: 520;
+  transition: 0.35s var(--e);
+}
+
+/* Подчёркивание выезжает слева направо — так же, как импульс в процессе. */
+.nav a::after {
+  content: '';
+  position: absolute;
+  right: 14px;
+  bottom: 5px;
+  left: 14px;
+  height: 1px;
+  background: var(--acc);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.45s var(--e);
+}
+
+.nav a:hover {
+  color: var(--ink);
+}
+
+.nav a.cur {
+  color: var(--ink);
+}
+
+.nav a:hover::after,
+.nav a.cur::after {
+  transform: scaleX(1);
+}
+
+.hdr-r {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 9px;
+  margin-left: auto;
+}
+
+/* Меню разделов существует только там, где спрятана строка навигации. */
+.mnav-holder {
+  display: none;
+}
+
+.burger {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 5%);
+  list-style: none;
+  cursor: pointer;
+}
+
+/* Safari до 16.4 не понимает list-style на summary. */
+.burger::-webkit-details-marker {
+  display: none;
+}
+
+.burger i {
+  display: block;
+  width: 16px;
+  height: 1.6px;
+  border-radius: 2px;
+  background: var(--ink);
+  transition: 0.4s var(--e);
+}
+
+.mnav-holder[open] .burger i:nth-child(1) {
+  transform: translateY(5.6px) rotate(45deg);
+}
+
+.mnav-holder[open] .burger i:nth-child(2) {
+  opacity: 0;
+}
+
+.mnav-holder[open] .burger i:nth-child(3) {
+  transform: translateY(-5.6px) rotate(-45deg);
+}
+
+@media (max-width: 1020px) {
+  .nav {
+    display: none;
+  }
+
+  .mnav-holder {
+    display: block;
+  }
+
+  .burger {
+    display: flex;
+  }
+
+  /* Кнопка «обсудить задачу» уезжает в шторку: в баре 42px её негде поставить. */
+  .hdr-cta {
+    display: none;
+  }
+}

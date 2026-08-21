@@ -1,0 +1,49 @@
+---
+/**
+ * Шапка. Фиксированная, стеклянная, при прокрутке ужимается до 60px
+ * (класс `stuck` вешает header.js).
+ *
+ * Бургер — <summary> настоящего <details>, а не кнопка с обработчиком:
+ * меню обязано открываться без JS. Шторка начинается под шапкой, чтобы
+ * бургер оставался виден и закрывал меню повторным нажатием.
+ */
+import { NAV_ITEMS } from '../../data/nav';
+import { localeFromUrl, useTranslations, homePath, sectionPath } from '../../i18n';
+import Mark from './Mark.astro';
+import LangSwitch from './LangSwitch.astro';
+import MobileNav from './MobileNav.astro';
+
+interface Props {
+  /** Куда ведёт переключатель языка. По умолчанию — та же страница. */
+  langPath?: string;
+}
+
+const { langPath } = Astro.props;
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<header class="hdr" id="hdr">
+  <div class="wrap hdr-in">
+    <a class="brand" href={homePath(locale)} aria-label={t('a11y.home')}>
+      <Mark />
+    </a>
+
+    <nav class="nav" aria-label={t('a11y.nav')}>
+      {NAV_ITEMS.map((item) => <a href={sectionPath(locale, item.id)}>{t(item.key)}</a>)}
+    </nav>
+
+    <div class="hdr-r">
+      <LangSwitch path={langPath} />
+      <a class="btn p hdr-cta" href={sectionPath(locale, 'contact')}>{t('cta.header')}</a>
+
+      <details class="mnav-holder" id="menu">
+        <summary class="burger" aria-label={t('a11y.menu')}>
+          <i></i><i></i><i></i>
+        </summary>
+        <MobileNav />
+      </details>
+    </div>
+  </div>
+</header>

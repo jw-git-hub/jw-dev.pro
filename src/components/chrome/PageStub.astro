@@ -1,0 +1,23 @@
+---
+/**
+ * Заголовок внутренней страницы: ровно один h1, подзаголовок и — пока раздел
+ * пуст — честная строка о том, чего здесь ждать. Пустой раздел, который молчит,
+ * читается как поломка.
+ */
+interface Props {
+  title: string;
+  lead?: string;
+  note?: string;
+}
+
+const { title, lead, note } = Astro.props;
+---
+
+<section class="page-head">
+  <div class="wrap">
+    <h1>{title}</h1>
+    {lead && <p class="lead">{lead}</p>}
+    {note && <p class="page-note mono">{note}</p>}
+    <slot />
+  </div>
+</section>

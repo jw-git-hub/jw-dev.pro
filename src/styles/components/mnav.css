@@ -1,0 +1,117 @@
+/**
+ * Шторка разделов — DESIGN-GUIDE §13.
+ *
+ * Лежит внутри <details> в шапке и позиционируется от неё, а не от окна:
+ * у шапки есть backdrop-filter, а он делает элемент содержащим блоком
+ * для fixed-потомков — position: fixed внутри неё всё равно считался бы
+ * от шапки, только менее предсказуемо.
+ *
+ * Появление сделано анимациями, а не переходами: элемент возникает вместе
+ * с display, а transition на только что показанном элементе не запускается.
+ * При prefers-reduced-motion общее правило гасит анимации, и шторка просто
+ * появляется — статические стили уже видимы.
+ */
+
+.mnav {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  left: 0;
+  height: calc(100svh - var(--bar));
+  padding: 26px 0 34px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  background: rgb(7 9 18 / 74%);
+  backdrop-filter: blur(14px) saturate(130%);
+  -webkit-backdrop-filter: blur(14px) saturate(130%);
+  animation: mnav-in 0.4s var(--e) both;
+}
+
+.mnav-links {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-bottom: 26px;
+}
+
+.mnav-links a {
+  display: flex;
+  align-items: baseline;
+  gap: 14px;
+  padding: 13px 4px;
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+  font-size: clamp(1.6rem, 8vw, 2.3rem);
+  font-weight: 660;
+  letter-spacing: -0.04em;
+  animation: mnav-item 0.5s var(--e) both;
+}
+
+.mnav-links a span {
+  flex: none;
+  color: var(--acc);
+  font-family: var(--fm);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.mnav-foot {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  align-items: flex-start;
+  animation: mnav-foot 0.5s 0.28s var(--e) both;
+}
+
+.mnav-foot .btn {
+  width: 100%;
+}
+
+/* Ступенька 45 мс: пункты въезжают друг за другом, а не пачкой. */
+.mnav-links a:nth-child(1) {
+  animation-delay: 60ms;
+}
+
+.mnav-links a:nth-child(2) {
+  animation-delay: 105ms;
+}
+
+.mnav-links a:nth-child(3) {
+  animation-delay: 150ms;
+}
+
+.mnav-links a:nth-child(4) {
+  animation-delay: 195ms;
+}
+
+.mnav-links a:nth-child(5) {
+  animation-delay: 240ms;
+}
+
+.mnav-links a:nth-child(6) {
+  animation-delay: 285ms;
+}
+
+@keyframes mnav-in {
+  from {
+    opacity: 0;
+  }
+}
+
+@keyframes mnav-item {
+  from {
+    transform: translateX(-22px);
+    opacity: 0;
+  }
+}
+
+@keyframes mnav-foot {
+  from {
+    transform: translateY(16px);
+    opacity: 0;
+  }
+}
+
+/* Страница под открытой шторкой не должна прокручиваться из-под неё. */
+body.menu-open {
+  overflow: hidden;
+}

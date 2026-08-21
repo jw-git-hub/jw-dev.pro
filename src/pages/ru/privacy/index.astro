@@ -1,0 +1,11 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageStub from '../../../components/chrome/PageStub.astro';
+import { localeFromUrl, useTranslations } from '../../../i18n';
+
+const t = useTranslations(localeFromUrl(Astro.url));
+---
+
+<BaseLayout title={t('privacy.title')} description={t('privacy.lead')}>
+  <PageStub title={t('privacy.title')} lead={t('privacy.lead')} note={t('privacy.empty')} />
+</BaseLayout>
