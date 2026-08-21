@@ -1,0 +1,25 @@
+---
+/**
+ * Фоновые слои — DESIGN-GUIDE §1. Аврора, вуаль, канвас графа и свет
+ * за курсором. Всё декоративное, поэтому целиком aria-hidden.
+ *
+ * Порядок в разметке не определяет порядок слоёв — его задаёт z-index
+ * в backdrop.css. Здесь порядок такой, каким его читает человек:
+ * сначала свечение, потом то, что его гасит, потом то, что поверх.
+ */
+const BLOB_COUNT = 6;
+---
+
+<div class="plane" id="aurora" aria-hidden="true">
+  {
+    Array.from({ length: BLOB_COUNT }, (_, index) => (
+      <span class:list={['blob', `b${index + 1}`]} />
+    ))
+  }
+</div>
+
+<div class="plane" id="veil" aria-hidden="true"></div>
+
+<canvas id="graph" aria-hidden="true"></canvas>
+
+<div id="light" aria-hidden="true"></div>

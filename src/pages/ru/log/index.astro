@@ -6,6 +6,6 @@ import { localeFromUrl, useTranslations } from '../../../i18n';
 const t = useTranslations(localeFromUrl(Astro.url));
 ---
 
-<BaseLayout title={t('log.title')} description={t('log.lead')}>
+<BaseLayout title={t('log.title')} description={t('log.lead')} accent="violet">
   <PageStub title={t('log.title')} lead={t('log.lead')} note={t('log.empty')} />
 </BaseLayout>

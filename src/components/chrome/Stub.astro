@@ -7,11 +7,11 @@ const t = useTranslations(locale);
 const other = locale === 'ru' ? 'en' : 'ru';
 ---
 
-<section class="stub">
-  <Mark />
-  <h1>{t('stub.title')}</h1>
-  <p>{t('stub.text')}</p>
-  <p class="stub-links">
+<section class="stub" data-acc="cyan">
+  <Mark anchor="cyan" />
+  <h1 class="rv" data-damp>{t('stub.title')}</h1>
+  <p class="rv" data-damp>{t('stub.text')}</p>
+  <p class="stub-links rv">
     <a href="https://github.com/jw-git-hub" rel="noopener">github.com/jw-git-hub</a>
     <a href={localizePath(Astro.url.pathname, other)} hreflang={other}>{other.toUpperCase()}</a>
   </p>

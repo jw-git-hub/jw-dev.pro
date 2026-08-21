@@ -1,0 +1,38 @@
+/**
+ * Механика акцента секции — DESIGN-GUIDE §2.
+ *
+ * Каждая секция объявляет свой цвет атрибутом data-acc, accent.js переносит
+ * имя текущей секции на <html>, а пары цветов лежат здесь. Так в скриптах
+ * не остаётся ни одного шестнадцатеричного значения: правка палитры
+ * в tokens.css подхватывается сама.
+ *
+ * Переход между парами плавный за счёт transition на :root в tokens.css.
+ * Работает он только потому, что --acc и --acc2 зарегистрированы через
+ * @property: незарегистрированную переменную браузер считает строкой,
+ * а строки не интерполируются.
+ */
+
+html[data-acc='cyan'] {
+  --acc: var(--cyan);
+  --acc2: var(--indigo);
+}
+
+html[data-acc='indigo'] {
+  --acc: var(--indigo);
+  --acc2: var(--cyan);
+}
+
+html[data-acc='violet'] {
+  --acc: var(--violet);
+  --acc2: var(--rose);
+}
+
+html[data-acc='amber'] {
+  --acc: var(--amber);
+  --acc2: var(--rose);
+}
+
+html[data-acc='rose'] {
+  --acc: var(--rose);
+  --acc2: var(--violet);
+}

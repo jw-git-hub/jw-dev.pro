@@ -10,13 +10,17 @@
  * Цвета заданы в CSS, а не презентационными атрибутами, чтобы знак
  * подхватывал смену акцента без единой строчки JS.
  */
+import type { Accent } from '../../data/accent';
+
 interface Props {
   /** Текст для скринридера. Без него знак считается декоративным. */
   label?: string;
   class?: string;
+  /** Повесить знак на фоновую сеть (§9) и покрасить его нити этим акцентом. */
+  anchor?: Accent;
 }
 
-const { label, class: className } = Astro.props;
+const { label, class: className, anchor } = Astro.props;
 const decorative = !label;
 ---
 
@@ -27,6 +31,8 @@ const decorative = !label;
   role={decorative ? undefined : 'img'}
   aria-label={label}
   aria-hidden={decorative ? 'true' : undefined}
+  data-nx={anchor ? '' : undefined}
+  data-nxc={anchor}
 >
   <g transform="translate(5,12.89) scale(0.6067)" stroke-linecap="round" stroke-linejoin="round">
     <path class="chevron" d="M2 29 L11 38.5 L2 48" stroke-width="7.4"></path>

@@ -1,0 +1,262 @@
+/**
+ * Фоновые слои страницы — DESIGN-GUIDE §1.
+ *
+ * Четыре фиксированные плоскости под контентом и зерно поверх всего.
+ * Все декоративные, у всех pointer-events: none — ни одна не участвует
+ * ни в чтении, ни в наведении.
+ *
+ *   #aurora      z0   шесть цветных пятен, каждое дрейфует своим циклом
+ *   #veil        z1   два градиента цвета фона: гасят пятна к низу страницы
+ *   #graph       z2   канвас живой сети (§9, src/scripts/graph.js)
+ *   #light       z2   свет за курсором, включается классом body.pt
+ *   body::after  z60  зерно поверх всей страницы, включая шапку и док
+ *
+ * Контент лежит выше плоскостей: section { z-index: 3 } в layout.css.
+ *
+ * Размытия у пятен нет, мягкость даёт сам радиальный градиент. filter: blur()
+ * на плоскости во весь экран пересчитывается каждый кадр и съедает бюджет,
+ * который нужен графу.
+ */
+
+.plane {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Пятна заходят далеко за края экрана, иначе их дуги видны как ровные линии. */
+#aurora {
+  inset: -14vmax;
+  overflow: hidden;
+}
+
+/**
+ * Пятно ауроры. Цвет и точка, где градиент окончательно гаснет, приходят
+ * из модификатора: сам рецепт заливки один на все шесть.
+ */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle,
+    var(--blob-color) 0%,
+    var(--blob-color) 12%,
+    color-mix(in srgb, var(--blob-color) 55%, transparent) 34%,
+    color-mix(in srgb, var(--blob-color) 20%, transparent) 56%,
+    transparent var(--blob-edge)
+  );
+  opacity: 0.44;
+  will-change: transform;
+}
+
+.b1 {
+  --blob-color: var(--indigo);
+  --blob-edge: 86%;
+
+  top: -8vh;
+  left: -8vw;
+  width: 44vw;
+  min-width: 420px;
+  height: 44vw;
+  min-height: 420px;
+  animation: drift-1 38s var(--e) infinite alternate;
+}
+
+.b2 {
+  --blob-color: var(--cyan);
+  --blob-edge: 84%;
+
+  top: 2vh;
+  right: -6vw;
+  width: 40vw;
+  min-width: 380px;
+  height: 40vw;
+  min-height: 380px;
+  animation: drift-2 32s var(--e) infinite alternate;
+}
+
+.b3 {
+  --blob-color: var(--violet);
+  --blob-edge: 86%;
+
+  top: 52vh;
+  left: 16vw;
+  width: 46vw;
+  min-width: 400px;
+  height: 46vw;
+  min-height: 400px;
+  animation: drift-3 44s var(--e) infinite alternate;
+}
+
+.b4 {
+  --blob-color: var(--amber);
+  --blob-edge: 82%;
+
+  top: 62vh;
+  right: 8vw;
+  width: 30vw;
+  min-width: 300px;
+  height: 30vw;
+  min-height: 300px;
+  opacity: 0.42;
+  animation: drift-4 41s var(--e) infinite alternate;
+}
+
+.b5 {
+  --blob-color: var(--rose);
+  --blob-edge: 84%;
+
+  top: 26vh;
+  left: 44vw;
+  width: 34vw;
+  min-width: 320px;
+  height: 34vw;
+  min-height: 320px;
+  opacity: 0.45;
+  animation: drift-5 36s var(--e) infinite alternate;
+}
+
+.b6 {
+  --blob-color: var(--cyan);
+  --blob-edge: 80%;
+
+  top: 24vh;
+  left: 6vw;
+  width: 26vw;
+  min-width: 260px;
+  height: 26vw;
+  min-height: 260px;
+  opacity: 0.34;
+  animation: drift-2 45s var(--e) infinite alternate-reverse;
+}
+
+/**
+ * Дрейф пятен, 32–45 с (§16). В гайде эти кейфреймы названы dr1…dr5.
+ * Живут здесь, а не в motion.css: кроме ауроры их никто не использует.
+ */
+@keyframes drift-1 {
+  to {
+    transform: translate3d(16vw, 14vh, 0) scale(1.22);
+  }
+}
+
+@keyframes drift-2 {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.1);
+  }
+
+  to {
+    transform: translate3d(-18vw, 20vh, 0) scale(0.86);
+  }
+}
+
+@keyframes drift-3 {
+  from {
+    transform: translate3d(0, 0, 0) scale(0.92);
+  }
+
+  to {
+    transform: translate3d(20vw, -18vh, 0) scale(1.18);
+  }
+}
+
+@keyframes drift-4 {
+  to {
+    transform: translate3d(-16vw, -12vh, 0) scale(1.3);
+  }
+}
+
+@keyframes drift-5 {
+  from {
+    transform: translate3d(0, 0, 0) scale(1.05);
+  }
+
+  to {
+    transform: translate3d(-14vw, 16vh, 0) scale(0.88);
+  }
+}
+
+/**
+ * Вуаль. Без неё пятна к низу страницы набирают яркость и текст на них
+ * не дотягивает до контраста: радиальный градиент гасит верх экрана
+ * мягко, линейный уводит низ в фон.
+ */
+#veil {
+  z-index: 1;
+  background:
+    radial-gradient(
+      120% 80% at 50% -10%,
+      transparent 0%,
+      color-mix(in srgb, var(--bg) 55%, transparent) 55%,
+      color-mix(in srgb, var(--bg) 86%, transparent) 100%
+    ),
+    linear-gradient(
+      180deg,
+      color-mix(in srgb, var(--bg) 30%, transparent) 0%,
+      color-mix(in srgb, var(--bg) 62%, transparent) 40%,
+      color-mix(in srgb, var(--bg) 78%, transparent) 100%
+    );
+}
+
+/**
+ * Канвас растягивается процентами, а не inset: 0. Он замещаемый элемент,
+ * и при width: auto его коробка остаётся размером с растр — правый и нижний
+ * упоры браузер просто игнорирует. Растр под плотность экрана задаёт graph.js.
+ */
+#graph {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 100%;
+  height: 100%;
+  opacity: 0.66;
+  pointer-events: none;
+}
+
+/**
+ * Свет за курсором. Смещение на половину размера — чтобы пятно
+ * центрировалось на курсоре: позицию двигает transform, а он считает
+ * от левого верхнего угла.
+ */
+#light {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 2;
+  width: 900px;
+  height: 900px;
+  margin: -450px 0 0 -450px;
+  background: radial-gradient(
+    circle,
+    color-mix(in srgb, var(--acc) 26%, transparent) 0%,
+    transparent 62%
+  );
+  opacity: 0;
+  mix-blend-mode: screen;
+  pointer-events: none;
+  transition: opacity 0.8s var(--e);
+  will-change: transform;
+}
+
+/* Класс вешает pointer.js, когда в окне появился настоящий курсор. */
+body.pt #light {
+  opacity: 0.5;
+}
+
+/**
+ * Зерно поверх всей страницы. Overlay, а не обычная заливка: шум обязан
+ * темнить светлое и светлить тёмное, иначе он выглядит грязью на панелях.
+ */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  background-image: var(--noise);
+  opacity: 0.045;
+  mix-blend-mode: overlay;
+  pointer-events: none;
+}

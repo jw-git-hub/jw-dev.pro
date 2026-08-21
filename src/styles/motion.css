@@ -7,8 +7,10 @@
  * spinner — в button.css, pulse — в pill.css.
  */
 
-/* Появление при скролле. Класс `in` вешает наблюдатель, ступенька — 70 мс на index%6. */
+/* Появление при скролле. Класс `in` вешает наблюдатель из reveal.js. */
 .rv {
+  --rv-step: 70ms;
+
   opacity: 0;
   transform: translateY(16px);
   transition:
@@ -21,7 +23,43 @@
   transform: none;
 }
 
-/* Предохранитель на 1200 мс. Показать всё нужно мгновенно: с переходом
+/**
+ * Ступенька: соседи въезжают не разом, а лесенкой по 70 мс, шестой начинает
+ * счёт заново. Позицию даёт :nth-child, а не запись transitionDelay из JS —
+ * это тот же индекс среди соседей, только считает его браузер.
+ */
+.rv:nth-child(6n + 2) {
+  transition-delay: calc(var(--rv-step) * 1);
+}
+
+.rv:nth-child(6n + 3) {
+  transition-delay: calc(var(--rv-step) * 2);
+}
+
+.rv:nth-child(6n + 4) {
+  transition-delay: calc(var(--rv-step) * 3);
+}
+
+.rv:nth-child(6n + 5) {
+  transition-delay: calc(var(--rv-step) * 4);
+}
+
+.rv:nth-child(6n) {
+  transition-delay: calc(var(--rv-step) * 5);
+}
+
+/**
+ * JS выключен — показывать блоки будет некому. Предохранитель reveal.js
+ * до этого случая не доживёт, поэтому его дублирует медиазапрос.
+ */
+@media (scripting: none) {
+  .rv {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Предохранитель reveal.js. Показать всё нужно мгновенно: с переходом
    блоки продолжали бы «доезжать» ещё 750 мс после срабатывания. */
 html.rvall .rv {
   opacity: 1 !important;
