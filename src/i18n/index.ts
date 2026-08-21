@@ -38,3 +38,16 @@ export function localizePath(pathname: string, target: Locale): string {
   const prefix = target === DEFAULT_LOCALE ? '' : `/${target}`;
   return `${prefix}/${rest}${rest ? '/' : ''}`;
 }
+
+/** Адрес главной для языка: «/» — английский, «/ru/» — русский. */
+export function homePath(locale: Locale): string {
+  return locale === DEFAULT_LOCALE ? '/' : `/${locale}/`;
+}
+
+/**
+ * Ссылка на секцию главной. Сайт многостраничный, поэтому «#work» в шапке
+ * внутренней страницы никуда не ведёт: нужен полный путь до главной.
+ */
+export function sectionPath(locale: Locale, id: string): string {
+  return `${homePath(locale)}#${id}`;
+}

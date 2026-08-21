@@ -1,0 +1,38 @@
+---
+/**
+ * Переключатель языка — две ссылки, а не JS-тумблер: он обязан работать
+ * с выключенным скриптом, открываться в новой вкладке и попадать в индекс
+ * как обычная ссылка на языковую версию.
+ *
+ * Текущий язык помечен aria-current: у ссылки нет состояния «нажата»,
+ * а aria-pressed из макета — свойство кнопки.
+ *
+ * `path` нужен там, где «та же страница на другом языке» не существует:
+ * на 404 переключатель ведёт на главную, а не на несуществующий адрес.
+ */
+import { LOCALES, localeFromUrl, localizePath, useTranslations } from '../../i18n';
+
+interface Props {
+  path?: string;
+}
+
+const { path = Astro.url.pathname } = Astro.props;
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<div class="lang" role="group" aria-label={t('a11y.langSwitch')}>
+  {
+    LOCALES.map((code) => (
+      <a
+        href={localizePath(path, code)}
+        hreflang={code}
+        lang={code}
+        aria-current={code === locale ? 'true' : undefined}
+      >
+        {code.toUpperCase()}
+      </a>
+    ))
+  }
+</div>

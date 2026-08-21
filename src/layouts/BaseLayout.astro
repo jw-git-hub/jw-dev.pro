@@ -1,16 +1,27 @@
 ---
 import { localeFromUrl, useTranslations, localizePath, LOCALES } from '../i18n';
+import Header from '../components/chrome/Header.astro';
 import '../styles/main.css';
 
+const SITE_NAME = 'jw-dev.pro';
+
 interface Props {
+  /** Заголовок страницы без имени сайта — оно добавляется здесь. */
   title?: string;
   description?: string;
+  /** Страницы вроде 404 не должны попадать в индекс. */
+  noindex?: boolean;
+  /** Куда ведёт переключатель языка, если «эта же страница» на другом языке не существует. */
+  langPath?: string;
 }
 
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 
-const { title = t('site.title'), description = t('site.description') } = Astro.props;
+const { title, description = t('site.description'), noindex = false, langPath } = Astro.props;
+
+// Главная называется собой целиком, внутренние — «Раздел — jw-dev.pro».
+const pageTitle = title ? `${title} — ${SITE_NAME}` : t('site.title');
 
 const canonical = new URL(Astro.url.pathname, Astro.site);
 
@@ -32,17 +43,28 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
     <meta name="color-scheme" content="dark" />
     <meta name="theme-color" content="#070912" />
 
-    <title>{title}</title>
+    <title>{pageTitle}</title>
     <meta name="description" content={description} />
+    {noindex && <meta name="robots" content="noindex" />}
 
-    <link rel="canonical" href={canonical.href} />
-    {alternates.map((a) => <link rel="alternate" hreflang={a.code} href={a.href} />)}
-    <link rel="alternate" hreflang="x-default" href={defaultHref} />
+    {
+      /* У страницы ошибки нет канонического адреса и языковых пар:
+         она не страница, а ответ сервера на несуществующий адрес. */
+      !noindex && (
+        <>
+          <link rel="canonical" href={canonical.href} />
+          {alternates.map((a) => (
+            <link rel="alternate" hreflang={a.code} href={a.href} />
+          ))}
+          <link rel="alternate" hreflang="x-default" href={defaultHref} />
+        </>
+      )
+    }
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
     <meta property="og:type" content="website" />
-    <meta property="og:title" content={title} />
+    <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical.href} />
     <meta property="og:locale" content={locale === 'ru' ? 'ru_RU' : 'en_US'} />
@@ -50,8 +72,16 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
 
   <body>
     <a class="skip" href="#main">{t('a11y.skip')}</a>
+
+    <Header langPath={langPath} />
+
     <main id="main">
       <slot />
     </main>
+
+    <script>
+      import '../scripts/header.js';
+      import '../scripts/nav.js';
+    </script>
   </body>
 </html>

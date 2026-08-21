@@ -1,8 +1,49 @@
 {
   "site.title": "jw-dev.pro — bots, websites, automation",
   "site.description": "Full-cycle developer. Telegram bots, websites, automation, AI pipelines. Architecture, code, tests, deploy — end to end.",
+
   "a11y.skip": "Skip to content",
   "a11y.langSwitch": "Language",
+  "a11y.home": "Home",
+  "a11y.nav": "Primary",
+  "a11y.navMobile": "Sections",
+  "a11y.menu": "Menu",
+  "a11y.dock": "Quick actions",
+
+  "nav.work": "Work",
+  "nav.services": "Services",
+  "nav.stack": "Stack",
+  "nav.process": "Process",
+  "nav.about": "About",
+  "nav.contact": "Contact",
+
+  "cta.header": "Discuss a project",
+
+  "cta.bot": "Live bot",
+  "cta.botTip": "Live bot — open it and press a button",
+  "dock.now": "Now reading",
+  "dock.intro": "Intro",
+  "dock.work": "See the work",
+  "dock.msg": "Message",
+
+  "footer.note": "Built without frameworks or third-party libraries.",
+  "footer.privacy": "Privacy",
+  "footer.telegram": "Telegram",
+  "footer.github": "GitHub",
+  "footer.email": "Email",
+
+  "log.title": "Journal",
+  "log.lead": "Cases, notes and updates in one feed.",
+  "log.empty": "No entries yet — the feed fills up along with the cases.",
+
+  "privacy.title": "Privacy policy",
+  "privacy.lead": "What the form collects and what happens to it.",
+  "privacy.empty": "The text lands here together with the contact form.",
+
+  "e404.title": "Page not found",
+  "e404.lead": "No such address, or the entry has moved.",
+  "e404.cta": "Go home",
+
   "stub.title": "Site under construction",
   "stub.text": "The portfolio lands here soon. Meanwhile the code is on GitHub."
 }

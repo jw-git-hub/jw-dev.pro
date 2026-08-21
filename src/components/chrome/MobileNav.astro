@@ -1,0 +1,43 @@
+---
+/**
+ * Шторка разделов на узких экранах. Лежит внутри <details> в шапке:
+ * так меню открывается и закрывается без единой строчки JS — бургер остаётся
+ * на виду и работает как переключатель. Скрипт добавляет сверху Esc,
+ * блокировку прокрутки и inert для остальной страницы.
+ *
+ * Переключателя языка здесь нет: шапка со своим остаётся на виду над шторкой,
+ * а два одинаковых контрола на экране — это вопрос «в чём разница», а не забота.
+ *
+ * Номера 01…06 — часть визуального языка (§13), поэтому в разметке, а не
+ * в CSS-счётчике: скринридер их не читает, они помечены aria-hidden.
+ */
+import { NAV_ITEMS } from '../../data/nav';
+import { localeFromUrl, useTranslations, sectionPath } from '../../i18n';
+import Icon from './Icon.astro';
+
+const BOT_URL = 'https://t.me/jw_social_Downloader_bot';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<div class="mnav" id="mnav">
+  <nav class="mnav-links wrap" aria-label={t('a11y.navMobile')}>
+    {
+      NAV_ITEMS.map((item, index) => (
+        <a href={sectionPath(locale, item.id)}>
+          <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
+          {t(item.key)}
+        </a>
+      ))
+    }
+  </nav>
+
+  <div class="mnav-foot wrap">
+    <a class="btn p" href={sectionPath(locale, 'contact')}>{t('cta.header')}</a>
+    <a class="btn s" href={BOT_URL} target="_blank" rel="noopener">
+      <Icon name="tg" />
+      {t('cta.bot')}
+    </a>
+  </div>
+</div>

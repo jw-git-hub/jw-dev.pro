@@ -10,7 +10,13 @@ import sitemap from '@astrojs/sitemap';
  *    стили прямо в <style> в разметке. Это нарушает правило проекта «ноль
  *    инлайна» и ломает строгий CSP без unsafe-inline.
  *
- * 2. `compressHTML: true` — в Astro 7 по умолчанию 'jsx', где пробел между
+ * 2. `vite.build.assetsInlineLimit: 0` — Astro вшивает маленькие модули прямо
+ *    в <script> в разметке, ровно как и мелкие стили. Ноль отключает порог:
+ *    и скрипты, и ассеты остаются отдельными файлами с хешем. Значение живёт
+ *    именно в `vite`, ключа `build.assetsInlineLimit` у Astro нет — в конфиге
+ *    он молча игнорируется, и скрипт как вшивался, так и вшивается.
+ *
+ * 3. `compressHTML: true` — в Astro 7 по умолчанию 'jsx', где пробел между
  *    строчными элементами съедается по правилам JSX. Нам нужны правила HTML,
  *    иначе «<span>раз</span> <em>два</em>» отрисуется как «разадва».
  */
@@ -32,6 +38,12 @@ export default defineConfig({
     format: 'directory',
     assets: '_astro',
     inlineStylesheets: 'never',
+  },
+
+  vite: {
+    build: {
+      assetsInlineLimit: 0,
+    },
   },
 
   integrations: [
