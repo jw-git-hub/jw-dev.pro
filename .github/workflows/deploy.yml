@@ -1,0 +1,58 @@
+name: Деплой
+
+# Пока сервера нет, выкат запускается руками. Как только появятся секреты
+# DEPLOY_HOST / DEPLOY_USER / DEPLOY_SSH_KEY, сюда добавляется триггер
+#   push:
+#     branches: [main]
+# и выкат начинает происходить сам после зелёных ворот.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Выкат на сервер
+    runs-on: ubuntu-latest
+    environment: production
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: actions/setup-node@v6
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - run: npm ci
+
+      # Деплой без прохождения ворот невозможен: те же проверки, что в ci.yml.
+      - run: npm run lint
+      - run: npm run build
+      - run: npm run check
+
+      - name: Ключ доступа
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.DEPLOY_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          ssh-keyscan -H "${{ secrets.DEPLOY_HOST }}" >> ~/.ssh/known_hosts
+
+      # --delete убирает со стенда файлы, которых больше нет в сборке,
+      # иначе старые страницы остаются доступными по своим адресам.
+      - name: Заливка статики
+        run: |
+          rsync -az --delete \
+            -e "ssh -i ~/.ssh/id_ed25519" \
+            dist/ \
+            "${{ secrets.DEPLOY_USER }}@${{ secrets.DEPLOY_HOST }}:/srv/jw-dev.pro/dist/"
+
+      - name: Проверка, что стенд отвечает
+        run: |
+          code=$(curl -s -o /dev/null -w '%{http_code}' --max-time 15 "https://jw-dev.pro/" || echo 000)
+          echo "Ответ прода: $code"
+          test "$code" = "200"

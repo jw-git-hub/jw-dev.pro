@@ -1,0 +1,48 @@
+{
+  "name": "jw-dev-pro",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "jw-dev.pro — сайт-визитка разработчика",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "sync": "astro sync",
+    "lint": "npm run lint:js && npm run lint:css && npm run lint:format",
+    "lint:js": "eslint .",
+    "lint:css": "stylelint \"src/**/*.css\"",
+    "lint:format": "prettier --check .",
+    "format": "prettier --write .",
+    "check": "npm run check:astro && npm run check:content && npm run check:i18n && npm run check:inline && npm run check:html && npm run check:links && npm run check:budget",
+    "check:astro": "astro check",
+    "check:content": "node tests/check-content.mjs",
+    "check:i18n": "node tests/check-i18n.mjs",
+    "check:inline": "node tests/check-inline.mjs",
+    "check:html": "html-validate \"dist/**/*.html\"",
+    "check:links": "node tests/check-links.mjs",
+    "check:budget": "node tests/check-budget.mjs"
+  },
+  "dependencies": {
+    "@astrojs/rss": "^4.0.19",
+    "@astrojs/sitemap": "^3.7.3",
+    "astro": "^7.2.4",
+    "sharp": "^0.35.3"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.9.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "globals": "^17.11.0",
+    "html-validate": "^11.9.0",
+    "prettier": "^3.9.6",
+    "prettier-plugin-astro": "^0.14.1",
+    "stylelint": "^17.14.1",
+    "stylelint-config-standard": "^40.0.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.67.0"
+  }
+}

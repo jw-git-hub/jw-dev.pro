@@ -1,0 +1,40 @@
+---
+/**
+ * Фирменный знак «>jw_» — единственная марка сайта, словесной нет.
+ *
+ * Правило цвета из DESIGN-GUIDE §13: шеврон «>» и курсор «_» красятся
+ * текущим акцентом секции и меняются вместе с ним, буквы «jw» всегда
+ * остаются цветом --ink. Мигание курсора обязано быть steps(1, end):
+ * плавное затухание не читается как терминал.
+ *
+ * Цвета заданы в CSS, а не презентационными атрибутами, чтобы знак
+ * подхватывал смену акцента без единой строчки JS.
+ */
+interface Props {
+  /** Текст для скринридера. Без него знак считается декоративным. */
+  label?: string;
+  class?: string;
+}
+
+const { label, class: className } = Astro.props;
+const decorative = !label;
+---
+
+<svg
+  class:list={['mark', className]}
+  viewBox="0 0 64 64"
+  fill="none"
+  role={decorative ? undefined : 'img'}
+  aria-label={label}
+  aria-hidden={decorative ? 'true' : undefined}
+>
+  <g transform="translate(5,12.89) scale(0.6067)" stroke-linecap="round" stroke-linejoin="round">
+    <path class="chevron" d="M2 29 L11 38.5 L2 48" stroke-width="7.4"></path>
+    <g class="letters" transform="translate(19,0)" stroke-width="8.9">
+      <path d="M12 25 V39 C12 44.6 8.4 48.5 3.4 48.5"></path>
+      <path d="M12 14.5 h.01"></path>
+      <path d="M18.5 25 L24 48.5 L31 31 L38 48.5 L43.5 25"></path>
+    </g>
+    <rect class="caret" x="74" y="45.5" width="15" height="4.6" rx="1.4"></rect>
+  </g>
+</svg>

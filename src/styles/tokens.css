@@ -1,0 +1,66 @@
+/**
+ * Токены дизайн-системы. Источник — docs/DESIGN-GUIDE.md §1.
+ * Значения менять только по прямой просьбе владельца.
+ *
+ * --acc и --acc2 регистрируются через @property, чтобы их можно было
+ * анимировать при смене акцента секции (§2). Без регистрации переход
+ * цвета не анимируется — браузер считает переменную обычной строкой.
+ */
+@property --acc {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #22d3ee;
+}
+
+@property --acc2 {
+  syntax: '<color>';
+  inherits: true;
+  initial-value: #a855f7;
+}
+
+:root {
+  /* фон и панели */
+  --bg: #070912;
+  --bg2: #05060d;
+  --panel: #0d1120;
+  --panel2: #0a0e1b;
+
+  /* текст: --ink2 — минимум для абзацев, --ink3 только для моно-подписей */
+  --ink: #f0f4fa;
+  --ink2: rgb(240 244 250 / 72%);
+  --ink3: rgb(240 244 250 / 56%);
+
+  /* палитра акцентов: пять цветов, по одному на группу секций */
+  --indigo: #4f46e5;
+  --cyan: #22d3ee;
+  --violet: #a855f7;
+  --amber: #ffb020;
+  --rose: #ff4d9e;
+
+  /* текущий акцент секции */
+  --acc: #22d3ee;
+  --acc2: #a855f7;
+
+  /* служебные, вне палитры */
+  --mint: #34d399;
+  --slate: #94a3b8;
+  --on-light: #05070e;
+
+  /* линии */
+  --line: rgb(255 255 255 / 9%);
+  --line2: rgb(255 255 255 / 5.5%);
+
+  /* геометрия и движение */
+  --r: 22px;
+  --r2: 16px;
+  --e: cubic-bezier(0.16, 1, 0.3, 1);
+  --hdr: 70px;
+
+  /* шрифты: только системные, фирменность даёт плотный трекинг */
+  --ff: -apple-system, blinkmacsystemfont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  --fm: ui-monospace, 'SF Mono', sfmono-regular, menlo, monospace;
+
+  transition:
+    --acc 0.9s var(--e),
+    --acc2 0.9s var(--e);
+}

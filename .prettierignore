@@ -1,0 +1,9 @@
+dist/
+.astro/
+node_modules/
+package-lock.json
+
+# Исходные материалы владельца — переносятся как есть, форматированию не подлежат.
+docs/13-final.html
+docs/DESIGN-GUIDE.md
+docs/CONTENT-CASES.md
