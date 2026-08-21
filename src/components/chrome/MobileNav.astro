@@ -12,10 +12,9 @@
  * в CSS-счётчике: скринридер их не читает, они помечены aria-hidden.
  */
 import { NAV_ITEMS } from '../../data/nav';
+import { SITE } from '../../data/site';
 import { localeFromUrl, useTranslations, sectionPath } from '../../i18n';
 import Icon from './Icon.astro';
-
-const BOT_URL = 'https://t.me/jw_social_Downloader_bot';
 
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
@@ -35,7 +34,7 @@ const t = useTranslations(locale);
 
   <div class="mnav-foot wrap">
     <a class="btn p" href={sectionPath(locale, 'contact')}>{t('cta.header')}</a>
-    <a class="btn s" href={BOT_URL} target="_blank" rel="noopener">
+    <a class="btn s" href={SITE.bot} target="_blank" rel="noopener">
       <Icon name="tg" />
       {t('cta.bot')}
     </a>

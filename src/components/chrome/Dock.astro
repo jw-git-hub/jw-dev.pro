@@ -1,0 +1,52 @@
+---
+/**
+ * Нижний док — DESIGN-GUIDE §14. Не дублирует шапку: шапка это переходы
+ * по разделам, док — действия. Слева направо: кольцо прогресса чтения,
+ * контекстное действие, живой бот, «написать».
+ *
+ * Без JS док не показывается: он весь про прогресс прокрутки, а его действия
+ * повторяют ссылки шапки и подвала. Поэтому в состоянии покоя он ещё и
+ * visibility: hidden — невидимый, но фокусируемый элемент это ловушка
+ * для клавиатуры.
+ */
+import { SITE } from '../../data/site';
+import { localeFromUrl, useTranslations, sectionPath } from '../../i18n';
+import Icon from './Icon.astro';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<aside class="dock g blur" id="dock" aria-label={t('a11y.dock')}>
+  <span class="dock-p" aria-hidden="true">
+    <svg viewBox="0 0 34 34">
+      <circle class="bgc" cx="17" cy="17" r="14"></circle>
+      <circle class="fg" id="dock-arc" cx="17" cy="17" r="14"></circle>
+    </svg>
+    <b id="dock-pct">0%</b>
+  </span>
+
+  <span class="dock-lb">
+    <em>{t('dock.now')}</em>
+    <strong id="dock-sec">{t('dock.intro')}</strong>
+  </span>
+
+  <span class="dock-acts">
+    <a class="btn s dock-ctx" id="dock-ctx" href={sectionPath(locale, 'work')}>
+      <Icon name="arr" size={15} />
+      <span class="dock-lbl">{t('dock.work')}</span>
+    </a>
+
+    <span class="tip">
+      <a class="btn s ico" href={SITE.bot} target="_blank" rel="noopener" aria-label={t('cta.bot')}>
+        <Icon name="tg" />
+      </a>
+      <span class="tipb">{t('cta.botTip')}</span>
+    </span>
+
+    <a class="btn p" href={sectionPath(locale, 'contact')}>
+      <Icon name="mail" size={15} />
+      <span class="dock-lbl">{t('dock.msg')}</span>
+    </a>
+  </span>
+</aside>

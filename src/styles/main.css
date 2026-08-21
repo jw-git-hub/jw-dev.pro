@@ -17,5 +17,7 @@
 @import './components/header.css';
 @import './components/lang.css';
 @import './components/mnav.css';
+@import './components/dock.css';
+@import './components/footer.css';
 @import './components/mark.css';
 @import './components/stub.css';
