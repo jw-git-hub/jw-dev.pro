@@ -1,9 +1,11 @@
 ---
 import { localeFromUrl, useTranslations, localizePath, LOCALES } from '../i18n';
+import Backdrop from '../components/chrome/Backdrop.astro';
 import Header from '../components/chrome/Header.astro';
 import Footer from '../components/chrome/Footer.astro';
 import Dock from '../components/chrome/Dock.astro';
 import { SITE } from '../data/site';
+import type { Accent } from '../data/accent';
 import '../styles/main.css';
 
 interface Props {
@@ -14,12 +16,24 @@ interface Props {
   noindex?: boolean;
   /** Куда ведёт переключатель языка, если «эта же страница» на другом языке не существует. */
   langPath?: string;
+  /**
+   * Акцент страницы до первой прокрутки. На главной его дальше ведёт accent.js
+   * по секциям, на внутренних он остаётся один. Задан в разметке, а не в скрипте,
+   * чтобы страница открывалась в своём цвете и без JS.
+   */
+  accent?: Accent;
 }
 
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 
-const { title, description = t('site.description'), noindex = false, langPath } = Astro.props;
+const {
+  title,
+  description = t('site.description'),
+  noindex = false,
+  langPath,
+  accent = 'cyan',
+} = Astro.props;
 
 // Главная называется собой целиком, внутренние — «Раздел — jw-dev.pro».
 const pageTitle = title ? `${title} — ${SITE.name}` : t('site.title');
@@ -37,7 +51,7 @@ const alternates = LOCALES.map((code) => ({
 const defaultHref = alternates.find((a) => a.code === 'en')!.href;
 ---
 
-<html lang={locale}>
+<html lang={locale} data-acc={accent}>
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
@@ -74,6 +88,8 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
   <body>
     <a class="skip" href="#main">{t('a11y.skip')}</a>
 
+    <Backdrop />
+
     <Header langPath={langPath} />
 
     <main id="main">
@@ -87,6 +103,10 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
       import '../scripts/header.js';
       import '../scripts/nav.js';
       import '../scripts/dock.js';
+      import '../scripts/reveal.js';
+      import '../scripts/graph.js';
+      import '../scripts/pointer.js';
+      import '../scripts/accent.js';
     </script>
   </body>
 </html>

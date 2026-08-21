@@ -15,9 +15,11 @@ const { title, lead, note } = Astro.props;
 
 <section class="page-head">
   <div class="wrap">
-    <h1>{title}</h1>
-    {lead && <p class="lead">{lead}</p>}
-    {note && <p class="page-note mono">{note}</p>}
+    <div class="sec-head rv" data-damp>
+      <h1>{title}</h1>
+      {lead && <p class="lead">{lead}</p>}
+      {note && <p class="page-note mono">{note}</p>}
+    </div>
     <slot />
   </div>
 </section>
