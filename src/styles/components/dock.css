@@ -1,0 +1,194 @@
+/**
+ * Нижний док — DESIGN-GUIDE §14.
+ *
+ * В покое он не просто прозрачный, а visibility: hidden. Прозрачный элемент
+ * остаётся в порядке обхода: клавиатура улетала бы в невидимые кнопки.
+ * Переход visibility работает как надо в обе стороны — при появлении элемент
+ * виден сразу, при уходе досматривает свою анимацию.
+ */
+
+.dock {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  z-index: 48;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: calc(100vw - 24px);
+  padding: 9px 10px 9px 16px;
+  border-radius: 999px;
+  transform: translate(-50%, 140%);
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    transform 0.7s var(--e),
+    opacity 0.5s var(--e),
+    visibility 0.5s;
+}
+
+.dock.on {
+  transform: translate(-50%, 0);
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Уехал вниз при прокрутке вперёд — не мешает читать. */
+.dock.on.hid {
+  transform: translate(-50%, 150%);
+  visibility: hidden;
+  opacity: 0;
+}
+
+.dock-p {
+  position: relative;
+  flex: none;
+  width: 34px;
+  height: 34px;
+}
+
+/* Кольцо стартует сверху: без поворота прогресс шёл бы от трёх часов. */
+.dock-p svg {
+  width: 34px;
+  height: 34px;
+  transform: rotate(-90deg);
+}
+
+.dock-p circle {
+  fill: none;
+  stroke-width: 2.6;
+}
+
+.dock-p .bgc {
+  stroke: rgb(255 255 255 / 12%);
+}
+
+.dock-p .fg {
+  stroke: var(--acc);
+  stroke-dasharray: 88;
+  stroke-dashoffset: 88;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.25s linear;
+}
+
+.dock-p b {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: var(--ink2);
+  font-family: var(--fm);
+  font-size: 9px;
+}
+
+.dock-lb {
+  display: flex;
+  flex-direction: column;
+  min-width: 112px;
+  margin-right: 2px;
+  padding-right: 6px;
+  border-right: 1px solid rgb(255 255 255 / 10%);
+  line-height: 1.25;
+}
+
+.dock-lb em {
+  color: var(--ink3);
+  font-family: var(--fm);
+  font-size: 9px;
+  font-style: normal;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.dock-lb strong {
+  overflow: hidden;
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.dock-acts {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.dock .btn {
+  padding: 9px 16px;
+  font-size: 12.8px;
+}
+
+.dock .btn.ico {
+  width: 36px;
+  height: 36px;
+  padding: 0;
+}
+
+.dock-ctx svg {
+  transition: transform 0.45s var(--e);
+}
+
+.dock-ctx:hover svg {
+  transform: translateX(2px);
+}
+
+.dock .tip {
+  align-items: center;
+}
+
+/* Подсказка живого бота: только ховер и фокус, без задержек и таймеров. */
+.tip {
+  position: relative;
+  display: inline-flex;
+}
+
+.tip .tipb {
+  position: absolute;
+  bottom: calc(100% + 9px);
+  left: 50%;
+  padding: 6px 11px;
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 9px;
+  background: #151a2c;
+  box-shadow: 0 16px 34px -20px rgb(0 0 0 / 100%);
+  color: var(--ink);
+  font-size: 11.5px;
+  white-space: nowrap;
+  transform: translate(-50%, 6px);
+  opacity: 0;
+  transition: 0.35s var(--e);
+  pointer-events: none;
+}
+
+.tip:hover .tipb,
+.tip:focus-within .tipb {
+  transform: translate(-50%, 0);
+  opacity: 1;
+}
+
+/* На узком экране остаются кольцо и круглые кнопки: подписи не помещаются. */
+@media (max-width: 640px) {
+  .dock {
+    bottom: 44px;
+    gap: 8px;
+    padding: 8px 9px 8px 12px;
+  }
+
+  .dock-lb,
+  .dock-lbl {
+    display: none;
+  }
+
+  .dock .btn {
+    width: 38px;
+    height: 38px;
+    padding: 0;
+  }
+
+  .dock .btn svg {
+    width: 17px;
+    height: 17px;
+  }
+}

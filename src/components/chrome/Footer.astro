@@ -1,0 +1,31 @@
+---
+/**
+ * Подвал. Контактов здесь ровно столько, сколько существует: GitHub открыт
+ * и проверяем, почты и Telegram-хендла пока нет (см. src/data/site.ts).
+ */
+import { SITE, BUILD_YEAR } from '../../data/site';
+import { localeFromUrl, useTranslations, localizePath } from '../../i18n';
+import Icon from './Icon.astro';
+import Mark from './Mark.astro';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<footer>
+  <div class="wrap foot">
+    <div class="foot-l">
+      <Mark class="mark-sm" />
+      <span>© {BUILD_YEAR} {SITE.name}</span>
+    </div>
+
+    <span>{t('footer.note')}</span>
+
+    <div class="foot-l">
+      <a href={localizePath('/privacy/', locale)}>{t('footer.privacy')}</a>
+      <a href={SITE.github} target="_blank" rel="noopener" aria-label={t('footer.github')}>
+        <Icon name="gh" size={17} />
+      </a>
+    </div>
+  </div>
+</footer>

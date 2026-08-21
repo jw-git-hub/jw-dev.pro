@@ -35,3 +35,9 @@
     opacity: 0;
   }
 }
+
+/* Знак в подвале — 24px (§13). */
+.mark-sm {
+  width: 24px;
+  height: 24px;
+}

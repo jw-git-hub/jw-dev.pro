@@ -1,0 +1,37 @@
+/**
+ * Подвал. Нижний отступ большой намеренно: там плавает док, и без запаса
+ * он накрывает последнюю строку.
+ */
+
+footer {
+  position: relative;
+  z-index: 3;
+  padding: 30px 0 96px;
+  border-top: 1px solid var(--line2);
+}
+
+.foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  color: var(--ink3);
+  font-size: 13px;
+}
+
+.foot-l {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+}
+
+.foot a:hover {
+  color: var(--ink);
+}
+
+@media (max-width: 420px) {
+  .foot {
+    font-size: 12px;
+  }
+}
