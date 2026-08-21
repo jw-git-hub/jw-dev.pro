@@ -1,0 +1,60 @@
+---
+import { localeFromUrl, useTranslations, localizePath, LOCALES } from '../i18n';
+import '../styles/tokens.css';
+import '../styles/base.css';
+import '../styles/components/mark.css';
+import '../styles/components/stub.css';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const { title = t('site.title'), description = t('site.description') } = Astro.props;
+
+const canonical = new URL(Astro.url.pathname, Astro.site);
+
+/**
+ * hreflang для обоих языков плюс x-default на английский.
+ * Без этого поиск считает RU- и EN-версии дублями и выбирает одну сам.
+ */
+const alternates = LOCALES.map((code) => ({
+  code,
+  href: new URL(localizePath(Astro.url.pathname, code), Astro.site).href,
+}));
+const defaultHref = alternates.find((a) => a.code === 'en')!.href;
+---
+
+<html lang={locale}>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <meta name="color-scheme" content="dark" />
+    <meta name="theme-color" content="#070912" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+
+    <link rel="canonical" href={canonical.href} />
+    {alternates.map((a) => <link rel="alternate" hreflang={a.code} href={a.href} />)}
+    <link rel="alternate" hreflang="x-default" href={defaultHref} />
+
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical.href} />
+    <meta property="og:locale" content={locale === 'ru' ? 'ru_RU' : 'en_US'} />
+  </head>
+
+  <body>
+    <a class="skip" href="#main">{t('a11y.skip')}</a>
+    <main id="main">
+      <slot />
+    </main>
+  </body>
+</html>
