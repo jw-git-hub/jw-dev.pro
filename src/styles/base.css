@@ -1,22 +1,20 @@
-/* Базовый слой: сброс, типографика документа, пол доступности. */
-
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-}
-
-* {
-  margin: 0;
-}
-
-html {
-  color-scheme: dark;
-  scroll-behavior: smooth;
-}
+/**
+ * Документ, глобальная типографика (DESIGN-GUIDE §3) и пол доступности (§18).
+ *
+ * Здесь только роли, общие для всех страниц. Типографика внутри компонентов
+ * (`.hero-sub`, `.case-ttl`, `.stat .v`, шаг процесса, пункты мобильного меню)
+ * живёт в файлах этих компонентов — иначе base.css превратится в свалку.
+ *
+ * Фирменного шрифта в проекте нет: ощущение даёт плотный отрицательный трекинг,
+ * поэтому letter-spacing здесь — часть дизайна, а не вкусовщина.
+ */
 
 body {
   min-height: 100svh;
+
+  /* Пятна ауроры и сцена героя выходят за правый край: без этого на узких
+     экранах появляется горизонтальный скролл в пустоту. */
+  overflow-x: hidden;
   background: var(--bg);
   color: var(--ink);
   font-family: var(--ff);
@@ -26,24 +24,87 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
-img,
-picture,
-svg,
-video {
-  display: block;
-  max-width: 100%;
+::selection {
+  background: color-mix(in srgb, var(--acc) 40%, transparent);
+  color: #fff;
 }
 
-input,
-button,
-textarea,
-select {
-  font: inherit;
-  color: inherit;
+h1 {
+  font-size: clamp(2.3rem, 4.6vw, 4.4rem);
+  font-weight: 700;
+  line-height: 1.02;
+  letter-spacing: -0.042em;
+  text-wrap: balance;
 }
 
-a {
-  color: inherit;
+/* Переливается одно слово, а не весь заголовок: в i18n H1 разрезан на три ключа. */
+h1 .grad {
+  padding-right: 0.04em;
+  background: linear-gradient(
+    96deg,
+    var(--cyan) 0%,
+    var(--violet) 22%,
+    var(--rose) 42%,
+    var(--amber) 62%,
+    var(--indigo) 82%,
+    var(--cyan) 100%
+  );
+  -webkit-background-clip: text;
+  background-clip: text;
+  background-size: 340% 100%;
+  color: transparent;
+  animation: gradient-slide 7.5s linear infinite;
+}
+
+h2 {
+  font-size: clamp(1.95rem, 4.2vw, 3.35rem);
+  font-weight: 680;
+  line-height: 1.03;
+  letter-spacing: -0.038em;
+}
+
+h3 {
+  font-size: 1.14rem;
+  font-weight: 640;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+}
+
+/* Подзаголовок секции. Ширина в ch, а не в px: строка держит 60 знаков на любом кегле. */
+.lead {
+  max-width: 60ch;
+  margin-top: 14px;
+  color: var(--ink2);
+  font-size: clamp(1rem, 1.15vw, 1.09rem);
+}
+
+/* Моно-подпись. Цвет --ink3 разрешён только здесь: для абзацев он слишком тусклый. */
+.mono {
+  color: var(--ink3);
+  font-family: var(--fm);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+/* Надзаголовок секции: черта 22px, уходящая в текущий акцент. */
+.kick {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-bottom: 16px;
+  color: var(--acc);
+  font-family: var(--fm);
+  font-size: 11px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.kick::before {
+  content: '';
+  width: 22px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--acc));
 }
 
 :focus-visible {
@@ -68,25 +129,16 @@ a {
   position: fixed;
   top: -60px;
   left: 12px;
-  z-index: 100;
+  z-index: 99;
   padding: 10px 18px;
-  border: 1px solid var(--line);
   border-radius: 999px;
-  background: var(--panel);
-  text-decoration: none;
+  background: var(--acc);
+  color: var(--on-light);
+  font-size: 13px;
+  font-weight: 700;
   transition: top 0.3s var(--e);
 }
 
-.skip:focus-visible {
+.skip:focus {
   top: 12px;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
-    animation: none !important;
-  }
 }

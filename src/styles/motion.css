@@ -1,0 +1,86 @@
+/**
+ * Общее движение: появление блоков, разделяемые кейфреймы и полное выключение
+ * анимаций при prefers-reduced-motion (DESIGN-GUIDE §16, §18).
+ *
+ * Кейфрейм живёт здесь, только если его использует больше одного компонента.
+ * Одиночные лежат рядом со своим компонентом: mark-blink — в mark.css,
+ * spinner — в button.css, pulse — в pill.css.
+ */
+
+/* Появление при скролле. Класс `in` вешает наблюдатель, ступенька — 70 мс на index%6. */
+.rv {
+  opacity: 0;
+  transform: translateY(16px);
+  transition:
+    opacity 0.75s var(--e),
+    transform 0.75s var(--e);
+}
+
+.rv.in {
+  opacity: 1;
+  transform: none;
+}
+
+/* Предохранитель на 1200 мс. Показать всё нужно мгновенно: с переходом
+   блоки продолжали бы «доезжать» ещё 750 мс после срабатывания. */
+html.rvall .rv {
+  opacity: 1 !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Бег градиента: переливающееся слово в H1, рамка .irid, кнопка .btn.trav. */
+@keyframes gradient-slide {
+  to {
+    background-position: 320% 0;
+  }
+}
+
+/**
+ * Выключение движения. Блок из DESIGN-GUIDE §18 целиком: селекторы фазовых
+ * компонентов (#graph, .win, .marq-in, .acc-*) оставлены намеренно — иначе
+ * при добавлении компонента про его reduced-motion легко забыть.
+ */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation: none !important;
+  }
+
+  .rv {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  /* Канвас графа и свет за курсором смысла без движения не имеют. */
+  #graph,
+  #light {
+    display: none;
+  }
+
+  .marq-in {
+    transform: none;
+  }
+
+  .win,
+  .stage-in,
+  .plane {
+    transform: none !important;
+  }
+
+  /* Аккордеон обязан открываться и закрываться — просто без анимации высоты. */
+  .acc-a {
+    max-height: none;
+  }
+
+  .acc-i:not(.open) .acc-a {
+    max-height: 0;
+  }
+
+  .acc-i.open .acc-a {
+    max-height: 400px;
+  }
+}

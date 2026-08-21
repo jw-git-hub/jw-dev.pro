@@ -1,0 +1,67 @@
+/**
+ * Каркас страницы: контейнер, ритм секций, шапка секции, разделитель
+ * и утилиты, которые в макете были инлайн-стилями.
+ *
+ * Брейкпоинты проекта (DESIGN-GUIDE §17) — других значений в CSS быть не должно,
+ * это стережёт tests/check-css.mjs:
+ *
+ *   1180  окна и HUD героя ужимаются
+ *   1020  десктопная нав уходит в бургер, многоколоночные блоки схлопываются
+ *    900  герой в одну колонку, процесс — вертикальная рельса, кольцо стека выключается
+ *    680  кейсы и набор в одну колонку, журнал переносится
+ *    640  док сжимается до кольца и главной кнопки
+ *    420  кнопки героя во всю ширину, статистика в одну колонку
+ *
+ * Поддержка от 390px до 1920px; выше контент упирается в max-width контейнера.
+ */
+
+.wrap {
+  width: 100%;
+  max-width: 1260px;
+  margin: 0 auto;
+  padding: 0 clamp(18px, 4vw, 42px);
+}
+
+/* z-index: 3 — над тремя фиксированными фоновыми слоями (аврора, вуаль, граф). */
+section {
+  position: relative;
+  z-index: 3;
+  padding: clamp(76px, 9.5vw, 148px) 0;
+  scroll-margin-top: 88px;
+}
+
+/* Секция вплотную к предыдущей: статистика читается как продолжение героя. */
+.sec-flush {
+  padding-top: 0;
+}
+
+.sec-head {
+  max-width: 820px;
+  margin-bottom: clamp(34px, 4vw, 58px);
+}
+
+/* Заголовок и действие в одну строку: «Кейсы» + фильтры, «Журнал» + все записи. */
+.sec-head.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  max-width: none;
+  gap: 28px;
+}
+
+/* Разделитель: гаснет к краям, поэтому не режет страницу пополам. */
+.hr {
+  height: 1px;
+  margin: 0;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
+.center {
+  margin-inline: auto;
+  text-align: center;
+}
+
+.mx-auto {
+  margin-inline: auto;
+}

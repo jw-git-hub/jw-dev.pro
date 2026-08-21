@@ -1,0 +1,18 @@
+/**
+ * Единственная точка входа стилей: подключается один раз в BaseLayout.
+ * Порядок здесь — это порядок каскада, поэтому файлы перечислены сверху вниз
+ * от общего к частному. Vite склеивает импорты в один файл на сборке,
+ * так что лишних запросов не появляется.
+ */
+
+@import './tokens.css';
+@import './tone.css';
+@import './reset.css';
+@import './base.css';
+@import './layout.css';
+@import './motion.css';
+@import './components/glass.css';
+@import './components/button.css';
+@import './components/pill.css';
+@import './components/mark.css';
+@import './components/stub.css';

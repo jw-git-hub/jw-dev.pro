@@ -1,0 +1,52 @@
+/**
+ * Сброс браузерных умолчаний. Ничего фирменного здесь нет — только то,
+ * без чего дальше пришлось бы бороться с чужими значениями.
+ * Оформление документа и типографика — в base.css.
+ */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  margin: 0;
+}
+
+html {
+  color-scheme: dark;
+
+  /* Якоря должны доезжать плавно и без JS; при reduced-motion выключается. */
+  scroll-behavior: smooth;
+
+  /* iOS в альбомной ориентации иначе сам увеличивает шрифт. */
+  -webkit-text-size-adjust: 100%;
+}
+
+ul,
+ol {
+  padding: 0;
+  list-style: none;
+}
+
+img,
+picture,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+input,
+button,
+textarea,
+select {
+  font: inherit;
+  color: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
