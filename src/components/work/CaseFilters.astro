@@ -1,0 +1,38 @@
+---
+/**
+ * Фильтры сетки кейсов — DESIGN-GUIDE §8, счётчик живой.
+ *
+ * Группа скрыта атрибутом `hidden`, снимает его скрипт. Причина в правиле 6:
+ * без JS фильтровать нечем, а мёртвые кнопки, которые ничего не делают, —
+ * худший из возможных ответов. Без скрипта посетитель видит все кейсы разом,
+ * и это честное состояние, а не поломанное.
+ */
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+interface Props {
+  /** Всего кейсов: с него начинает счётчик «7 / 7». */
+  total: number;
+}
+
+const { total } = Astro.props;
+const t = useTranslations(localeFromUrl(Astro.url));
+
+/** Значения совпадают с `category` в схеме кейса; `all` — снятый фильтр. */
+const FILTERS = [
+  { id: 'all', key: 'f.all' },
+  { id: 'site', key: 'f.sites' },
+  { id: 'bot', key: 'f.bots' },
+  { id: 'ai', key: 'f.ai' },
+];
+---
+
+<div class="filters" role="group" aria-label={t('a11y.filters')} hidden data-filters>
+  {
+    FILTERS.map((filter) => (
+      <button class="fbtn" type="button" data-f={filter.id} aria-pressed={filter.id === 'all'}>
+        {t(filter.key)}
+      </button>
+    ))
+  }
+  <span class="fcount" aria-live="polite" data-fcount>{total} / {total}</span>
+</div>

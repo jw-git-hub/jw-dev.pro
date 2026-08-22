@@ -1,0 +1,35 @@
+---
+/**
+ * Страница разбора кейса. Прямая ссылка обязана открывать её саму —
+ * оверлей на главной лишь показывает то же самое, не заменяя адрес.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import CaseArticle from '../../../components/work/CaseArticle.astro';
+import Icon from '../../../components/chrome/Icon.astro';
+import { getCases, pageAccent } from '../../../lib/cases';
+import { useTranslations, sectionPath } from '../../../i18n';
+
+export async function getStaticPaths() {
+  const cases = await getCases('ru');
+  return cases.map((item, index) => ({
+    params: { slug: item.slug },
+    props: { item, prev: cases[index - 1], next: cases[index + 1] },
+  }));
+}
+
+const { item, prev, next } = Astro.props;
+const t = useTranslations('ru');
+---
+
+<BaseLayout title={item.title} description={item.summary} accent={pageAccent(item)}>
+  <section>
+    <div class="wrap">
+      <a class="case-back" href={sectionPath('ru', 'work')}>
+        <Icon name="cl" size={14} />
+        {t('case.back')}
+      </a>
+
+      <CaseArticle item={item} prev={prev} next={next} />
+    </div>
+  </section>
+</BaseLayout>
