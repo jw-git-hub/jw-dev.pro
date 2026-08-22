@@ -1,0 +1,103 @@
+---
+/**
+ * Процесс — план Ф7, DESIGN-GUIDE §11.
+ *
+ * Кривая и узлы декоративны и скрыты от скринридера: тот же порядок шагов
+ * лежит ниже нумерованным списком, и озвучивать его дважды незачем.
+ *
+ * Узлы стоят на долях длины пути, а доли считает браузер (`getPointAtLength`),
+ * поэтому до появления скрипта они спрятаны классом: без него пять кружков
+ * легли бы стопкой в начале координат.
+ *
+ * Цвета градиента заданы классами, а не атрибутами `stop-color`: палитра
+ * закрытая, а цвет в разметке — это уже не дизайн-система.
+ */
+import Icon from '../chrome/Icon.astro';
+import { localeFromUrl, useTranslations } from '../../i18n';
+import { STEPS, stepNumber } from '../../data/process';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+/** Кривая §11. Одна на обе линии: подложку и градиентную, что открывается импульсом. */
+const CURVE = 'M40,168 C170,44 300,42 440,104 S700,196 830,88 L960,60';
+---
+
+<section id="process" data-acc="amber">
+  <div class="wrap">
+    <div class="sec-head row rv">
+      <div>
+        <span class="kick">{t('kick.process')}</span>
+        <h2>{t('sec.process.t')}</h2>
+        <p class="lead">{t('sec.process.s')}</p>
+      </div>
+
+      <button
+        type="button"
+        class="btn s sm"
+        data-pr-toggle
+        data-on={t('process.on')}
+        data-off={t('process.off')}
+        aria-pressed="true"
+      >
+        <span>{t('process.auto')}</span>
+        <span class="mono" data-pr-state>{t('process.on')}</span>
+      </button>
+    </div>
+
+    <div class="proc rv" data-proc>
+      <svg class="prsvg" viewBox="0 0 1000 230" aria-hidden="true" focusable="false">
+        <defs>
+          <linearGradient id="prg" x1="0" y1="0" x2="1" y2="0">
+            <stop class="prg1" offset="0"></stop>
+            <stop class="prg2" offset="0.28"></stop>
+            <stop class="prg3" offset="0.52"></stop>
+            <stop class="prg4" offset="0.76"></stop>
+            <stop class="prg5" offset="1"></stop>
+          </linearGradient>
+        </defs>
+
+        <path class="prpath" d={CURVE}></path>
+        <path class="prpath2" d={CURVE} data-pr-line></path>
+
+        {
+          STEPS.map((step, index) => (
+            <g class:list={['prnode', `tone-${step.accent}`]} data-pr-node={step.at}>
+              <circle class="prhalo" r="26" />
+              <circle class="prdisc" r="24" />
+              <text class="prnum" dy="5">
+                {stepNumber(index)}
+              </text>
+            </g>
+          ))
+        }
+      </svg>
+
+      <div class="prail" aria-hidden="true"><i data-pr-dot></i></div>
+
+      <ol class="psteps" aria-label={t('a11y.process')}>
+        {
+          STEPS.map((step, index) => (
+            <li>
+              <button
+                type="button"
+                class:list={['pstep', 'g', 'gd', `tone-${step.accent}`]}
+                data-pr-step={index}
+                aria-pressed="false"
+              >
+                <span class="pstep-top">
+                  <span class="pstep-i">
+                    <Icon name={step.icon} size={18} />
+                  </span>
+                  <span class="pstep-n mono">{stepNumber(index)}</span>
+                </span>
+                <span class="pstep-t">{t(`${step.key}.t`)}</span>
+                <span class="pstep-d">{t(`${step.key}.d`)}</span>
+              </button>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </div>
+</section>

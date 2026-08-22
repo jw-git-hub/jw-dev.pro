@@ -1,0 +1,125 @@
+/**
+ * Направления — DESIGN-GUIDE §8. Три карточки тихого стекла; цвет карточки
+ * приходит из `.tone-*` переменной `--cc` и красит иконку, пятно и маркеры.
+ *
+ * Карточки растянуты по высоте (`align-items: stretch` даёт грид сам),
+ * а строка «на выходе» прижата к низу через `margin-top: auto`. Иначе
+ * у трёх карточек разной длины вывод оказывается на трёх разных высотах
+ * и перестаёт читаться как одна строка ответа.
+ */
+
+.svcs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.svc {
+  display: flex;
+  position: relative;
+  flex-direction: column;
+  padding: 30px 28px;
+  overflow: hidden;
+}
+
+/* Пятно цвета карточки. Селектор с .svc обязателен: `.g > *` ставит
+   детям стекла position: relative и пятно перестаёт быть абсолютным. */
+.svc .svc-glow {
+  position: absolute;
+  top: -40px;
+  right: -40px;
+  width: 150px;
+  height: 150px;
+  border-radius: 50%;
+  background: var(--cc);
+  opacity: 0.32;
+  filter: blur(38px);
+}
+
+.svc-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid color-mix(in srgb, var(--cc) 28%, transparent);
+  border-radius: 13px;
+  background: color-mix(in srgb, var(--cc) 12%, transparent);
+  color: var(--cc);
+}
+
+.svc h3 {
+  margin-top: 18px;
+}
+
+.svc-lead {
+  margin-top: 10px;
+  color: var(--ink2);
+  font-size: 14.5px;
+  line-height: 1.55;
+}
+
+/* Моно-подпись рубрики. Это ярлык, а не заголовок: уровень h4 здесь
+   создал бы шестой уровень вложенности ради двух слов. */
+.svc-cap {
+  color: var(--ink3);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.svc .svc-cap {
+  margin-top: 22px;
+}
+
+.svc-list {
+  margin-top: 12px;
+  padding: 0;
+  list-style: none;
+}
+
+.svc-list li {
+  position: relative;
+  padding-left: 20px;
+  color: var(--ink2);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.svc-list li + li {
+  margin-top: 9px;
+}
+
+.svc-list li::before {
+  position: absolute;
+  top: 0.62em;
+  left: 2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--cc);
+  box-shadow: 0 0 9px var(--cc);
+  content: '';
+}
+
+/* Вывод карточки: отделён линией и прижат к низу — см. шапку файла. */
+.svc-out {
+  margin-top: auto;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+  color: var(--ink);
+  font-size: 14.5px;
+  line-height: 1.5;
+}
+
+.svc .svc-out .svc-cap {
+  display: block;
+  margin-top: 0;
+  margin-bottom: 8px;
+}
+
+@media (max-width: 1020px) {
+  .svcs {
+    grid-template-columns: 1fr;
+  }
+}

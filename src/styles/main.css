@@ -26,5 +26,9 @@
 @import './components/shot.css';
 @import './components/hero.css';
 @import './components/stats.css';
+@import './components/services.css';
+@import './components/ticker.css';
+@import './components/ring.css';
+@import './components/process.css';
 @import './components/case.css';
 @import './components/overlay.css';
