@@ -144,9 +144,36 @@
   "footer.github": "GitHub",
   "footer.email": "Email",
 
+  "kick.journal": "Journal",
+  "sec.journal.t": "What the work looks like",
+  "sec.journal.s": "New case studies, write-ups of the techniques behind them, and short updates. The dates show the work is still going, not finished a year ago.",
+  "journal.all": "All entries",
+  "j.foot": "Updated as the work happens, last entry —",
+  "j.kind.case": "Case",
+  "j.kind.note": "Note",
+  "j.kind.update": "Update",
+
   "log.title": "Journal",
-  "log.lead": "Cases, notes and updates in one feed.",
-  "log.empty": "No entries yet — the feed fills up along with the cases.",
+  "log.lead": "Cases, notes and updates in one feed, newest first.",
+  "log.empty": "Nothing under this filter yet.",
+  "log.rss": "RSS",
+  "log.tab.all": "All",
+  "log.tab.case": "Cases",
+  "log.tab.note": "Notes",
+  "log.tab.update": "Updates",
+  "a11y.logtabs": "Filter entries",
+
+  "note.back": "All entries",
+  "note.nav": "Nearby entries",
+  "note.newer": "Newer",
+  "note.older": "Older",
+
+  "tag.measure": "measurement",
+  "tag.performance": "performance",
+  "tag.fonts": "fonts",
+
+  "rss.title": "jw-dev.pro journal",
+  "rss.desc": "New case studies and notes on the web, speed and automated checks.",
 
   "privacy.title": "Privacy policy",
   "privacy.lead": "What the form collects and what happens to it.",

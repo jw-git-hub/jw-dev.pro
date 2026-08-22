@@ -1,0 +1,57 @@
+---
+/**
+ * Секция журнала на главной — четыре последние записи и ссылка в архив.
+ *
+ * Строка внизу отвечает на вопрос, который вслух не задают: «он ещё жив?».
+ * Дата в разметке абсолютная — она не протухает между сборками; относительную
+ * («три дня назад») подставляет скрипт, потому что считать её можно только
+ * в момент чтения, а не в момент сборки.
+ */
+import JournalRow from './JournalRow.astro';
+import Icon from '../chrome/Icon.astro';
+import { getJournal, logPath } from '../../lib/journal';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+/** Лента на главной — витрина, а не архив: четыре строки и ссылка на остальное. */
+const PREVIEW_COUNT = 4;
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+const entries = await getJournal(locale);
+const latest = entries.slice(0, PREVIEW_COUNT);
+
+const last = entries[0]?.date;
+---
+
+<section id="journal" data-acc="violet">
+  <div class="wrap">
+    <div class="sec-head row rv">
+      <div>
+        <span class="kick">{t('kick.journal')}</span>
+        <h2>{t('sec.journal.t')}</h2>
+        <p class="lead">{t('sec.journal.s')}</p>
+      </div>
+
+      <a class="btn s" href={logPath(locale)}>
+        <Icon name="doc" size={16} />
+        <span>{t('journal.all')}</span>
+      </a>
+    </div>
+
+    <div class="jfeed rv" data-damp>
+      {latest.map((entry) => <JournalRow entry={entry} />)}
+    </div>
+
+    {
+      last && (
+        <p class="log-foot rv">
+          <span class="dot live" />
+          <span>{t('j.foot')}</span>
+          <time datetime={last.toISOString().slice(0, 10)} data-since>
+            {last.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB')}
+          </time>
+        </p>
+      )
+    }
+  </div>
+</section>

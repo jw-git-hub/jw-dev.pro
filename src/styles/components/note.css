@@ -1,0 +1,188 @@
+/**
+ * Статья журнала: обвязка и текст из markdown.
+ *
+ * В гайде статьи нет — в макете журнал не открывался. Поэтому кегли взяты
+ * не с потолка, а из соседней страницы того же типа: заголовок в масштабе
+ * «H2 в разборе кейса» (§3), текст — как в блоке разбора, 15px/1.7 цветом
+ * --ink2. Новых чисел здесь только два: мера строки и радиус блока кода.
+ */
+
+.note {
+  max-width: 760px;
+  margin: 0 auto;
+}
+
+.note-top {
+  margin-bottom: 30px;
+}
+
+.note-url {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ink3);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.note-h {
+  margin: 0;
+  font-size: clamp(1.5rem, 3.6vw, 2.5rem);
+  font-weight: 680;
+  line-height: 1.08;
+  letter-spacing: -0.03em;
+  text-wrap: balance;
+}
+
+.note-meta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/**
+ * Мера строки. 68 знаков — верх диапазона, за которым глаз теряет начало
+ * следующей строки; у `.lead` их 60, но там две строки, а здесь экран текста.
+ */
+.prose {
+  max-width: 68ch;
+  color: var(--ink2);
+  font-size: 15.5px;
+  line-height: 1.75;
+}
+
+.prose > * {
+  margin: 0 0 18px;
+}
+
+.prose h2 {
+  margin: 38px 0 14px;
+  color: var(--ink);
+  font-size: 1.34rem;
+  font-weight: 660;
+  line-height: 1.24;
+  letter-spacing: -0.026em;
+}
+
+.prose h3 {
+  margin: 28px 0 12px;
+  color: var(--ink);
+  font-size: 1.14rem;
+  font-weight: 640;
+  line-height: 1.28;
+  letter-spacing: -0.02em;
+}
+
+.prose strong {
+  color: var(--ink);
+  font-weight: 620;
+}
+
+.prose a {
+  color: var(--acc-ink);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.prose ul,
+.prose ol {
+  padding-left: 22px;
+}
+
+.prose li {
+  margin-bottom: 8px;
+}
+
+.prose code {
+  padding: 2px 6px;
+  border: 1px solid var(--line2);
+  border-radius: 9px;
+  background: rgb(255 255 255 / 4%);
+  font-family: var(--fm);
+  font-size: 0.86em;
+}
+
+/**
+ * Блок кода. Ширину держит горизонтальная прокрутка внутри блока: перенос
+ * ломает смысл строки, а страница целиком ездить вбок не должна.
+ */
+.prose pre {
+  overflow-x: auto;
+  padding: 18px 20px;
+  border: 1px solid var(--line2);
+  border-radius: var(--r2);
+  background: color-mix(in srgb, var(--panel2) 88%, transparent);
+  font-size: 13px;
+  line-height: 1.6;
+  tab-size: 2;
+}
+
+/* Внутри блока рамка и фон уже есть у него самого. */
+.prose pre code {
+  padding: 0;
+  border: 0;
+  background: none;
+  font-size: inherit;
+}
+
+.prose blockquote {
+  padding-left: 18px;
+  border-left: 2px solid color-mix(in srgb, var(--acc) 45%, transparent);
+  color: var(--ink3);
+}
+
+.prose img {
+  max-width: 100%;
+  height: auto;
+  border-radius: var(--r2);
+}
+
+/* У кейса в переходах стоит домен, и моноширинный ему к лицу; здесь — фраза. */
+.note .nvb b {
+  font-family: var(--ff);
+  font-size: 13.5px;
+  letter-spacing: -0.01em;
+}
+
+@media (max-width: 680px) {
+  .prose pre {
+    padding: 14px 15px;
+    font-size: 12.5px;
+  }
+}
+
+/**
+ * Подсветка кода — классы Prism (см. `astro.config.mjs`). Цветов ровно четыре,
+ * все из палитры: имена и ключевые слова акцентом страницы, значения мятным,
+ * подстановки бирюзовым, скобки и комментарии — тусклым.
+ *
+ * Акцент осветлён примесью белого: чистый фиолетовый на панели кода даёт
+ * 4.9:1, а это впритык к порогу §18 на кегле 13px.
+ */
+.prose .token.comment,
+.prose .token.punctuation,
+.prose .token.operator {
+  color: var(--ink3);
+}
+
+.prose .token.property,
+.prose .token.atrule,
+.prose .token.rule,
+.prose .token.keyword,
+.prose .token.selector,
+.prose .token.function,
+.prose .token.builtin {
+  color: color-mix(in srgb, var(--acc-ink) 70%, white);
+}
+
+.prose .token.string,
+.prose .token.url,
+.prose .token.number {
+  color: var(--mint);
+}
+
+.prose .token.variable,
+.prose .token.parameter {
+  color: var(--cyan);
+}

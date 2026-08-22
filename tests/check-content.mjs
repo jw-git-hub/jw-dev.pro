@@ -6,18 +6,15 @@
  * Дыра в EN — невыполненная работа, дыра в RU — опечатка; и то и другое валит
  * сборку, а не всплывает на живом сайте.
  */
-import { readdir, readFile, stat } from 'node:fs/promises';
+import { stat } from 'node:fs/promises';
 import { dirname, resolve } from 'node:path';
 import sharp from 'sharp';
-import { parse } from 'yaml';
 import { report } from './lib/report.mjs';
+import { SLUG, readDocs } from './lib/front-matter.mjs';
 
 const CASES_DIR = 'src/content/cases';
 const SOURCE = 'ru';
 const TARGET = 'en';
-
-/** Слаг живёт в адресе `/work/<slug>/`: кириллица и пробелы там недопустимы. */
-const SLUG = /^[a-z0-9-]+$/;
 
 /** Конец предложения: точка, восклицательный или вопросительный знак перед пробелом или концом строки. */
 const SENTENCE_END = /[.!?](?:\s|$)/g;
@@ -49,36 +46,7 @@ function countSentences(text) {
   return (text.match(SENTENCE_END) ?? []).length;
 }
 
-/** Front-matter между первой и второй строкой `---`. */
-function frontMatter(raw, where, problems) {
-  const match = raw.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) {
-    problems.push(`${where}: нет front-matter между «---»`);
-    return null;
-  }
-  try {
-    return parse(match[1]);
-  } catch (error) {
-    problems.push(`${where}: YAML не разбирается — ${error.message.split('\n')[0]}`);
-    return null;
-  }
-}
-
-async function readCases(locale, problems) {
-  const dir = `${CASES_DIR}/${locale}`;
-  const files = (await readdir(dir)).filter((name) => name.endsWith('.md'));
-  const cases = new Map();
-  for (const file of files) {
-    const slug = file.replace(/\.md$/, '');
-    const data = frontMatter(
-      await readFile(`${dir}/${file}`, 'utf8'),
-      `${locale}/${file}`,
-      problems,
-    );
-    if (data) cases.set(slug, data);
-  }
-  return cases;
-}
+const readCases = (locale, problems) => readDocs(`${CASES_DIR}/${locale}`, locale, problems);
 
 /** Абзац разбора: один абзац в 2–4 предложения, иначе это уже не карточка, а статья. */
 function checkParagraphs(body, where, problems) {

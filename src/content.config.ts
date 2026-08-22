@@ -23,6 +23,14 @@ const LIMITS = {
   title: 32,
   metric: 18,
   logLine: 90,
+  /**
+   * Заголовок статьи. Потолок не косметический: `<title>` собирается как
+   * «заголовок — jw-dev.pro», а html-validate валит тег длиннее 70 знаков.
+   * 70 минус 13 знаков суффикса — вот эти 57.
+   */
+  noteTitle: 57,
+  /** Апдейт — одна строка в ленте: длиннее он превращается в заметку без страницы. */
+  updateText: 140,
   summaryMin: 150,
   summaryMax: 210,
 } as const;
@@ -101,7 +109,7 @@ const casesEn = defineCollection({
 
 /** Заметки журнала — фаза 8. Схема стоит заранее, чтобы первая же статья легла в готовое. */
 const noteShape = {
-  title: z.string().min(1),
+  title: z.string().min(1).max(LIMITS.noteTitle),
   date: z.coerce.date(),
   summary: z.string().min(1),
   tags: z.array(z.string().min(1)).default([]),
@@ -120,12 +128,12 @@ const notesEn = defineCollection({
 /** Апдейт — одна строка в ленте: у него нет тела, только дата и текст. */
 const updates = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/updates/ru' }),
-  schema: z.object({ date: z.coerce.date(), text: z.string().min(1) }),
+  schema: z.object({ date: z.coerce.date(), text: z.string().min(1).max(LIMITS.updateText) }),
 });
 
 const updatesEn = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/updates/en' }),
-  schema: z.object({ text: z.string().min(1) }),
+  schema: z.object({ text: z.string().min(1).max(LIMITS.updateText) }),
 });
 
 export const collections = { cases, casesEn, notes, notesEn, updates, updatesEn };

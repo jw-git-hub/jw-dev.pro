@@ -1,0 +1,39 @@
+---
+/**
+ * Статья журнала. Прямая ссылка обязана открывать её саму: лента и архив
+ * только показывают, что она есть.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import NoteArticle from '../../../components/log/NoteArticle.astro';
+import Icon from '../../../components/chrome/Icon.astro';
+import { getNotes, getNoteBody, logPath } from '../../../lib/journal';
+import { useTranslations } from '../../../i18n';
+
+export async function getStaticPaths() {
+  const notes = await getNotes('ru');
+  return notes.map((note, index) => ({
+    params: { slug: note.slug },
+    props: { note, prev: notes[index - 1], next: notes[index + 1] },
+  }));
+}
+
+const { note, prev, next } = Astro.props;
+const t = useTranslations('ru');
+const body = await getNoteBody('ru', note.slug);
+const Content = body?.Content;
+---
+
+<BaseLayout title={note.title} description={note.summary} accent="violet" ogType="article">
+  <section>
+    <div class="wrap">
+      <a class="case-back" href={logPath('ru')}>
+        <Icon name="cl" size={14} />
+        {t('note.back')}
+      </a>
+
+      <NoteArticle note={note} prev={prev} next={next}>
+        {Content && <Content />}
+      </NoteArticle>
+    </div>
+  </section>
+</BaseLayout>

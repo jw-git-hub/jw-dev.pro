@@ -5,6 +5,7 @@ import Header from '../components/chrome/Header.astro';
 import Footer from '../components/chrome/Footer.astro';
 import Dock from '../components/chrome/Dock.astro';
 import { SITE } from '../data/site';
+import { feedPath } from '../lib/feed';
 import type { Accent } from '../data/accent';
 import '../styles/main.css';
 
@@ -84,6 +85,14 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
+    {/* Лента своего языка: читалка подписывает на тот журнал, который человек читает. */}
+    <link
+      rel="alternate"
+      type="application/rss+xml"
+      title={t('rss.title')}
+      href={new URL(feedPath(locale), Astro.site).href}
+    />
+
     {
       /* Предзагружаем подмножество своего языка: на нём набран весь текст страницы,
         и без этого шрифт находится только после разбора CSS. Второе подмножество
@@ -144,6 +153,8 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
       import '../scripts/parallax.js';
       import '../scripts/counters.js';
       import '../scripts/filters.js';
+      import '../scripts/log.js';
+      import '../scripts/since.js';
       import '../scripts/ring.js';
       import '../scripts/process.js';
       import '../scripts/overlay.js';

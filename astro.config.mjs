@@ -16,7 +16,12 @@ import sitemap from '@astrojs/sitemap';
  *    именно в `vite`, ключа `build.assetsInlineLimit` у Astro нет — в конфиге
  *    он молча игнорируется, и скрипт как вшивался, так и вшивается.
  *
- * 3. `compressHTML: true` — в Astro 7 по умолчанию 'jsx', где пробел между
+ * 3. `markdown.syntaxHighlight: 'prism'` — Shiki по умолчанию красит код
+ *    инлайновым `style=` на каждом токене. Это нарушает правило «ноль инлайна»
+ *    и ломает строгий CSP. Prism отдаёт те же токены классами, а цвета им
+ *    задаёт `src/styles/components/note.css` из палитры проекта.
+ *
+ * 4. `compressHTML: true` — в Astro 7 по умолчанию 'jsx', где пробел между
  *    строчными элементами съедается по правилам JSX. Нам нужны правила HTML,
  *    иначе «<span>раз</span> <em>два</em>» отрисуется как «разадва».
  */
@@ -24,6 +29,10 @@ export default defineConfig({
   site: 'https://jw-dev.pro',
   trailingSlash: 'always',
   compressHTML: true,
+
+  markdown: {
+    syntaxHighlight: 'prism',
+  },
 
   i18n: {
     defaultLocale: 'en',

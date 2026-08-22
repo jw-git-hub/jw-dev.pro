@@ -1,0 +1,73 @@
+---
+/**
+ * Статья журнала. Тело приходит слотом: markdown рисует страница,
+ * а обвязку — заголовок, дату, теги и переходы — этот компонент.
+ *
+ * Переходы «назад / дальше» берут классы у разбора кейса: это тот же элемент
+ * в том же месте страницы, и второй набор имён для него был бы просто вторым
+ * набором имён.
+ */
+import Icon from '../chrome/Icon.astro';
+import type { NoteView } from '../../lib/journal';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+interface Props {
+  note: NoteView;
+  prev?: NoteView;
+  next?: NoteView;
+}
+
+const { note, prev, next } = Astro.props;
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const date = note.date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB');
+---
+
+<article class="note tone-violet">
+  <header class="note-top">
+    <span class="note-url mono">{note.href}</span>
+    <h1 class="note-h">{note.title}</h1>
+
+    <p class="note-meta">
+      <time class="mono" datetime={note.date.toISOString().slice(0, 10)}>{date}</time>
+      {note.tags.map((tag) => <span class="tag">{t(`tag.${tag}`)}</span>)}
+    </p>
+  </header>
+
+  <div class="prose">
+    <slot />
+  </div>
+
+  <nav class="case-nav" aria-label={t('note.nav')}>
+    {
+      prev ? (
+        <a class="nvb" href={prev.href} rel="prev">
+          <Icon name="cl" size={15} />
+          <span>
+            <em>{t('note.newer')}</em>
+            <b>{prev.title}</b>
+          </span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+
+    <span></span>
+
+    {
+      next ? (
+        <a class="nvb end" href={next.href} rel="next">
+          <span>
+            <em>{t('note.older')}</em>
+            <b>{next.title}</b>
+          </span>
+          <Icon name="cr" size={15} />
+        </a>
+      ) : (
+        <span />
+      )
+    }
+  </nav>
+</article>
