@@ -29,12 +29,12 @@
   "hero.h1a": "Bots, websites, automation.",
   "hero.h1b": "Engineered,",
   "hero.h1c": "not assembled.",
-  "hero.sub": "Architecture, code, tests, deploy — end to end. Seven projects in production, Lighthouse 94–98 on mobile, and the repository is yours at handover.",
+  "hero.sub": "Architecture, code, tests, deploy — end to end. Seven projects in flight, Lighthouse 94–98 on the clinic site, and the repository is yours at handover.",
   "hero.work": "See the work",
   "hero.bot": "Open the live bot",
   "hero.site": "vn.neva.beauty — clinic · 16 pages",
   "hero.panel": "Lighthouse",
-  "hero.panelNote": "psy-krasnogor.pro · mobile",
+  "hero.panelNote": "vn.neva.beauty · mobile",
 
   "hud.status.k": "Status",
   "hud.status.v": "Online",
@@ -45,8 +45,8 @@
   "hud.prices.k": "Prices",
   "hud.prices.v": "204 in one file",
 
-  "stat.projects": "projects in production",
-  "stat.lighthouse": "Lighthouse on mobile",
+  "stat.projects": "projects in flight",
+  "stat.lighthouse": "Lighthouse on the clinic site",
   "stat.weight": "less page code after leaving Tilda",
   "stat.tests": "automated tests guard the content",
 

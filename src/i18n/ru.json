@@ -29,12 +29,12 @@
   "hero.h1a": "Боты, сайты, автоматизация.",
   "hero.h1b": "Инженерия,",
   "hero.h1c": "а\u00A0не конструктор.",
-  "hero.sub": "Архитектура, код, тесты, деплой — от начала до конца. Семь проектов в\u00A0проде, Lighthouse 94–98 на\u00A0мобильных, репозиторий при сдаче уезжает к\u00A0вам.",
+  "hero.sub": "Архитектура, код, тесты, деплой — от начала до конца. Семь проектов в\u00A0работе, Lighthouse 94–98 у\u00A0сайта клиники, репозиторий при сдаче уезжает к\u00A0вам.",
   "hero.work": "Смотреть работы",
   "hero.bot": "Открыть живого бота",
   "hero.site": "vn.neva.beauty — клиника · 16 страниц",
   "hero.panel": "Lighthouse",
-  "hero.panelNote": "psy-krasnogor.pro · мобильные",
+  "hero.panelNote": "vn.neva.beauty · мобильные",
 
   "hud.status.k": "Статус",
   "hud.status.v": "Онлайн",
@@ -45,8 +45,8 @@
   "hud.prices.k": "Цены",
   "hud.prices.v": "204 в\u00A0одном файле",
 
-  "stat.projects": "проектов в\u00A0проде",
-  "stat.lighthouse": "Lighthouse на\u00A0мобильных",
+  "stat.projects": "проектов в\u00A0работе",
+  "stat.lighthouse": "Lighthouse у\u00A0сайта клиники",
   "stat.weight": "кода на странице после ухода с\u00A0Tilda",
   "stat.tests": "автотестов стерегут контент",
 
