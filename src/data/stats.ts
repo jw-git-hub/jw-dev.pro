@@ -36,8 +36,14 @@ export const STATS: Stat[] = [
   // README vn.neva.beauty: Performance 94–98 на мобильных; psy-krasnogor.pro — 96.
   { key: 'stat.lighthouse', value: 98, from: 94, prefix: '94–', accent: 'violet' },
 
-  // th.neva.beauty: 25 страниц после ухода с Tilda стали легче на 51–60%.
-  { key: 'stat.weight', value: 60, from: 51, prefix: '−51…−', suffix: '%', accent: 'rose' },
+  /**
+   * Замер 22.08.2026 по сохранённому экспорту предшественника на Tilda
+   * (doctor.cosmetolog.pro): девятнадцать одинаковых страниц, код страницы
+   * (разметка + стили + скрипты, без шрифтов и фотографий) — медиана −70%
+   * сырого веса и −75% по сети. У vn.neva.beauty против того же «до» — −72%.
+   * Берём меньшее из двух.
+   */
+  { key: 'stat.weight', value: 70, prefix: '−', suffix: '%', accent: 'rose' },
 
   // th.neva.beauty: 85 pytest-тестов читают источник цен и проверяют отрисованное.
   { key: 'stat.tests', value: 85, accent: 'amber' },

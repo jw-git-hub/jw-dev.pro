@@ -47,7 +47,7 @@
 
   "stat.projects": "projects in production",
   "stat.lighthouse": "Lighthouse on mobile",
-  "stat.weight": "page weight after leaving Tilda",
+  "stat.weight": "less page code after leaving Tilda",
   "stat.tests": "automated tests guard the content",
 
   "footer.note": "Built without frameworks or third-party libraries.",
