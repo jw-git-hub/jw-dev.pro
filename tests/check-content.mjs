@@ -6,7 +6,9 @@
  * Дыра в EN — невыполненная работа, дыра в RU — опечатка; и то и другое валит
  * сборку, а не всплывает на живом сайте.
  */
-import { readdir, readFile } from 'node:fs/promises';
+import { readdir, readFile, stat } from 'node:fs/promises';
+import { dirname, resolve } from 'node:path';
+import sharp from 'sharp';
 import { parse } from 'yaml';
 import { report } from './lib/report.mjs';
 
@@ -25,6 +27,23 @@ const TRANSLATED = ['kind', 'summary', 'metrics', 'logLine', 'body'];
 
 /** Роли снимков, без которых кейс не показать (CONTENT-CASES §3). */
 const REQUIRED_SHOTS = ['card', 'cover'];
+
+/**
+ * Размер мастер-кадра по роли — CONTENT-CASES §3. Пропорция здесь не украшение:
+ * слот карточки жёстко 16:10, и кадр другой формы сборка обрежет по своему
+ * усмотрению — как правило, по самому важному месту.
+ */
+const SHOT_SIZE = {
+  card: [1600, 1000],
+  cover: [1920, 960],
+  feature: [1600, 1000],
+  proof: [1600, 1000],
+  before: [1600, 1000],
+  og: [1200, 630],
+};
+
+/** Потолок веса одного мастер-кадра, байты. */
+const SHOT_MAX_BYTES = 400 * 1024;
 
 function countSentences(text) {
   return (text.match(SENTENCE_END) ?? []).length;
@@ -71,7 +90,7 @@ function checkParagraphs(body, where, problems) {
   }
 }
 
-function checkSource(slug, data, problems) {
+async function checkSource(slug, data, file, problems) {
   const where = `${SOURCE}/${slug}`;
   if (!SLUG.test(slug))
     problems.push(`${where}: слаг должен быть из строчной латиницы, цифр и дефисов`);
@@ -88,15 +107,40 @@ function checkSource(slug, data, problems) {
     problems.push(`${where}: при link: null нужен linkNote — почему демо недоступно`);
   }
   checkParagraphs(data.body, where, problems);
-  checkShots(data.screenshots, where, problems);
+  await checkShots(data.screenshots, file, where, problems);
 }
 
 /** Пока снимков нет, слот рисует условную вёрстку. Но неполный набор — уже ошибка. */
-function checkShots(screenshots, where, problems) {
+async function checkShots(screenshots, file, where, problems) {
   if (!screenshots?.length) return;
   const roles = screenshots.map((shot) => shot.role);
   for (const role of REQUIRED_SHOTS) {
     if (!roles.includes(role)) problems.push(`${where}: нет обязательного снимка «${role}»`);
+  }
+  for (const shot of screenshots) {
+    await checkShotFile(shot, file, where, problems);
+  }
+}
+
+/** Регламент §3 стережёт сборка, а не память: размер, пропорция и вес мастер-кадра. */
+async function checkShotFile(shot, file, where, problems) {
+  const path = resolve(dirname(file), shot.src);
+  const [width, height] = SHOT_SIZE[shot.role] ?? [];
+  let bytes;
+  try {
+    bytes = (await stat(path)).size;
+  } catch {
+    problems.push(`${where}: снимка «${shot.src}» нет на диске`);
+    return;
+  }
+  if (bytes > SHOT_MAX_BYTES) {
+    problems.push(`${where}: «${shot.src}» весит ${Math.round(bytes / 1024)} КБ, потолок 400 КБ`);
+  }
+  const meta = await sharp(path).metadata();
+  if (meta.width !== width || meta.height !== height) {
+    problems.push(
+      `${where}: «${shot.src}» — ${meta.width}×${meta.height}, роль «${shot.role}» требует ${width}×${height}`,
+    );
   }
 }
 
@@ -133,7 +177,7 @@ const target = await readCases(TARGET, problems);
 
 const orders = new Map();
 for (const [slug, data] of source) {
-  checkSource(slug, data, problems);
+  await checkSource(slug, data, `${CASES_DIR}/${SOURCE}/${slug}.md`, problems);
 
   // Порядок задаёт место в сетке: два кейса на одной позиции встанут как повезёт.
   if (orders.has(data.order))
