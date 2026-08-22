@@ -7,6 +7,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import CaseArticle from '../../../components/work/CaseArticle.astro';
 import Icon from '../../../components/chrome/Icon.astro';
 import { getCases, pageAccent } from '../../../lib/cases';
+import { ogPath } from '../../../lib/og';
 import { useTranslations, sectionPath } from '../../../i18n';
 
 export async function getStaticPaths() {
@@ -21,7 +22,13 @@ const { item, prev, next } = Astro.props;
 const t = useTranslations('ru');
 ---
 
-<BaseLayout title={item.title} description={item.summary} accent={pageAccent(item)}>
+<BaseLayout
+  title={item.title}
+  description={item.summary}
+  accent={pageAccent(item)}
+  image={ogPath('ru', item.slug)}
+  ogType="article"
+>
   <section>
     <div class="wrap">
       <a class="case-back" href={sectionPath('ru', 'work')}>
