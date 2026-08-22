@@ -1,0 +1,375 @@
+/**
+ * Кейсы — DESIGN-GUIDE §8: сетка на главной, карточка в трёх состояниях
+ * и страница разбора.
+ *
+ * Имя `.grid6` взято из гайда как есть, хотя кейсов уже семь: гайд вместе
+ * с макетом — справочник по значениям, и переименование сделало бы его
+ * непригодным. Цифра в имени означает «сетка кейсов», а не их количество.
+ */
+
+.grid6 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+  margin-top: 26px;
+}
+
+.workline {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 14px;
+  color: var(--ink2);
+  font-size: 14.5px;
+}
+
+.workline .icon {
+  flex: none;
+  color: var(--acc-ink);
+}
+
+/* ---- карточка ---- */
+
+.case {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: 24px;
+  overflow: hidden;
+  transition:
+    transform 0.6s var(--e),
+    box-shadow 0.6s var(--e);
+}
+
+.case-body {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 12px;
+  padding: 2px 22px 22px;
+}
+
+.case-hd {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.case-idx {
+  font-family: var(--fm);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  color: var(--acc-ink);
+}
+
+.case-ttl {
+  margin: 0;
+  font-family: var(--fm);
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  overflow-wrap: anywhere;
+}
+
+/**
+ * Ссылка на разбор растянута на всю карточку — вместо `<button>` из §8.
+ * Отступление от гайда 22.08.2026: без JS кнопка никуда не ведёт (правило 6),
+ * а ссылка на живое демо внутри кнопки — невалидная разметка (правило 7).
+ */
+.case-go {
+  color: inherit;
+  text-decoration: none;
+}
+
+.case-go::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+}
+
+.case-kind {
+  margin: 3px 0 0;
+  font-size: 12px;
+  color: var(--ink3);
+}
+
+.case p {
+  margin: 0;
+  color: var(--ink2);
+  font-size: 13.6px;
+  line-height: 1.55;
+}
+
+.case-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgb(255 255 255 / 7%);
+  color: var(--ink3);
+  font-size: 11.5px;
+}
+
+.case-foot .mono {
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+/* Ссылка на живое демо лежит выше растяжки: по ней можно попасть отдельно. */
+.case-link {
+  position: relative;
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-family: var(--fm);
+  font-size: 11.5px;
+  color: var(--acc-ink);
+  text-decoration: none;
+}
+
+.case-link .icon {
+  transition: transform 0.4s var(--e);
+}
+
+.case-note {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--ink3);
+}
+
+/* ---- живое демо ---- */
+
+.case.live {
+  border-color: color-mix(in srgb, var(--cc) 40%, transparent);
+}
+
+.case.live::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 3;
+  border-radius: inherit;
+  box-shadow:
+    inset 0 0 0 1px color-mix(in srgb, var(--cc) 26%, transparent),
+    0 0 44px -10px color-mix(in srgb, var(--cc) 45%, transparent);
+  pointer-events: none;
+}
+
+/* ---- закрытое демо ---- */
+
+.case.closed {
+  opacity: 0.74;
+}
+
+.case.closed .case-foot {
+  color: var(--ink3);
+  cursor: not-allowed;
+}
+
+/* Фильтр прячет карточку целиком: `hidden` снимает её и с потока, и с фокуса. */
+.case[hidden] {
+  display: none;
+}
+
+/* ---- страница разбора ---- */
+
+.case-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 22px;
+  color: var(--ink3);
+  font-size: 13px;
+  text-decoration: none;
+  transition: color 0.35s var(--e);
+}
+
+.case-full {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.case-top {
+  margin-bottom: 26px;
+}
+
+.case-url {
+  display: block;
+  margin-bottom: 10px;
+  color: var(--ink3);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+}
+
+.case-full h1 {
+  margin: 0;
+  font-family: var(--fm);
+  font-size: clamp(26px, 3.4vw, 38px);
+  letter-spacing: -0.02em;
+  overflow-wrap: anywhere;
+}
+
+.case-full .case-kind {
+  margin: 8px 0 16px;
+  font-size: 14px;
+}
+
+.case-cover {
+  border-radius: 20px;
+}
+
+.case-cols {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 300px;
+  gap: clamp(28px, 4vw, 54px);
+  margin-top: 34px;
+}
+
+.case-sec {
+  margin-bottom: 26px;
+}
+
+.case-sec h2 {
+  margin: 0 0 10px;
+  font-size: 12px;
+  font-family: var(--fm);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--acc-ink);
+}
+
+.case-sec p {
+  margin: 0;
+  color: var(--ink2);
+  font-size: 15px;
+  line-height: 1.7;
+}
+
+.case-aside {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  align-self: start;
+}
+
+.case-box h2 {
+  margin: 0 0 9px;
+  font-size: 10.5px;
+  font-family: var(--fm);
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+/* ---- предыдущий / следующий ---- */
+
+.case-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 44px;
+  padding-top: 22px;
+  border-top: 1px solid rgb(255 255 255 / 7%);
+}
+
+.nvb {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  max-width: 44%;
+  color: var(--ink2);
+  text-decoration: none;
+  transition: color 0.35s var(--e);
+}
+
+.nvb.end {
+  text-align: right;
+}
+
+.nvb em {
+  display: block;
+  font-style: normal;
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink3);
+}
+
+.nvb b {
+  display: block;
+  font-family: var(--fm);
+  font-size: 13px;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.case-pos {
+  flex: none;
+  color: var(--ink3);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+
+@media (hover: hover) {
+  .case:hover {
+    transform: translateY(-7px);
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 30%),
+      0 40px 80px -34px rgb(0 0 0 / 100%);
+  }
+
+  .case:hover .shot-i {
+    transform: scale(1.04);
+  }
+
+  .case:hover .shot-veil {
+    opacity: 0.6;
+  }
+
+  .case:hover .case-link .icon {
+    transform: translate(2px, -2px);
+  }
+
+  /* Закрытая карточка отзывается слабее: она и правда наполовину выключена. */
+  .case.closed:hover {
+    transform: translateY(-3px);
+    opacity: 0.85;
+  }
+
+  .case-back:hover,
+  .nvb:hover {
+    color: var(--ink);
+  }
+}
+
+@media (max-width: 1020px) {
+  .grid6 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .case-cols {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 680px) {
+  .grid6 {
+    grid-template-columns: 1fr;
+  }
+
+  .nvb {
+    max-width: 40%;
+  }
+}

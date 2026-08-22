@@ -44,6 +44,37 @@
   padding: 4.5% 5.5%;
 }
 
+/**
+ * Строка адреса над содержимым. В макете здесь была панель браузера с тремя
+ * кружками светофора (`.shot-chrome`, 15% высоты слота); кружки сняты
+ * решением владельца 22.08.2026 — они не сообщают ничего, а высота карточки
+ * дорога. Осталась строка с адресом, и она ужата до 9%.
+ */
+.shot-bar {
+  display: flex;
+  align-items: center;
+  height: 9%;
+  min-height: 14px;
+  padding: 0 8px;
+  border-bottom: 1px solid rgb(255 255 255 / 6%);
+  background: rgb(255 255 255 / 4%);
+}
+
+.shot-url {
+  font-family: var(--fm);
+  font-size: 8.5px;
+  color: var(--ink3);
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* Со строкой адреса вёрстка начинается под ней, а не от кромки слота. */
+.shot--bar .shot-b {
+  inset: 9% 0 0;
+}
+
 /* ---- условная вёрстка сайта ---- */
 
 .s-hdr {

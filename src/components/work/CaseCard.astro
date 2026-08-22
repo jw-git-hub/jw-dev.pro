@@ -1,0 +1,105 @@
+---
+/**
+ * Карточка кейса — DESIGN-GUIDE §8, три состояния: обычная, живое демо
+ * и закрытое.
+ *
+ * **Отступление от гайда (22.08.2026, фаза 6).** В §8 карточка — это
+ * `<button type="button">` во всю ширину. Здесь она `<article>` со ссылкой
+ * на страницу разбора, растянутой на всю площадь. Причины две, обе железные:
+ * без JS кнопка никуда не ведёт (правило 6), а ссылка на живое демо внутри
+ * кнопки — невалидная разметка (правило 7). Оверлей вешается на ту же ссылку
+ * скриптом, и с выключенным JS клик просто открывает страницу.
+ *
+ * Ссылка на демо лежит выше растяжки по слоям, поэтому по ней можно попасть
+ * отдельно: клик по карточке ведёт в разбор, клик по адресу — на живой сайт.
+ */
+import ShotSlot from '../shot/ShotSlot.astro';
+import SiteMock from '../shot/SiteMock.astro';
+import ChatMock from '../shot/ChatMock.astro';
+import Icon from '../chrome/Icon.astro';
+import type { CaseView } from '../../lib/cases';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+interface Props {
+  item: CaseView;
+}
+
+const { item } = Astro.props;
+const t = useTranslations(localeFromUrl(Astro.url));
+
+const closed = item.shotKind === 'closed';
+const live = item.featured === 'live';
+
+/** Строка адреса: у ботов имя из ссылки, у сайтов — домен, он же название. */
+const label =
+  item.shotKind === 'telegram' && item.link
+    ? `@${new URL(item.link).pathname.replaceAll('/', '')}`
+    : item.title;
+
+/** Индекс карточки в сетке: «01», а не «1» — моно-подпись из макета. */
+const index = String(item.order).padStart(2, '0');
+
+/** В подвале карточки показываем домен, а не весь адрес со схемой. */
+const host = item.link ? new URL(item.link).host.replace(/^www\./, '') : null;
+---
+
+<article
+  class:list={[
+    'case',
+    'g',
+    'irid',
+    'rv',
+    `tone-${item.accent}`,
+    closed && 'closed',
+    live && 'live',
+    live && 'always',
+  ]}
+  data-cat={item.category.join(' ')}
+>
+  <ShotSlot class={closed ? 'closed' : undefined} label={label}>
+    {item.shotKind === 'telegram' ? <ChatMock /> : <SiteMock />}
+  </ShotSlot>
+
+  <div class="shot-cap"><span>{t('shot.cap')}</span></div>
+
+  <div class="case-body">
+    <div class="case-hd">
+      <div>
+        <span class="case-idx">{index}</span>
+        <h3 class="case-ttl">
+          <a class="case-go" href={item.href}>{item.title}</a>
+        </h3>
+        <div class="case-kind">{item.kind}</div>
+      </div>
+      {live && <span class="badge">{t('c.badge.live')}</span>}
+      {closed && <span class="badge off">{t('c.badge.off')}</span>}
+    </div>
+
+    <p>{item.summary}</p>
+
+    <div class="chips">
+      {item.metrics.map((metric) => <span class="chip">{metric}</span>)}
+    </div>
+
+    <div class="tags">
+      {item.tech.map((tech) => <span class="tag">{tech}</span>)}
+    </div>
+
+    <div class="case-foot">
+      {
+        host ? (
+          <a class="case-link" href={item.link} rel="noopener">
+            {host}
+            <Icon name="ext" size={13} />
+          </a>
+        ) : (
+          <span class="case-note">
+            <Icon name="lock" size={13} />
+            {item.linkNote}
+          </span>
+        )
+      }
+      <span class="mono">{t('c.open')}</span>
+    </div>
+  </div>
+</article>

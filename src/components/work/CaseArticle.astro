@@ -1,0 +1,150 @@
+---
+/**
+ * Разбор кейса: то, что показывает страница `/work/<slug>/` и что оверлей
+ * на главной забирает у неё же.
+ *
+ * Второй копии этого текста нет нигде. Оверлей не собирается из массива
+ * данных в JS, как в макете, а подтягивает готовую страницу и вынимает
+ * отсюда разметку: словарь кейсов в браузер не уезжает, а показанное
+ * в оверлее совпадает со страницей по определению.
+ */
+import ShotSlot from '../shot/ShotSlot.astro';
+import SiteMock from '../shot/SiteMock.astro';
+import ChatMock from '../shot/ChatMock.astro';
+import Icon from '../chrome/Icon.astro';
+import type { CaseView } from '../../lib/cases';
+import { localeFromUrl, useTranslations, sectionPath } from '../../i18n';
+
+interface Props {
+  item: CaseView;
+  prev?: CaseView;
+  next?: CaseView;
+}
+
+const { item, prev, next } = Astro.props;
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const closed = item.shotKind === 'closed';
+const label =
+  item.shotKind === 'telegram' && item.link
+    ? `@${new URL(item.link).pathname.replaceAll('/', '')}`
+    : item.title;
+const host = item.link ? new URL(item.link).host.replace(/^www\./, '') : null;
+
+const blocks = [
+  { key: 'case.task', text: item.body.task },
+  { key: 'case.did', text: item.body.did },
+  { key: 'case.result', text: item.body.result },
+];
+
+/** Дата кейса — дата последнего коммита проекта. Формат числовой: он одинаков в обоих языках. */
+const date = item.date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB');
+---
+
+<article class:list={['case-full', `tone-${item.accent}`]} data-case-article>
+  <header class="case-top">
+    <span class="case-url mono">{item.href}</span>
+    <h1 data-case-title>{item.title}</h1>
+    <p class="case-kind">{item.kind}</p>
+
+    <div class="chips">
+      {item.metrics.map((metric) => <span class="chip">{metric}</span>)}
+    </div>
+  </header>
+
+  <ShotSlot class={closed ? 'closed case-cover' : 'case-cover'} label={label}>
+    {item.shotKind === 'telegram' ? <ChatMock /> : <SiteMock />}
+  </ShotSlot>
+
+  <div class="case-cols">
+    <div>
+      {
+        blocks.map((block) => (
+          <section class="case-sec">
+            <h2>{t(block.key)}</h2>
+            <p>{block.text}</p>
+          </section>
+        ))
+      }
+      <slot />
+    </div>
+
+    <aside class="case-aside" aria-label={t('case.side')}>
+      <div class="case-box">
+        <h2>{t('case.stack')}</h2>
+        <div class="tags">{item.tech.map((tech) => <span class="tag">{tech}</span>)}</div>
+      </div>
+
+      <div class="case-box">
+        <h2>{t('case.link')}</h2>
+        {
+          host ? (
+            <a class="case-link" href={item.link} rel="noopener">
+              {host}
+              <Icon name="ext" size={13} />
+            </a>
+          ) : (
+            <span class="case-note">
+              <Icon name="lock" size={13} />
+              {item.linkNote}
+            </span>
+          )
+        }
+      </div>
+
+      {
+        item.repo && (
+          <div class="case-box">
+            <h2>{t('case.repo')}</h2>
+            <a class="case-link" href={item.repo} rel="noopener">
+              <Icon name="gh" size={13} />
+              {new URL(item.repo).pathname.slice(1)}
+            </a>
+          </div>
+        )
+      }
+
+      <div class="case-box">
+        <h2>{t('case.date')}</h2>
+        <time class="mono" datetime={item.date.toISOString().slice(0, 10)}>{date}</time>
+      </div>
+
+      <a class="btn p" href={sectionPath(locale, 'contact')}>{t('case.cta')}</a>
+    </aside>
+  </div>
+
+  <nav class="case-nav" aria-label={t('case.nav')}>
+    {
+      prev ? (
+        <a class="nvb" href={prev.href} rel="prev">
+          <Icon name="cl" size={15} />
+          <span>
+            <em>{t('case.prev')}</em>
+            <b>{prev.title}</b>
+          </span>
+        </a>
+      ) : (
+        <span />
+      )
+    }
+
+    <span class="mono case-pos">
+      {String(item.order).padStart(2, '0')}
+    </span>
+
+    {
+      next ? (
+        <a class="nvb end" href={next.href} rel="next">
+          <span>
+            <em>{t('case.next')}</em>
+            <b>{next.title}</b>
+          </span>
+          <Icon name="cr" size={15} />
+        </a>
+      ) : (
+        <span />
+      )
+    }
+  </nav>
+</article>

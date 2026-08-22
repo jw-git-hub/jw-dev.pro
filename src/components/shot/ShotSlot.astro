@@ -8,19 +8,36 @@
  * Цвет условной вёрстки внутри (`--sc`) слот берёт из `--cc`, то есть из
  * класса `.tone-*` — произвольных цветов в разметке не бывает (tone.css).
  *
- * Настоящего снимка здесь пока нет нигде: в окнах героя внутрь встаёт
- * условная вёрстка (`SiteMock`, `ChatMock`), в кейсах её место займёт
- * `<Picture>` — фаза 6.
+ * `label` рисует узкую строку адреса над содержимым. В макете на её месте
+ * стояла панель браузера с тремя кружками светофора; кружки сняты решением
+ * владельца 22.08.2026 (ревизия C5): они не сообщают ничего, а слот и так
+ * занимает больше половины карточки. Адрес оставлен — он говорит, на что
+ * вы смотрите, и у ботов на его месте стоит имя бота.
+ *
+ * Настоящего снимка здесь пока нет нигде: внутрь встаёт условная вёрстка
+ * (`SiteMock`, `ChatMock`), её место займёт `<Picture>`, когда владелец
+ * снимет кадры по регламенту CONTENT-CASES §3.
  */
 interface Props {
   class?: string;
+  /** Адрес сайта или имя бота в строке над содержимым. */
+  label?: string;
 }
 
-const { class: className } = Astro.props;
+const { class: className, label } = Astro.props;
 ---
 
-<div class:list={['shot', className]}>
-  <div class="shot-i"><slot /></div>
+<div class:list={['shot', label && 'shot--bar', className]}>
+  <div class="shot-i">
+    {
+      label && (
+        <div class="shot-bar">
+          <span class="shot-url">{label}</span>
+        </div>
+      )
+    }
+    <slot />
+  </div>
   <span class="shot-tint"></span>
   <span class="shot-gloss"></span>
   <span class="shot-veil"></span>

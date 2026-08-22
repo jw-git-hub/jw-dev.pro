@@ -1,0 +1,38 @@
+---
+/**
+ * Секция кейсов на главной — DESIGN-GUIDE §8.
+ *
+ * Порядок карточек задаёт поле `order` кейса, а не дата: сетка — витрина,
+ * её очерёдность решает владелец. Хронология живёт в журнале.
+ */
+import CaseCard from './CaseCard.astro';
+import CaseFilters from './CaseFilters.astro';
+import Icon from '../chrome/Icon.astro';
+import { getCases } from '../../lib/cases';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+const cases = await getCases(locale);
+---
+
+<section id="work" data-acc="rose">
+  <div class="wrap">
+    <div class="sec-head row rv">
+      <div>
+        <span class="kick">{t('kick.work')}</span>
+        <h2>{t('sec.work.t')}</h2>
+        <p class="workline">
+          <Icon name="gh" size={16} />
+          <span>{t('work.note')}</span>
+        </p>
+      </div>
+
+      <CaseFilters total={cases.length} />
+    </div>
+
+    <div class="grid6" data-grid>
+      {cases.map((item) => <CaseCard item={item} />)}
+    </div>
+  </div>
+</section>
