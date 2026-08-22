@@ -72,8 +72,14 @@
   --e: cubic-bezier(0.16, 1, 0.3, 1);
   --hdr: 70px;
 
-  /* шрифты: только системные, фирменность даёт плотный трекинг */
-  --ff: -apple-system, blinkmacsystemfont, 'SF Pro Display', 'Segoe UI', system-ui, sans-serif;
+  /**
+   * Шрифт свой (fonts.css), системные остаются запасом на время загрузки
+   * и на случай, если woff2 не доехал. Порядок запаса — от плотных
+   * к нейтральным: подмена не должна прыгать по ширине строки.
+   */
+  --ff:
+    'Onest Variable', -apple-system, blinkmacsystemfont, 'SF Pro Display', 'Segoe UI', system-ui,
+    sans-serif;
   --fm: ui-monospace, 'SF Mono', sfmono-regular, menlo, monospace;
 
   /* Зерно: одно на весь проект — глобальное поверх страницы (.045) и внутри стекла (.03). */

@@ -26,6 +26,7 @@ const fmt = (bytes) => `${(bytes / KB).toFixed(1)} КБ`;
 const htmlFiles = await filesWithExt(DIST, '.html');
 const cssFiles = await filesWithExt(DIST, '.css');
 const jsFiles = await filesWithExt(DIST, '.js');
+const fontFiles = await filesWithExt(DIST, '.woff2');
 
 const problems = [];
 
@@ -33,6 +34,15 @@ let cssTotal = 0;
 for (const f of cssFiles) cssTotal += await sizeOf(f);
 let jsTotal = 0;
 for (const f of jsFiles) jsTotal += await sizeOf(f);
+
+/**
+ * Шрифты лежат в public/, а не в _astro/, и по ссылкам из разметки их
+ * не собрать: подмножество тянет CSS через unicode-range. Считаем всё,
+ * что вообще может уехать к посетителю, и прибавляем к каждой странице.
+ * Бюджет обязан быть пессимистом — иначе обещание про вес не обещание.
+ */
+let fontTotal = 0;
+for (const f of fontFiles) fontTotal += await sizeOf(f);
 
 if (cssTotal > BUDGET.cssTotal) {
   problems.push(`весь CSS — ${fmt(cssTotal)}, бюджет ${fmt(BUDGET.cssTotal)}`);
@@ -50,7 +60,7 @@ for (const file of htmlFiles) {
     problems.push(`${where} — HTML ${fmt(htmlSize)}, бюджет ${fmt(BUDGET.html)}`);
   }
 
-  let pageSize = htmlSize;
+  let pageSize = htmlSize + fontTotal;
   const re = /(?:href|src)\s*=\s*"(\/_astro\/[^"]+)"/gi;
   let m;
   while ((m = re.exec(html)) !== null) {
@@ -66,6 +76,8 @@ for (const file of htmlFiles) {
 }
 
 if (problems.length === 0) {
-  console.log(`  CSS ${fmt(cssTotal)} · JS ${fmt(jsTotal)} · страниц ${htmlFiles.length}`);
+  console.log(
+    `  CSS ${fmt(cssTotal)} · JS ${fmt(jsTotal)} · шрифты ${fmt(fontTotal)} · страниц ${htmlFiles.length}`,
+  );
 }
 process.exit(report('бюджет веса', problems, htmlFiles.length, 'страниц'));
