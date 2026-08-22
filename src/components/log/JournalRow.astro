@@ -1,0 +1,68 @@
+---
+/**
+ * Строка ленты журнала — DESIGN-GUIDE §8: миниатюра 66×41, дата, тип, заголовок
+ * с одной строкой описания и круглая стрелка.
+ *
+ * У кейса и статьи есть своя страница, поэтому строка — ссылка целиком:
+ * интерактивных элементов внутри нет, вкладывать нечего. У апдейта страницы нет,
+ * и он остаётся `div` — ссылка, ведущая никуда, хуже её отсутствия.
+ *
+ * В миниатюре кейса стоит тот же силуэт, что в карточке, ужатый до 33%.
+ * Строка адреса из него убрана: на 22px, помноженных на 0.33, читать нечего,
+ * а разметки прибавляется на каждую строку ленты.
+ */
+import ShotSlot from '../shot/ShotSlot.astro';
+import SiteMock from '../shot/SiteMock.astro';
+import ChatMock from '../shot/ChatMock.astro';
+import Icon from '../chrome/Icon.astro';
+import type { JournalEntry } from '../../lib/journal';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+interface Props {
+  entry: JournalEntry;
+}
+
+const { entry } = Astro.props;
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+/** Формат числовой: он одинаково читается на обоих языках. */
+const date = entry.date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB');
+const iso = entry.date.toISOString().slice(0, 10);
+
+const Tag = entry.href ? 'a' : 'div';
+const glyph = entry.kind === 'update' ? 'bolt' : 'doc';
+---
+
+<Tag class:list={['jrow', `tone-${entry.tone}`]} href={entry.href} data-jk={entry.kind}>
+  {
+    entry.kind === 'case' ? (
+      <div class="jthumb">
+        <ShotSlot>{entry.shotKind === 'telegram' ? <ChatMock /> : <SiteMock />}</ShotSlot>
+      </div>
+    ) : (
+      <div class="jthumb gl">
+        <Icon name={glyph} size={16} />
+      </div>
+    )
+  }
+
+  <time class="jd" datetime={iso}>{date}</time>
+
+  <span class="jb">
+    <span class="badge kind">{t(`j.kind.${entry.kind}`)}</span>
+  </span>
+
+  <span class="jt">
+    <strong>{entry.title}</strong>
+    {entry.line && <span>{entry.line}</span>}
+  </span>
+
+  {
+    entry.href && (
+      <span class="jgo" aria-hidden="true">
+        <Icon name="arr" size={13} />
+      </span>
+    )
+  }
+</Tag>

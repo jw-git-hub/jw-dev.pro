@@ -1,11 +1,11 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
-import PageStub from '../../../components/chrome/PageStub.astro';
-import { localeFromUrl, useTranslations } from '../../../i18n';
+import LogArchive from '../../../components/log/LogArchive.astro';
+import { useTranslations } from '../../../i18n';
 
-const t = useTranslations(localeFromUrl(Astro.url));
+const t = useTranslations('ru');
 ---
 
 <BaseLayout title={t('log.title')} description={t('log.lead')} accent="violet">
-  <PageStub title={t('log.title')} lead={t('log.lead')} note={t('log.empty')} />
+  <LogArchive />
 </BaseLayout>

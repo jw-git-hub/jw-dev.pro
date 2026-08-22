@@ -1,0 +1,38 @@
+---
+/**
+ * Табы архива со счётчиками — DESIGN-GUIDE §15.
+ *
+ * Группа приезжает с `hidden`, снимает его скрипт: без JS фильтровать нечем,
+ * а кнопки, которые ничего не делают, хуже их отсутствия. Правило то же,
+ * что у фильтров кейсов, и заведено оно там же.
+ *
+ * Счётчики считаются из той же ленты, что и строки, поэтому разойтись
+ * с содержимым им негде.
+ */
+import { ENTRY_KINDS, type EntryKind } from '../../lib/journal';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+interface Props {
+  counts: Record<EntryKind, number>;
+  total: number;
+}
+
+const { counts, total } = Astro.props;
+const t = useTranslations(localeFromUrl(Astro.url));
+
+const tabs = [
+  { id: 'all', count: total },
+  ...ENTRY_KINDS.map((kind) => ({ id: kind, count: counts[kind] })),
+];
+---
+
+<div class="filters log-tabs" role="group" aria-label={t('a11y.logtabs')} hidden data-log-tabs>
+  {
+    tabs.map((tab) => (
+      <button class="fbtn" type="button" data-f={tab.id} aria-pressed={tab.id === 'all'}>
+        {t(`log.tab.${tab.id}`)}
+        <b>{tab.count}</b>
+      </button>
+    ))
+  }
+</div>

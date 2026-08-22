@@ -1,0 +1,45 @@
+---
+/**
+ * Архив журнала — содержимое страницы `/log/`.
+ *
+ * В гайде §15 архив описан оверлеем поверх сайта. Здесь он настоящая страница:
+ * решение владельца 22.08.2026, отступление записано в §15 с датой. Оверлей —
+ * это «страница /log поверх сайта», а страница уже есть; второй такой же список
+ * со своими фильтрами и счётчиками пришлось бы держать в синхроне вручную.
+ */
+import JournalRow from './JournalRow.astro';
+import LogTabs from './LogTabs.astro';
+import Icon from '../chrome/Icon.astro';
+import { getJournal, countByKind } from '../../lib/journal';
+import { feedPath } from '../../lib/feed';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+const entries = await getJournal(locale);
+---
+
+<section class="page-head">
+  <div class="wrap">
+    <div class="sec-head row rv" data-damp>
+      <div>
+        <span class="kick">{t('kick.journal')}</span>
+        <h1>{t('log.title')}</h1>
+        <p class="lead">{t('log.lead')}</p>
+      </div>
+
+      <a class="btn s" href={feedPath(locale)}>
+        <Icon name="rss" size={15} />
+        <span>{t('log.rss')}</span>
+      </a>
+    </div>
+
+    <LogTabs counts={countByKind(entries)} total={entries.length} />
+
+    <div class="jfeed rv" data-damp data-log-feed>
+      {entries.map((entry) => <JournalRow entry={entry} />)}
+    </div>
+
+    <p class="log-none lead" hidden data-log-empty>{t('log.empty')}</p>
+  </div>
+</section>
