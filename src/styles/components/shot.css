@@ -18,6 +18,10 @@
   --sc: var(--cc, var(--cyan));
   --cardc: color-mix(in srgb, var(--panel2) 96%, transparent);
 
+  /* Высота строки адреса фиксированная, а не в процентах: в макете она была
+     долей слота и на обложке страницы вырастала в полосу на сорок пикселей. */
+  --bar: 22px;
+
   position: relative;
   width: 100%;
   aspect-ratio: 16 / 10;
@@ -53,8 +57,7 @@
 .shot-bar {
   display: flex;
   align-items: center;
-  height: 9%;
-  min-height: 14px;
+  height: var(--bar);
   padding: 0 8px;
   border-bottom: 1px solid rgb(255 255 255 / 6%);
   background: rgb(255 255 255 / 4%);
@@ -72,7 +75,7 @@
 
 /* Со строкой адреса вёрстка начинается под ней, а не от кромки слота. */
 .shot--bar .shot-b {
-  inset: 9% 0 0;
+  inset: var(--bar) 0 0;
 }
 
 /* ---- условная вёрстка сайта ---- */

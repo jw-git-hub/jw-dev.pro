@@ -1,0 +1,90 @@
+/**
+ * Оверлей кейса — DESIGN-GUIDE §8.
+ *
+ * Это `<dialog>`, поэтому подложка рисуется псевдоэлементом `::backdrop`,
+ * а не отдельным слоем: браузер сам кладёт её под диалог и над всем
+ * остальным, и z-index здесь не нужен вовсе.
+ *
+ * Внутрь встаёт та же разметка разбора, что и на странице `/work/<slug>/`,
+ * поэтому своих правил для заголовков, абзацев и боковой колонки тут нет —
+ * они в `case.css`. Здесь только окно и то, чем оверлей отличается
+ * от страницы.
+ */
+
+.ovl {
+  position: fixed;
+  inset: 0;
+  width: auto;
+  max-width: none;
+  height: auto;
+  max-height: none;
+  margin: 0;
+  padding: clamp(10px, 3vw, 40px);
+  border: 0;
+  background: transparent;
+  overflow: hidden;
+  overscroll-behavior: contain;
+}
+
+.ovl[open] {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+}
+
+.ovl::backdrop {
+  background: rgb(4 6 14 / 72%);
+  backdrop-filter: blur(14px) saturate(120%);
+  -webkit-backdrop-filter: blur(14px) saturate(120%);
+}
+
+.ovl-p {
+  position: relative;
+  width: 100%;
+  max-width: 1000px;
+  max-height: 100%;
+  overflow-y: auto;
+  padding: clamp(26px, 4vw, 44px);
+  border: 1px solid rgb(255 255 255 / 10%);
+  border-radius: 28px;
+  background: linear-gradient(172deg, color-mix(in srgb, var(--panel) 92%, var(--ink)), var(--bg2));
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 24%),
+    0 60px 130px -50px rgb(0 0 0 / 100%);
+}
+
+.ovl-x {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 9;
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--panel2) 70%, transparent);
+  color: var(--ink);
+  cursor: pointer;
+  transition: 0.4s var(--e);
+}
+
+/* В оверлее у разбора нет своей страницы: убираем внешние поля статьи. */
+.ovl .case-full {
+  max-width: none;
+}
+
+@media (hover: hover) {
+  .ovl-x:hover {
+    background: rgb(255 255 255 / 12%);
+    transform: rotate(90deg);
+  }
+}
+
+@media (max-width: 680px) {
+  .ovl-x {
+    right: 10px;
+    top: 10px;
+  }
+}

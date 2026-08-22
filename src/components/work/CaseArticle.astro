@@ -45,7 +45,7 @@ const date = item.date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB');
 <article class:list={['case-full', `tone-${item.accent}`]} data-case-article>
   <header class="case-top">
     <span class="case-url mono">{item.href}</span>
-    <h1 data-case-title>{item.title}</h1>
+    <h1 class="case-h" data-case-title>{item.title}</h1>
     <p class="case-kind">{item.kind}</p>
 
     <div class="chips">
