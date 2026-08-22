@@ -25,6 +25,31 @@
   "dock.work": "Смотреть работы",
   "dock.msg": "Написать",
 
+  "hero.eyebrow": "Разработчик полного цикла · Дананг, Вьетнам",
+  "hero.h1a": "Боты, сайты, автоматизация.",
+  "hero.h1b": "Инженерия,",
+  "hero.h1c": "а\u00A0не конструктор.",
+  "hero.sub": "Архитектура, код, тесты, деплой — от начала до конца. Семь проектов в\u00A0проде, Lighthouse 94–98 на\u00A0мобильных, репозиторий при сдаче уезжает к\u00A0вам.",
+  "hero.work": "Смотреть работы",
+  "hero.bot": "Открыть живого бота",
+  "hero.site": "vn.neva.beauty — клиника · 16 страниц",
+  "hero.panel": "Lighthouse",
+  "hero.panelNote": "psy-krasnogor.pro · мобильные",
+
+  "hud.status.k": "Статус",
+  "hud.status.v": "Онлайн",
+  "hud.stack.k": "Стек",
+  "hud.stack.v": "Python · aiogram · Docker",
+  "hud.code.k": "Код",
+  "hud.code.v": "8 репозиториев",
+  "hud.prices.k": "Цены",
+  "hud.prices.v": "204 в\u00A0одном файле",
+
+  "stat.projects": "проектов в\u00A0проде",
+  "stat.lighthouse": "Lighthouse на\u00A0мобильных",
+  "stat.weight": "вес страниц после ухода с\u00A0Tilda",
+  "stat.tests": "автотестов стерегут контент",
+
   "footer.note": "Собрано без фреймворков и внешних библиотек.",
   "footer.privacy": "Политика",
   "footer.telegram": "Telegram",
@@ -41,8 +66,5 @@
 
   "e404.title": "Страница не найдена",
   "e404.lead": "Такого адреса нет или запись переехала.",
-  "e404.cta": "На главную",
-
-  "stub.title": "Сайт в разработке",
-  "stub.text": "Здесь скоро будет портфолио. Пока смотрите код на GitHub."
+  "e404.cta": "На главную"
 }

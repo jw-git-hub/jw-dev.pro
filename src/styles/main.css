@@ -23,4 +23,6 @@
 @import './components/dock.css';
 @import './components/footer.css';
 @import './components/mark.css';
-@import './components/stub.css';
+@import './components/shot.css';
+@import './components/hero.css';
+@import './components/stats.css';

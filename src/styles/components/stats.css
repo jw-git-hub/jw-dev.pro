@@ -1,0 +1,65 @@
+/**
+ * Статистика — DESIGN-GUIDE §8. Четыре карточки тихого стекла с цветным
+ * пятном в углу; число досчитывается при появлении (counters.js) — диапазон
+ * от своей нижней границы, остальные от нуля.
+ *
+ * Число залито градиентом от белого к акценту секции. Это заливка текста,
+ * и она измерена: самый тёмный конец на индиго даёт 4,40:1 на заливке `.g.gd`
+ * поверх фона при пороге 3:1 для крупного жирного текста (§18).
+ */
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+}
+
+.stat {
+  position: relative;
+  padding: 26px 24px;
+  overflow: hidden;
+}
+
+.stat .v {
+  background: linear-gradient(120deg, var(--ink), color-mix(in srgb, var(--acc) 80%, var(--ink)));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-size: clamp(1.9rem, 3.4vw, 2.9rem);
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: -0.045em;
+}
+
+.stat .l {
+  margin-top: 10px;
+  color: var(--ink2);
+  font-size: 13.5px;
+  line-height: 1.4;
+}
+
+/* Пятно цвета карточки (--cc из .tone-*). Селектор с .stat обязателен:
+   `.g > *` ставит детям стекла position: relative. */
+.stat .glow {
+  position: absolute;
+  top: -30px;
+  right: -30px;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: var(--cc);
+  opacity: 0.4;
+  filter: blur(34px);
+}
+
+@media (max-width: 1020px) {
+  .stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 420px) {
+  .stats {
+    grid-template-columns: 1fr;
+  }
+}

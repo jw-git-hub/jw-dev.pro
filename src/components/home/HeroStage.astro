@@ -1,0 +1,59 @@
+---
+/**
+ * 3D-сцена героя — DESIGN-GUIDE §10: три окна на разной глубине, три
+ * размытых каустика под ними и четыре HUD-пилюли по углам.
+ *
+ * Сцена целиком декоративна и скрыта от скринридера: каждое её слово
+ * повторяет то, что рядом сказано текстом. Фокусируемых элементов внутри
+ * нет — иначе aria-hidden превратился бы в ловушку для клавиатуры.
+ *
+ * Окна висят на фоновой сети через `data-nx` (§9) и связаны между собой
+ * группой `hero`: это то место, ради которого граф вообще существует.
+ */
+import { localeFromUrl, useTranslations } from '../../i18n';
+import { SITE } from '../../data/site';
+import { HUD_PILLS, PANEL_SCORE } from '../../data/hero';
+import HeroWindow from './HeroWindow.astro';
+import MetricPanel from './MetricPanel.astro';
+import ShotSlot from '../shot/ShotSlot.astro';
+import SiteMock from '../shot/SiteMock.astro';
+import ChatMock from '../shot/ChatMock.astro';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+/** Хендл бота режется из его адреса: два написания одного имени разъезжаются. */
+const botHandle = `@${SITE.bot.split('/').pop()}`;
+---
+
+<div class="stage" aria-hidden="true">
+  <div class="stage-in">
+    <span class="caustic cA" data-par="1.5"></span>
+    <span class="caustic cB" data-par="1.2"></span>
+    <span class="caustic cC" data-par="1.8"></span>
+
+    <HeroWindow place="wA" drift="drift1" amp={7} accent="cyan" side="left" title={t('hero.site')}>
+      <ShotSlot class="tone-cyan"><SiteMock /></ShotSlot>
+    </HeroWindow>
+
+    <HeroWindow place="wB" drift="drift2" amp={9} accent="violet" side="right" title={botHandle}>
+      <ShotSlot class="tg tone-violet"><ChatMock /></ShotSlot>
+    </HeroWindow>
+
+    <HeroWindow place="wC" drift="drift3" amp={12} accent="indigo" side="right" panel>
+      <MetricPanel title={t('hero.panel')} value={PANEL_SCORE} note={t('hero.panelNote')} />
+    </HeroWindow>
+
+    <div class="hudwrap">
+      {
+        HUD_PILLS.map((pill) => (
+          <span class:list={['hud', pill.place]} data-amp={pill.amp} data-nx data-nxc={pill.accent}>
+            <b class="k">{t(`${pill.key}.k`)}</b>
+            <i>/</i>
+            <b>{t(`${pill.key}.v`)}</b>
+          </span>
+        ))
+      }
+    </div>
+  </div>
+</div>

@@ -93,17 +93,23 @@
   opacity: 0;
   transition: opacity 0.55s var(--e);
   animation: gradient-slide 9s linear infinite;
+
+  /* Пока рамка погашена, гонять по ней градиент незачем: это перерисовка
+     невидимого, а карточек с `.irid` на экране бывает четыре и больше. */
+  animation-play-state: paused;
   pointer-events: none;
 }
 
 .irid:focus-within::before,
 .irid.on::before {
   opacity: 0.9;
+  animation-play-state: running;
 }
 
 /* `.always` — карточка светится в покое: так помечается главное в блоке. */
 .irid.always::before {
   opacity: 0.42;
+  animation-play-state: running;
 }
 
 /**
@@ -114,6 +120,7 @@
 @media (hover: hover) and (pointer: fine) {
   .irid:hover::before {
     opacity: 0.9;
+    animation-play-state: running;
   }
 
   .irid.always:hover::before {
