@@ -30,10 +30,19 @@ export interface Stat {
 }
 
 export const STATS: Stat[] = [
-  // Репозитории jw-git-hub: семь проектов, восьмой репозиторий — этот сайт.
+  /*
+   * Репозитории jw-git-hub: семь проектов, восьмой репозиторий — этот сайт.
+   * Подпись — «в работе», а не «в проде»: neva-beauty-bot по своему TODO.md
+   * живёт на тестовом окружении, боевой запуск у него впереди.
+   */
   { key: 'stat.projects', value: 7, accent: 'cyan' },
 
-  // README vn.neva.beauty: Performance 94–98 на мобильных; psy-krasnogor.pro — 96.
+  /*
+   * Диапазон из README vn.neva.beauty, подтверждён своим замером 22.08.2026:
+   * Lighthouse 12.8.2, мобильный профиль, три прогона — 96, 98, 95.
+   * Подпись называет сайт намеренно. Общей цифры «по проектам» здесь быть
+   * не может: тем же замером psy-krasnogor.pro дал Performance 87.
+   */
   { key: 'stat.lighthouse', value: 98, from: 94, prefix: '94–', accent: 'violet' },
 
   /**

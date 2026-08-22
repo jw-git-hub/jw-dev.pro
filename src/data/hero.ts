@@ -36,5 +36,12 @@ export const HUD_PILLS: HudPill[] = [
   { key: 'hud.prices', place: 'hudD', accent: 'rose', amp: 12 },
 ];
 
-/** Lighthouse psy-krasnogor.pro на мобильных — CONTENT-CASES §5.3. */
+/*
+ * Lighthouse vn.neva.beauty на мобильных: свой замер 22.08.2026, Lighthouse
+ * 12.8.2, медиана трёх прогонов (96, 98, 95).
+ *
+ * Раньше здесь стоял psy-krasnogor.pro с цифрой 96 из макета. Замер её
+ * не подтвердил — у того сайта Performance 87, потому что шесть файлов
+ * шрифтов на 203 КБ объявлены без `unicode-range`.
+ */
 export const PANEL_SCORE = '96';
