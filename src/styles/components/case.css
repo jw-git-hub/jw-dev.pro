@@ -210,7 +210,12 @@
   letter-spacing: 0.1em;
 }
 
-.case-full h1 {
+/**
+ * Заголовок разбора отдельным классом, а не по тегу: на странице это `h1`,
+ * а в оверлее скрипт понижает его до `h2` — двух `h1` на странице не бывает
+ * (правило 7), и селектор по тегу потерял бы стиль ровно в оверлее.
+ */
+.case-h {
   margin: 0;
   font-family: var(--fm);
   font-size: clamp(26px, 3.4vw, 38px);
@@ -223,7 +228,9 @@
   font-size: 14px;
 }
 
+/* Пропорция мастер-кадра роли `cover` — 1920×960 (CONTENT-CASES §3). */
 .case-cover {
+  aspect-ratio: 2 / 1;
   border-radius: 20px;
 }
 
@@ -260,6 +267,14 @@
   flex-direction: column;
   gap: 20px;
   align-self: start;
+}
+
+.case-box {
+  padding: 18px;
+  border: 1px solid rgb(255 255 255 / 8%);
+  border-radius: 18px;
+  background: rgb(255 255 255 / 3.5%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 16%);
 }
 
 .case-box h2 {

@@ -7,6 +7,7 @@
  */
 import CaseCard from './CaseCard.astro';
 import CaseFilters from './CaseFilters.astro';
+import CaseOverlay from './CaseOverlay.astro';
 import Icon from '../chrome/Icon.astro';
 import { getCases } from '../../lib/cases';
 import { localeFromUrl, useTranslations } from '../../i18n';
@@ -35,4 +36,6 @@ const cases = await getCases(locale);
       {cases.map((item) => <CaseCard item={item} />)}
     </div>
   </div>
+
+  <CaseOverlay />
 </section>

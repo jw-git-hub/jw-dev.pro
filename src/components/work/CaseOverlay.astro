@@ -1,0 +1,28 @@
+---
+/**
+ * Оверлей кейса на главной — DESIGN-GUIDE §8.
+ *
+ * Это `<dialog>`, а не `<div class="ovl">` из макета: модальный диалог
+ * браузера сам держит ловушку фокуса, закрытие по Esc и `inert` для страницы
+ * под собой. Писать это руками — тридцать строк, которые уже написаны
+ * в движке и лучше протестированы.
+ *
+ * Без JS диалог не показывается вовсе: `<dialog>` без атрибута `open`
+ * скрыт по умолчанию. Ссылки на карточках при этом продолжают вести
+ * на страницы разбора, поэтому терять посетителю нечего.
+ */
+import Icon from '../chrome/Icon.astro';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+const t = useTranslations(localeFromUrl(Astro.url));
+---
+
+<dialog class="ovl" data-overlay>
+  <div class="ovl-p">
+    <button class="ovl-x" type="button" data-overlay-close aria-label={t('case.close')}>
+      <Icon name="x" size={18} />
+    </button>
+
+    <div class="ovl-c" data-overlay-content></div>
+  </div>
+</dialog>
