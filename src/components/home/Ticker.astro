@@ -1,0 +1,28 @@
+---
+/**
+ * Бегущая строка со стеком — план, часть 4, пункт 5.
+ *
+ * Полоса декоративная: те же имена лежат ниже в кольце, и озвучивать их
+ * дважды скринридеру незачем — отсюда `aria-hidden`.
+ *
+ * Лента продублирована в разметке, а не размножается скриптом: без JS
+ * строка обязана выглядеть целой, а не обрываться на середине экрана.
+ * Анимация сдвигает ровно на половину ширины, поэтому шов не виден.
+ */
+import { CHIPS, groupAccent } from '../../data/stack';
+
+const RUN = [...CHIPS, ...CHIPS];
+---
+
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-run">
+    {
+      RUN.map((chip) => (
+        <span class="ticker-item">
+          <i class:list={['ticker-dot', `tone-${groupAccent(chip.group)}`]} />
+          {chip.name}
+        </span>
+      ))
+    }
+  </div>
+</div>

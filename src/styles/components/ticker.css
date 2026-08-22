@@ -1,0 +1,60 @@
+/**
+ * Бегущая строка со стеком. Полоса во всю ширину окна, поэтому лежит
+ * вне `.wrap` и своих полей не имеет.
+ *
+ * Маска по краям — вместо заливки-градиента поверх ленты: заливка пришлось бы
+ * красить в цвет фона, а фон здесь живой (аврора и граф просвечивают).
+ *
+ * Сдвиг ровно на −50%: в разметке лежат две одинаковые копии списка,
+ * и в конце цикла вторая оказывается точно там, где начиналась первая.
+ */
+
+.ticker {
+  --ticker-time: 46s;
+
+  position: relative;
+  z-index: 3;
+  overflow: hidden;
+  border-block: 1px solid var(--line2);
+  mask-image: linear-gradient(90deg, transparent, #000 12%, #000 88%, transparent);
+  padding: 15px 0;
+}
+
+.ticker-run {
+  display: flex;
+  gap: 34px;
+  width: max-content;
+  animation: ticker var(--ticker-time) linear infinite;
+}
+
+.ticker-item {
+  display: inline-flex;
+  gap: 9px;
+  align-items: center;
+  color: var(--ink3);
+  font-family: var(--fm);
+  font-size: 12.5px;
+  white-space: nowrap;
+}
+
+.ticker-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--cc);
+  box-shadow: 0 0 8px var(--cc);
+}
+
+@keyframes ticker {
+  to {
+    transform: translate3d(-50%, 0, 0);
+  }
+}
+
+/* Просьба «меньше движения» останавливает ленту: бесконечная анимация —
+   ровно тот случай, ради которого настройка существует. */
+@media (prefers-reduced-motion: reduce) {
+  .ticker-run {
+    animation: none;
+  }
+}

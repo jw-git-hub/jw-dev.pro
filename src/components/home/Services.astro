@@ -1,0 +1,60 @@
+---
+/**
+ * Направления — план Ф7, DESIGN-GUIDE §8.
+ *
+ * Секция идёт после кейсов намеренно: герой уже сказал, что я делаю,
+ * а доказательства сильнее обещаний. Без цен этот блок — расширение героя,
+ * и стоять выше работ ему нечем.
+ *
+ * Порядок внутри карточки — «что входит», потом «на выходе». Второй блок
+ * набран крупнее списка: посетитель покупает результат, а не перечень работ.
+ */
+import Icon from '../chrome/Icon.astro';
+import { localeFromUrl, useTranslations } from '../../i18n';
+import { SERVICES } from '../../data/services';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<section id="services" data-acc="violet">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kick">{t('kick.services')}</span>
+      <h2>{t('sec.services.t')}</h2>
+      <p class="lead">{t('sec.services.s')}</p>
+    </div>
+
+    <div class="svcs">
+      {
+        SERVICES.map((service) => (
+          <article
+            class:list={['svc', 'g', 'gd', 'irid', 'rv', `tone-${service.accent}`]}
+            data-damp="0.5"
+          >
+            <span class="svc-glow" />
+
+            <span class="svc-icon">
+              <Icon name={service.icon} size={20} />
+            </span>
+
+            <h3>{t(`${service.key}.t`)}</h3>
+            <p class="svc-lead">{t(`${service.key}.d`)}</p>
+
+            <p class="svc-cap mono">{t('svc.in')}</p>
+            <ul class="svc-list">
+              {service.points.map((point) => (
+                <li>{t(point)}</li>
+              ))}
+            </ul>
+
+            <p class="svc-out">
+              <span class="svc-cap mono">{t('svc.out')}</span>
+              <span>{t(service.out)}</span>
+            </p>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

@@ -1,0 +1,74 @@
+---
+/**
+ * Стек — план Ф7, DESIGN-GUIDE §12.
+ *
+ * Порядок сборки обратный макету — решение ревизии C4 от 22.08.2026.
+ * Базовое состояние здесь не «кольцо без 3D», а сгруппированная сетка:
+ * по §17 кольцо выключается на ≤900px, то есть большинству трафика
+ * достаётся именно она, и выглядеть обрезанной она не имеет права.
+ * Кольцо надстраивается поверх на десктопе (`ring.js` ставит `.on`).
+ *
+ * Поэтому чипы лежат в группах, а не одним списком: в плоском виде группа —
+ * это строка с подписью, в кольце она становится `display: contents`
+ * и на раскладку не влияет.
+ */
+import { localeFromUrl, useTranslations } from '../../i18n';
+import { STACK_GROUPS, CHIPS, groupAccent } from '../../data/stack';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const chipsOf = (group: string) => CHIPS.filter((chip) => chip.group === group);
+---
+
+<section id="stack" data-acc="cyan">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kick">{t('kick.stack')}</span>
+      <h2>{t('sec.stack.t')}</h2>
+      <p class="lead">{t('sec.stack.s')}</p>
+    </div>
+
+    <div class="ringwrap rv">
+      <div class="legend" role="group" aria-label={t('a11y.stack')}>
+        {
+          STACK_GROUPS.map((group) => (
+            <button
+              type="button"
+              class:list={['leg', `tone-${group.accent}`]}
+              data-g={group.id}
+              aria-pressed="false"
+            >
+              <i />
+              {t(group.key)}
+            </button>
+          ))
+        }
+      </div>
+
+      <div class="ring" data-ring>
+        <div class="ring-in" data-ring-in>
+          {
+            STACK_GROUPS.map((group) => (
+              <div class="ring-group" data-g={group.id}>
+                <span class="ring-glabel mono">{t(group.key)}</span>
+                {chipsOf(group.id).map((chip) => (
+                  <span
+                    class:list={['chip3', `tone-${groupAccent(chip.group)}`]}
+                    data-g={chip.group}
+                  >
+                    <i />
+                    {chip.name}
+                  </span>
+                ))}
+              </div>
+            ))
+          }
+        </div>
+
+        <div class="ring-floor"></div>
+        <p class="ring-hint mono">{t('stack.hint')}</p>
+      </div>
+    </div>
+  </div>
+</section>

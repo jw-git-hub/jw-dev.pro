@@ -1,0 +1,248 @@
+/**
+ * Процесс — DESIGN-GUIDE §11. Кривая с бегущим импульсом на широком экране,
+ * вертикальная рельса с едущей точкой на ≤900px.
+ *
+ * Оба вида показывают одно и то же — где сейчас идёт цикл, — но кривая
+ * на узком экране сжимается в неразличимую загогулину, поэтому там её нет.
+ *
+ * Позицию узлов и точки рельсы ставит process.js через CSSOM: доли длины
+ * пути считает браузер, в разметке их не выразить.
+ */
+
+.proc {
+  position: relative;
+}
+
+.prsvg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+.prpath {
+  fill: none;
+  stroke: rgb(255 255 255 / 10%);
+  stroke-width: 2;
+}
+
+/* Градиентная линия открывается по мере движения импульса: dashoffset ведёт JS. */
+.prpath2 {
+  fill: none;
+  stroke: url('#prg');
+  stroke-width: 2.6;
+  stroke-dasharray: 1 2000;
+  stroke-linecap: round;
+}
+
+.prg1 {
+  stop-color: var(--cyan);
+}
+
+.prg2 {
+  stop-color: var(--indigo);
+}
+
+.prg3 {
+  stop-color: var(--violet);
+}
+
+.prg4 {
+  stop-color: var(--rose);
+}
+
+.prg5 {
+  stop-color: var(--amber);
+}
+
+/* Узлы прячутся до того, как скрипт разложит их по кривой. */
+.prnode {
+  opacity: 0;
+  transition: opacity 0.6s var(--e);
+}
+
+.proc.ready .prnode {
+  opacity: 1;
+}
+
+.prdisc {
+  fill: var(--panel);
+  stroke: var(--cc);
+  stroke-width: 1.5;
+}
+
+.prhalo {
+  fill: none;
+  stroke: var(--cc);
+  stroke-width: 1;
+  opacity: 0;
+}
+
+.prnode.on .prhalo {
+  animation: halo 2.4s ease-out infinite;
+}
+
+.prnum {
+  fill: var(--ink2);
+  font-family: var(--fm);
+  font-size: 15px;
+  text-anchor: middle;
+}
+
+.prnode.on .prnum {
+  fill: var(--cc);
+}
+
+@keyframes halo {
+  from {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
+
+  to {
+    opacity: 0;
+    transform: scale(1.5);
+  }
+}
+
+/* ── Карточки шагов ────────────────────────────────────────────────── */
+
+.psteps {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-top: 26px;
+  padding: 0;
+  list-style: none;
+  counter-reset: none;
+}
+
+.pstep {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 20px 18px;
+  border: 1px solid var(--line);
+  text-align: left;
+  cursor: pointer;
+  transition:
+    transform 0.6s var(--e),
+    border-color 0.6s var(--e),
+    box-shadow 0.6s var(--e);
+}
+
+.pstep-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pstep-i {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--line);
+  border-radius: 11px;
+  color: var(--ink3);
+  transition:
+    color 0.6s var(--e),
+    border-color 0.6s var(--e);
+}
+
+.pstep-n {
+  color: var(--ink3);
+  font-size: 12px;
+  transition: color 0.6s var(--e);
+}
+
+.pstep-t {
+  margin-top: 16px;
+  color: var(--ink);
+  font-size: 15.5px;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+
+.pstep-d {
+  margin-top: 8px;
+  color: var(--ink3);
+  font-size: 13.5px;
+  line-height: 1.5;
+  transition: color 0.6s var(--e);
+}
+
+/* Шаг «загорается» в момент прохождения импульса. */
+.pstep.on {
+  transform: translateY(-6px);
+  border-color: color-mix(in srgb, var(--cc) 42%, transparent);
+  box-shadow: 0 0 34px -14px var(--cc);
+}
+
+.pstep.on .pstep-i,
+.pstep.on .pstep-n {
+  border-color: color-mix(in srgb, var(--cc) 42%, transparent);
+  color: var(--cc);
+}
+
+.pstep.on .pstep-d {
+  color: var(--ink2);
+}
+
+/* ── Вертикальная рельса на узком экране ───────────────────────────── */
+
+.prail {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .prsvg {
+    display: none;
+  }
+
+  .psteps {
+    grid-template-columns: 1fr;
+    margin-top: 0;
+    padding-left: 30px;
+  }
+
+  .prail {
+    display: block;
+    position: absolute;
+    top: 8px;
+    bottom: 8px;
+    left: 5px;
+    width: 2px;
+    background: var(--line);
+  }
+
+  .prail i {
+    position: absolute;
+    top: 0;
+    left: -4px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--acc);
+    box-shadow: 0 0 14px var(--acc);
+    transition: top 0.9s var(--e);
+  }
+
+  .pstep.on {
+    transform: none;
+  }
+}
+
+/* Просьба «меньше движения»: гало узлов и подъём шага выключены,
+   подсветка активного шага остаётся — она несёт смысл, а не движение. */
+@media (prefers-reduced-motion: reduce) {
+  .prnode.on .prhalo {
+    animation: none;
+  }
+
+  .pstep.on {
+    transform: none;
+  }
+}
