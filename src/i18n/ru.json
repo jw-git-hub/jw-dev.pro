@@ -47,7 +47,7 @@
 
   "stat.projects": "проектов в\u00A0проде",
   "stat.lighthouse": "Lighthouse на\u00A0мобильных",
-  "stat.weight": "вес страниц после ухода с\u00A0Tilda",
+  "stat.weight": "кода на странице после ухода с\u00A0Tilda",
   "stat.tests": "автотестов стерегут контент",
 
   "footer.note": "Собрано без фреймворков и внешних библиотек.",
