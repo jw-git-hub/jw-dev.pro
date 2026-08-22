@@ -5,6 +5,7 @@
  * так что лишних запросов не появляется.
  */
 
+@import './fonts.css';
 @import './tokens.css';
 @import './accent.css';
 @import './tone.css';

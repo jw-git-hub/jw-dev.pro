@@ -78,6 +78,22 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
 
+    {
+      /* Предзагружаем подмножество своего языка: на нём набран весь текст страницы,
+        и без этого шрифт находится только после разбора CSS. Второе подмножество
+        (знак, «GitHub», переключатель языка) доедет само.
+
+        crossorigin обязателен даже со своего домена: шрифты качаются в режиме CORS,
+        и без атрибута preload не засчитывается — файл скачается дважды. */
+    }
+    <link
+      rel="preload"
+      href={locale === 'ru' ? '/fonts/onest-cyrillic.woff2' : '/fonts/onest-latin.woff2'}
+      as="font"
+      type="font/woff2"
+      crossorigin
+    />
+
     <meta property="og:type" content="website" />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />

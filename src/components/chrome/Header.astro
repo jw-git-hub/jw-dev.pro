@@ -8,6 +8,7 @@
  * бургер оставался виден и закрывал меню повторным нажатием.
  */
 import { NAV_ITEMS } from '../../data/nav';
+import { SITE } from '../../data/site';
 import { localeFromUrl, useTranslations, homePath, sectionPath } from '../../i18n';
 import Mark from './Mark.astro';
 import LangSwitch from './LangSwitch.astro';
@@ -22,12 +23,32 @@ const { langPath } = Astro.props;
 
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
+
+/**
+ * Словесный знак режется из домена по последней точке: имя набирается
+ * основным цветом, зона приглушается. Литерала здесь нет намеренно —
+ * имя сайта живёт в SITE.name, и шапка обязана совпадать с адресной
+ * строкой, иначе посетитель видит два разных названия.
+ */
+const dot = SITE.name.lastIndexOf('.');
+const brandName = SITE.name.slice(0, dot);
+const brandZone = SITE.name.slice(dot);
 ---
 
 <header class="hdr" id="hdr">
   <div class="wrap hdr-in">
-    <a class="brand" href={homePath(locale)} aria-label={t('a11y.home')}>
+    {
+      /* aria-label не нужен: доступным именем ссылки стал сам словесный знак.
+        Подпись, расходящаяся с видимым текстом, ломает голосовое управление —
+        человек говорит «jw-dev.pro», а команда ищет «На главную». */
+    }
+    <a class="brand" href={homePath(locale)}>
       <Mark />
+      {
+        /* Строго одной строкой: Astro, в отличие от JSX, сохраняет перенос
+          как пробел, и знак распадётся на «jw-dev .pro». */
+      }
+      <span class="wordmark">{brandName}<span class="zone">{brandZone}</span></span>
     </a>
 
     <nav class="nav" aria-label={t('a11y.nav')}>
