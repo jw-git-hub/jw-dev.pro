@@ -40,24 +40,47 @@
 
 ## 1. Цветовые токены
 
-Объявлены в `:root`. Два токена — `--acc` и `--acc2` — регистрируются через `@property`,
-чтобы их можно было **анимировать** при смене секции.
+Объявлены в `:root`. Три токена — `--acc`, `--acc-ink` и `--acc2` — регистрируются
+через `@property`, чтобы их можно было **анимировать** при смене секции.
 
 ```css
 @property --acc{syntax:'<color>';inherits:true;initial-value:#22D3EE}
+@property --acc-ink{syntax:'<color>';inherits:true;initial-value:#22D3EE}
 @property --acc2{syntax:'<color>';inherits:true;initial-value:#A855F7}
 :root{
 --bg:#070912; --bg2:#05060D; --panel:#0D1120; --panel2:#0A0E1B;
 --ink:#F0F4FA; --ink2:rgba(240,244,250,.72); --ink3:rgba(240,244,250,.56);
 --indigo:#4F46E5; --cyan:#22D3EE; --violet:#A855F7; --amber:#FFB020; --rose:#FF4D9E;
---acc:#22D3EE; --acc2:#A855F7;
+--indigo-ink:#818CF8;
+--acc:#22D3EE; --acc-ink:#22D3EE; --acc2:#A855F7;
 --line:rgba(255,255,255,.09); --line2:rgba(255,255,255,.055);
 --r:22px; --r2:16px;
 --e:cubic-bezier(.16,1,.3,1);
 --hdr:70px;
-transition:--acc .9s var(--e), --acc2 .9s var(--e);
+transition:--acc .9s var(--e), --acc-ink .9s var(--e), --acc2 .9s var(--e);
 }
 ```
+
+### Отступление от макета: чернильный индиго
+
+В макете акцент один — `--acc` — и он же пишет, и он же заливает. Для четырёх цветов
+из пяти это работает, для индиго нет: `#4F46E5` даёт **3,16:1** на фоне и **2,92:1**
+на стекле. Это ниже порога AA и для текста (4,5:1), и для обводки фокуса (3:1),
+а индиго — акцент трёх секций из одиннадцати. Правило владельца «WCAG 2.2 AA»
+и таблица §2 в макете несовместимы, и разрешено это в пользу доступности
+**решением владельца от 22.08.2026**.
+
+Поэтому акцентов теперь три, а не два:
+
+| Токен | Что делает | Индиго | Остальные четыре |
+|---|---|---|---|
+| `--acc` | заливки, свечения, тени, пятна, узлы графа | `#4F46E5` | цвет акцента |
+| `--acc-ink` | **всё, что пишет или обводит**: текст, обводка фокуса, 1px-линии, точки состояния, заливка под тёмным текстом | `#818CF8` (6,66:1) | тот же цвет, что `--acc` |
+| `--acc2` | напарник в градиентах | `#22D3EE` | по таблице §2 |
+
+`#818CF8` — не новый цвет, а тот же оттенок на четыре ступени светлее (indigo-400).
+Правило простое: **красишь фон — `--acc`, красишь пиксели текста или линию, которую
+надо разглядеть, — `--acc-ink`.**
 
 | Токен | Значение | Для чего |
 |---|---|---|
@@ -69,7 +92,8 @@ transition:--acc .9s var(--e), --acc2 .9s var(--e);
 | `--ink2` | `rgba(240,244,250,.72)` | **минимум для абзацев**, вторичный текст, лейблы кнопок |
 | `--ink3` | `rgba(240,244,250,.56)` | только моно-подписи, чипы, подписи полей. Не для абзацев |
 | `--cyan` | `#22D3EE` | акцент 1: hero, stack |
-| `--indigo` | `#4F46E5` | акцент 2: stats, about, kit |
+| `--indigo` | `#4F46E5` | акцент 2: stats, about, kit. **Только заливки** — контраст 3,16:1 |
+| `--indigo-ink` | `#818CF8` | им пишут в индиго-секциях: 6,66:1 на фоне, 6,16:1 на стекле |
 | `--violet` | `#A855F7` | акцент 3: services, journal |
 | `--amber` | `#FFB020` | акцент 4: process; бейдж «В разработке»; «optional» в таблице |
 | `--rose` | `#FF4D9E` | акцент 5: work, contact; ошибки формы |
@@ -109,19 +133,22 @@ transition:--acc .9s var(--e), --acc2 .9s var(--e);
 
 Каждая `<section>` объявляет свой акцент атрибутом `data-acc`:
 
-| Секция | `data-acc` | `--acc` | `--acc2` |
-|---|---|---|---|
-| `#hero` | cyan | `#22D3EE` | `#4F46E5` |
-| `#stats` | indigo | `#4F46E5` | `#22D3EE` |
-| `#services` | violet | `#A855F7` | `#FF4D9E` |
-| `#work` | rose | `#FF4D9E` | `#A855F7` |
-| `#stack` | cyan | `#22D3EE` | `#4F46E5` |
-| `#process` | amber | `#FFB020` | `#FF4D9E` |
-| `#about` | indigo | `#4F46E5` | `#22D3EE` |
-| `#journal` | violet | `#A855F7` | `#FF4D9E` |
-| `#faq` | cyan | `#22D3EE` | `#4F46E5` |
-| `#contact` | rose | `#FF4D9E` | `#A855F7` |
-| `#kit` | indigo | `#4F46E5` | `#22D3EE` |
+| Секция | `data-acc` | `--acc` | `--acc-ink` | `--acc2` |
+|---|---|---|---|---|
+| `#hero` | cyan | `#22D3EE` | `#22D3EE` | `#4F46E5` |
+| `#stats` | indigo | `#4F46E5` | **`#818CF8`** | `#22D3EE` |
+| `#services` | violet | `#A855F7` | `#A855F7` | `#FF4D9E` |
+| `#work` | rose | `#FF4D9E` | `#FF4D9E` | `#A855F7` |
+| `#stack` | cyan | `#22D3EE` | `#22D3EE` | `#4F46E5` |
+| `#process` | amber | `#FFB020` | `#FFB020` | `#FF4D9E` |
+| `#about` | indigo | `#4F46E5` | **`#818CF8`** | `#22D3EE` |
+| `#journal` | violet | `#A855F7` | `#A855F7` | `#FF4D9E` |
+| `#faq` | cyan | `#22D3EE` | `#22D3EE` | `#4F46E5` |
+| `#contact` | rose | `#FF4D9E` | `#FF4D9E` | `#A855F7` |
+| `#kit` | indigo | `#4F46E5` | **`#818CF8`** | `#22D3EE` |
+
+Тройки живут в `src/styles/accent.css` под селекторами `html[data-acc='…']`,
+а не подставляются из скрипта: значений цвета в JS в проекте нет вовсе.
 
 ```js
 var ACC={cyan:['#22D3EE','#4F46E5'],indigo:['#4F46E5','#22D3EE'],violet:['#A855F7','#FF4D9E'],
@@ -171,10 +198,10 @@ body{font-size:16px;line-height:1.62;-webkit-font-smoothing:antialiased;text-ren
 | `.lead` | `color:var(--ink2); font-size:clamp(1rem,1.15vw,1.09rem); max-width:60ch; margin-top:14px` |
 | `.hero-sub` | `color:var(--ink2); font-size:clamp(1rem,1.35vw,1.16rem); max-width:56ch; margin-top:22px` |
 | `.mono` | `var(--fm); 11px; letter-spacing:.14em; text-transform:uppercase; color:var(--ink3)` |
-| `.kick` (надзаголовок) | `var(--fm); 11px; letter-spacing:.18em; uppercase; color:var(--acc)`, перед ним черта 22×1px градиентом к `--acc` |
+| `.kick` (надзаголовок) | `var(--fm); 11px; letter-spacing:.18em; uppercase; color:var(--acc-ink)`, перед ним черта 22×1px градиентом к `--acc-ink` |
 | Текст карточки кейса | `13.6px / 1.55`, цвет `--ink2` |
 | Название кейса `.case-ttl` | `var(--fm); 15px; font-weight:600; letter-spacing:-.01em` |
-| Цена `.svc .price` | `var(--fm); 14px; color:var(--acc); font-weight:600` |
+| Цена `.svc .price` | `var(--fm); 14px; color:var(--acc-ink); font-weight:600` |
 | Пункты мобильного меню | `clamp(1.6rem,8vw,2.3rem); font-weight:660; letter-spacing:-.04em` |
 | Статистика `.stat .v` | `clamp(1.9rem,3.4vw,2.9rem); font-weight:700; letter-spacing:-.045em; line-height:1` |
 
@@ -308,18 +335,18 @@ html.noblur .win-body{backdrop-filter:none;-webkit-backdrop-filter:none;backgrou
 
 | Вариант | Класс | Отличия |
 |---|---|---|
-| Primary | `.btn.p` | текст `#05070E`, `font-weight:700`, заливка `linear-gradient(118deg,var(--acc) 0%,var(--acc2) 58%,var(--rose) 100%)` с `background-size:200% 100%`; на ховере `background-position:100% 0`; тень `0 12px 34px -16px color-mix(in srgb,var(--acc) 70%,transparent)` → на ховере `0 18px 44px -16px …85%` |
+| Primary | `.btn.p` | текст `#05070E`, `font-weight:700`, заливка `linear-gradient(118deg,var(--acc-ink) 0%,var(--acc2) 58%,var(--rose) 100%)` (первая точка чернильная: под тёмным лейблом), с `background-size:200% 100%`; на ховере `background-position:100% 0`; тень `0 12px 34px -16px color-mix(in srgb,var(--acc) 70%,transparent)` → на ховере `0 18px 44px -16px …85%` |
 | Secondary | `.btn.s` | `rgba(255,255,255,.045)`, рамка `.11`, `inset 0 1px 0 rgba(255,255,255,.16)`; ховер — заливка `.085`, рамка `.2` |
 | Ghost | `.btn.gh` | `color:var(--ink2)`, прозрачная; ховер — `rgba(255,255,255,.06)` |
 | Small | `.btn.sm` | `padding:8px 16px; font-size:12.5px` |
 | Icon | `.btn.ico` | `40×40`, `padding:0`; вместе с `.sm` — `32×32` |
 | Disabled | `[disabled]`, `[aria-disabled=true]` | `opacity:.4; cursor:not-allowed; pointer-events:none` |
-| Loading | `.btn .spn` | спиннер 14×14, рамка `2px rgba(255,255,255,.28)`, верх — `var(--acc)`, `animation:spin1 .8s linear infinite` |
+| Loading | `.btn .spn` | спиннер 14×14, рамка `2px rgba(255,255,255,.28)`, верх — `var(--acc-ink)`, `animation:spin1 .8s linear infinite` |
 | С переливом | `.btn.trav` | см. §6 |
 
 Прочие пилюли: `.pill` (тег/факт, `padding:6px 13px`, 12.5px), `.pill.mn` (моно, 10.5px, uppercase),
 `.pill.acc` (в цвете акцента), `.fbtn` (таб фильтра, `padding:9px 18px`; активный —
-`aria-pressed="true"`, заливка `linear-gradient(118deg,var(--acc),var(--acc2))`, текст `#05070E`),
+`aria-pressed="true"`, заливка `linear-gradient(118deg,var(--acc-ink),var(--acc2))`, текст `#05070E`),
 `.chip` (метрика кейса, цвет из `--cc` карточки через `color-mix`), `.tag` (стек, `--ink3`),
 `.badge` (`.pop` amber→rose, `.dev` amber, `.live` `#34D399`→cyan, `.off` нейтральный),
 `.bdg` (`.ok` / `.wr` / `.er` / `.nt` — индикаторы в наборе).
@@ -647,7 +674,7 @@ el.classList.toggle('near', f > 0.78);         // ближние чипы све
 `scaleX(0)→scaleX(1)` цвета `--acc` за `.45s`; активный пункт получает класс `.cur` при скролле.
 
 **Переключатель языка** — пилюля с двумя кнопками `[data-lang]`; активная помечена
-`aria-pressed="true"` и залита `linear-gradient(120deg,var(--acc),var(--acc2))` с текстом `#05070E`.
+`aria-pressed="true"` и залита `linear-gradient(120deg,var(--acc-ink),var(--acc2))` с текстом `#05070E`.
 Он присутствует и в шапке, и внутри мобильного меню.
 
 **Мобильное меню** (появляется на ≤1020px, где `.nav` скрыт и показан `.burger`):
@@ -665,13 +692,13 @@ el.classList.toggle('near', f > 0.78);         // ближние чипы све
 ```html
 <svg class="mark" viewBox="0 0 64 64" fill="none" aria-label="jw.dev">
   <g transform="translate(5,12.89) scale(0.6067)" stroke-linecap="round" stroke-linejoin="round">
-    <path d="M2 29 L11 38.5 L2 48" stroke="var(--acc)" stroke-width="7.4"/>
+    <path d="M2 29 L11 38.5 L2 48" stroke="var(--acc-ink)" stroke-width="7.4"/>
     <g transform="translate(19,0)" stroke="var(--ink)" stroke-width="8.9">
       <path d="M12 25 V39 C12 44.6 8.4 48.5 3.4 48.5"/>
       <path d="M12 14.5 h.01"/>
       <path d="M18.5 25 L24 48.5 L31 31 L38 48.5 L43.5 25"/>
     </g>
-    <rect class="cur" x="74" y="45.5" width="15" height="4.6" rx="1.4" fill="var(--acc)"/>
+    <rect class="cur" x="74" y="45.5" width="15" height="4.6" rx="1.4" fill="var(--acc-ink)"/>
   </g>
 </svg>
 ```
@@ -682,7 +709,7 @@ el.classList.toggle('near', f > 0.78);         // ближние чипы све
 @keyframes blk{0%,49%{opacity:1}50%,100%{opacity:0}}
 ```
 
-**Правило цвета:** шеврон `>` и курсор `_` — `var(--acc)` (меняются вместе с акцентом секции:
+**Правило цвета:** шеврон `>` и курсор `_` — `var(--acc-ink)` (меняются вместе с акцентом секции:
 циан → индиго → фиолетовый → янтарь → розовый), буквы `jw` — всегда `var(--ink)`.
 `steps(1,end)` обязателен: плавное затухание не читается как терминал. При `prefers-reduced-motion`
 мигание выключается общим правилом `animation:none!important`.
@@ -802,7 +829,9 @@ el.classList.toggle('near', f > 0.78);         // ближние чипы све
 
 ## 18. Пол доступности
 
-- `:focus-visible{outline:2px solid var(--acc);outline-offset:3px;border-radius:6px}` — глобально.
+- `:focus-visible{outline:2px solid var(--acc-ink);outline-offset:3px;border-radius:6px}` — глобально.
+  Именно `--acc-ink`: обводка — нетекстовый элемент, ей нужны 3:1, а `--acc` в индиго-секциях
+  даёт на стекле 2,92.
 - Ссылка «Skip to content» (`.skip`) выезжает по фокусу на `top:12px`.
 - Класс `.sr` для визуально скрытого текста (используется в `<caption>` таблицы).
 - Иконочные кнопки имеют `aria-label`; переводимые лейблы — через `data-i18n-al`.
@@ -812,6 +841,12 @@ el.classList.toggle('near', f > 0.78);         // ближние чипы све
   на элемент, с которого открыли, блокировка `body`.
 - Контраст: абзацы не тусклее `--ink2` (`rgba(240,244,250,.72)`). `--ink3` (.56) — только для
   моно-подписей 10–12px. Текст на светлых заливках — `#05070E`.
+- **Пол контраста задаёт не фон, а аврора.** На плоском `--bg` `--ink3` даёт 5,95:1, а на стыке
+  двух пятен в верхней трети экрана — 4,78:1 при пороге 4,5. Поэтому верхняя ступень линейного
+  градиента `#veil` — `rgba(7,9,18,.42)`, а не `.30` из макета: она возвращает подписи 5,08,
+  а абзацам 7,39. Ставить моно-подписи в первый экран без проверки нельзя.
+- Ховер живёт только под `@media (hover: hover) and (pointer: fine)`. На тач-экране `:hover`
+  срабатывает по тапу и залипает: карточка остаётся поднятой, рамка — зажжённой.
 - Мобильное меню, разбор кейса и архив обязаны возвращать `document.body.style.overflow`.
 
 Полный блок reduced-motion — вставлять как есть:
@@ -820,7 +855,7 @@ el.classList.toggle('near', f > 0.78);         // ближние чипы све
 @media (prefers-reduced-motion:reduce){
 *,*::before,*::after{animation:none!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 .rv{opacity:1!important;transform:none!important}
-#graph,#light{display:none}
+#light{display:none}
 .marq-in{transform:none}
 .win,.stage-in,.plane{transform:none!important}
 .acc-a{max-height:none}
@@ -828,6 +863,15 @@ el.classList.toggle('near', f > 0.78);         // ближние чипы све
 .acc-i.open .acc-a{max-height:400px}
 }
 ```
+
+**Граф при reduced-motion не прячется** (отступление от макета, решение владельца от 22.08.2026).
+В макете он уходил в `display:none` вместе со светом за курсором. Но §5 требует, чтобы под стеклом
+была видимая структура, а нити `data-nx` — единственное, что привязывает карточки к фону: без них
+посетитель с выключенной анимацией получает не спокойную версию дизайна, а версию без него.
+Вместо цикла `graph.js` рисует один кадр (`staticFrame()`) — без искр и без мерцания узлов —
+и перерисовывает его при прокрутке и смене акцента. Канвас фиксирован, а якоря привязаны
+к элементам, которые уезжают: это не анимация, а то же самое, что делает любой `fixed`-слой.
+Свет за курсором (`#light`) остаётся выключенным — он и есть движение.
 
 Плюс в JS: `RM` проверяется до запуска графа, параллакса, кольца стека, импульса процесса и
 анимации счётчиков; скролл к якорям становится `behavior:'auto'`.

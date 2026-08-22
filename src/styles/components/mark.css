@@ -12,7 +12,7 @@
 }
 
 .mark .chevron {
-  stroke: var(--acc);
+  stroke: var(--acc-ink);
 }
 
 .mark .letters {
@@ -20,7 +20,7 @@
 }
 
 .mark .caret {
-  fill: var(--acc);
+  fill: var(--acc-ink);
   animation: mark-blink 1.06s steps(1, end) infinite;
 }
 

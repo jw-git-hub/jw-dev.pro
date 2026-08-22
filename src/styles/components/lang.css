@@ -24,16 +24,24 @@
   transition: 0.35s var(--e);
 }
 
-.lang a:hover {
-  color: var(--ink);
-}
-
 .lang a[aria-current] {
-  background: linear-gradient(120deg, var(--acc), var(--acc2));
+  background: linear-gradient(120deg, var(--acc-ink), var(--acc2));
   color: var(--on-light);
   font-weight: 700;
 }
 
-.lang a[aria-current]:hover {
-  color: var(--on-light);
+/**
+ * Ховер только там, где есть настоящий курсор. На тач-экране :hover
+ * срабатывает по тапу и залипает до следующего касания в другом месте:
+ * кнопка остаётся приподнятой, рамка — зажжённой.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .lang a:hover {
+    color: var(--ink);
+  }
+
+  /* Активная пилюля уже светлая: ховер не должен красить её в --ink. */
+  .lang a[aria-current]:hover {
+    color: var(--on-light);
+  }
 }

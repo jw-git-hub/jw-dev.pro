@@ -26,12 +26,19 @@ footer {
   gap: 11px;
 }
 
-.foot a:hover {
-  color: var(--ink);
-}
-
 @media (max-width: 420px) {
   .foot {
     font-size: 12px;
+  }
+}
+
+/**
+ * Ховер только там, где есть настоящий курсор. На тач-экране :hover
+ * срабатывает по тапу и залипает до следующего касания в другом месте:
+ * кнопка остаётся приподнятой, рамка — зажжённой.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .foot a:hover {
+    color: var(--ink);
   }
 }

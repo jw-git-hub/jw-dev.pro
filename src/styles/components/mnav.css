@@ -48,7 +48,7 @@
 
 .mnav-links a span {
   flex: none;
-  color: var(--acc);
+  color: var(--acc-ink);
   font-family: var(--fm);
   font-size: 11px;
   letter-spacing: 0.1em;

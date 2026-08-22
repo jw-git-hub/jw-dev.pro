@@ -9,7 +9,18 @@
  * поэтому letter-spacing здесь — часть дизайна, а не вкусовщина.
  */
 
+/**
+ * Колонка страницы. Флексом, а не только min-height: на коротких страницах
+ * (журнал без записей, политика, 404) подвал иначе встаёт сразу за текстом
+ * и висит посреди экрана — на 1089px окна под ним оставалось 469px пустого
+ * фона, и страница читалась как оборванная.
+ *
+ * Фоновые плоскости, шапка, док и «к содержимому» — position: fixed,
+ * в потоке их нет, флекс-элементами они не становятся.
+ */
 body {
+  display: flex;
+  flex-direction: column;
   min-height: 100svh;
 
   /* Пятна ауроры и сцена героя выходят за правый край: без этого на узких
@@ -22,6 +33,11 @@ body {
   line-height: 1.62;
   text-rendering: optimizelegibility;
   -webkit-font-smoothing: antialiased;
+}
+
+/* Растёт до низа окна и прижимает подвал; сжиматься не должен. */
+main {
+  flex: 1 0 auto;
 }
 
 ::selection {
@@ -93,7 +109,7 @@ h3 {
   align-items: center;
   gap: 9px;
   margin-bottom: 16px;
-  color: var(--acc);
+  color: var(--acc-ink);
   font-family: var(--fm);
   font-size: 11px;
   letter-spacing: 0.18em;
@@ -104,12 +120,12 @@ h3 {
   content: '';
   width: 22px;
   height: 1px;
-  background: linear-gradient(90deg, transparent, var(--acc));
+  background: linear-gradient(90deg, transparent, var(--acc-ink));
 }
 
 :focus-visible {
   border-radius: 6px;
-  outline: 2px solid var(--acc);
+  outline: 2px solid var(--acc-ink);
   outline-offset: 3px;
 }
 
@@ -132,7 +148,7 @@ h3 {
   z-index: 99;
   padding: 10px 18px;
   border-radius: 999px;
-  background: var(--acc);
+  background: var(--acc-ink);
   color: var(--on-light);
   font-size: 13px;
   font-weight: 700;

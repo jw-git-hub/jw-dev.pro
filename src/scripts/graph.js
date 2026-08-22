@@ -41,6 +41,7 @@ let anchorPoints = [];
 let dampElements = [];
 let dampHoles = [];
 let frameId = 0;
+let staticId = 0;
 let lastSpawn = 0;
 let lastMeasure = 0;
 let resizeTimer = 0;
@@ -131,13 +132,50 @@ function stop() {
   frameId = 0;
 }
 
+/**
+ * Сеть без движения. Просьба «меньше движения» — это просьба про движение,
+ * а не про сеть: гайд §5 требует, чтобы под стеклом была видимая структура,
+ * и нити якорей — единственное, что привязывает карточки к фону.
+ *
+ * Рисуется тот же кадр, что и в цикле, но один раз и без искр: они живут
+ * только пока их двигают. Время нулевое — мерцание узлов тоже завязано на нём.
+ */
+function staticFrame() {
+  const scrollY = window.scrollY;
+
+  ctx.clearRect(0, 0, width, height);
+  drawEdges(ctx, nodes, { limit, tint: tintNow.map(Math.round), pointer });
+  anchors.draw(ctx, anchorPoints, { nodes, scrollY, height });
+  drawNodes(ctx, nodes, { time: 0, pointer });
+  damp.draw(ctx, dampHoles, { scrollY, height });
+}
+
+/**
+ * Перерисовать статичный кадр, но не чаще кадра экрана.
+ *
+ * Канвас фиксирован, а якоря привязаны к элементам, которые уезжают при
+ * прокрутке: без этого нити оставались бы там, где карточка была на момент
+ * загрузки. Это не анимация — это то же самое, что видит любой fixed-слой.
+ */
+function requestStatic() {
+  if (staticId) return;
+  staticId = requestAnimationFrame(() => {
+    staticId = 0;
+    measure();
+    staticFrame();
+  });
+}
+
 /** Условия рисования изменились: перестроить поле под новый экран и продолжить. */
 function sync() {
+  stop();
+  resize();
+
   if (reducedMotion.matches) {
-    stop();
+    staticFrame();
     return;
   }
-  resize();
+
   start();
 }
 
@@ -169,6 +207,15 @@ function listen() {
     { passive: true },
   );
 
+  // В обычном режиме положение якорей догоняет цикл, в статичном — некому.
+  window.addEventListener(
+    'scroll',
+    () => {
+      if (reducedMotion.matches) requestStatic();
+    },
+    { passive: true },
+  );
+
   // Вкладку только приостанавливаем: перестраивать поле незачем, экран тот же.
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   reducedMotion.addEventListener('change', sync);
@@ -176,7 +223,14 @@ function listen() {
 
 /** Перекрасить сеть в акцент секции. Имена цветов — те же, что у `data-acc`. */
 export function setTint(name) {
-  if (TINTS[name]) tintTarget = [...TINTS[name]];
+  if (!TINTS[name]) return;
+  tintTarget = [...TINTS[name]];
+
+  // Плавно догонять цель некому: цикл не запущен. Ставим цвет сразу.
+  if (reducedMotion.matches) {
+    tintNow.splice(0, tintNow.length, ...tintTarget);
+    requestStatic();
+  }
 }
 
 if (ctx) {
