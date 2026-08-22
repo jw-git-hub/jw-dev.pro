@@ -96,7 +96,6 @@
   pointer-events: none;
 }
 
-.irid:hover::before,
 .irid:focus-within::before,
 .irid.on::before {
   opacity: 0.9;
@@ -107,6 +106,17 @@
   opacity: 0.42;
 }
 
-.irid.always:hover::before {
-  opacity: 1;
+/**
+ * Ховер только там, где есть настоящий курсор. На тач-экране :hover
+ * срабатывает по тапу и залипает до следующего касания в другом месте:
+ * кнопка остаётся приподнятой, рамка — зажжённой.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .irid:hover::before {
+    opacity: 0.9;
+  }
+
+  .irid.always:hover::before {
+    opacity: 1;
+  }
 }

@@ -64,7 +64,7 @@
 }
 
 .dock-p .fg {
-  stroke: var(--acc);
+  stroke: var(--acc-ink);
   stroke-dasharray: 88;
   stroke-dashoffset: 88;
   stroke-linecap: round;
@@ -130,10 +130,6 @@
   transition: transform 0.45s var(--e);
 }
 
-.dock-ctx:hover svg {
-  transform: translateX(2px);
-}
-
 .dock .tip {
   align-items: center;
 }
@@ -162,7 +158,6 @@
   pointer-events: none;
 }
 
-.tip:hover .tipb,
 .tip:focus-within .tipb {
   transform: translate(-50%, 0);
   opacity: 1;
@@ -190,5 +185,21 @@
   .dock .btn svg {
     width: 17px;
     height: 17px;
+  }
+}
+
+/**
+ * Ховер только там, где есть настоящий курсор. На тач-экране :hover
+ * срабатывает по тапу и залипает до следующего касания в другом месте:
+ * кнопка остаётся приподнятой, рамка — зажжённой.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .dock-ctx:hover svg {
+    transform: translateX(2px);
+  }
+
+  .tip:hover .tipb {
+    transform: translate(-50%, 0);
+    opacity: 1;
   }
 }

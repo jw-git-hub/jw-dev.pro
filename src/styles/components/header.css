@@ -117,21 +117,16 @@
   bottom: 5px;
   left: 14px;
   height: 1px;
-  background: var(--acc);
+  background: var(--acc-ink);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform 0.45s var(--e);
-}
-
-.nav a:hover {
-  color: var(--ink);
 }
 
 .nav a.cur {
   color: var(--ink);
 }
 
-.nav a:hover::after,
 .nav a.cur::after {
   transform: scaleX(1);
 }
@@ -206,5 +201,20 @@
   /* Кнопка «обсудить задачу» уезжает в шторку: в баре 42px её негде поставить. */
   .hdr-cta {
     display: none;
+  }
+}
+
+/**
+ * Ховер только там, где есть настоящий курсор. На тач-экране :hover
+ * срабатывает по тапу и залипает до следующего касания в другом месте:
+ * кнопка остаётся приподнятой, рамка — зажжённой.
+ */
+@media (hover: hover) and (pointer: fine) {
+  .nav a:hover {
+    color: var(--ink);
+  }
+
+  .nav a:hover::after {
+    transform: scaleX(1);
   }
 }

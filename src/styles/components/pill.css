@@ -19,14 +19,6 @@
   transition: 0.35s var(--e);
 }
 
-/* Подъём только у кликабельных: у пилюли-факта ховера быть не должно. */
-a.pill:hover,
-button.pill:hover {
-  transform: translateY(-1px);
-  background: rgb(255 255 255 / 9%);
-  color: var(--ink);
-}
-
 .pill.mn {
   font-family: var(--fm);
   font-size: 10.5px;
@@ -37,16 +29,18 @@ button.pill:hover {
 .pill.acc {
   border-color: color-mix(in srgb, var(--acc) 32%, transparent);
   background: color-mix(in srgb, var(--acc) 11%, transparent);
-  color: var(--acc);
+  color: var(--acc-ink);
 }
 
+/* Точка несёт состояние, а не украшает: цвет берётся чернильный, чтобы
+   на стекле она держала порог 3:1 для нетекстовых элементов. */
 .dot {
   position: relative;
   flex: none;
   width: 6px;
   height: 6px;
   border-radius: 50%;
-  background: var(--acc);
+  background: var(--acc-ink);
 }
 
 /* Живое демо. Пульс — единственный способ отличить «работает прямо сейчас»
@@ -123,17 +117,11 @@ button.pill:hover {
   transition: 0.4s var(--e);
 }
 
-.fbtn:hover {
-  transform: translateY(-1px);
-  background: rgb(255 255 255 / 8.5%);
-  color: var(--ink);
-}
-
 /* Состояние таба — aria-pressed, а не класс: скринридер должен слышать то же,
    что видит глаз. */
 .fbtn[aria-pressed='true'] {
   border-color: transparent;
-  background: linear-gradient(118deg, var(--acc), var(--acc2));
+  background: linear-gradient(118deg, var(--acc-ink), var(--acc2));
   box-shadow: 0 12px 30px -16px color-mix(in srgb, var(--acc) 70%, transparent);
   color: var(--on-light);
   font-weight: 680;
@@ -181,4 +169,27 @@ button.pill:hover {
   background: rgb(255 255 255 / 4%);
   color: var(--ink3);
   font-size: 11px;
+}
+
+/**
+ * Ховер только там, где есть настоящий курсор. На тач-экране :hover
+ * срабатывает по тапу и залипает до следующего касания в другом месте:
+ * кнопка остаётся приподнятой, рамка — зажжённой.
+ */
+@media (hover: hover) and (pointer: fine) {
+  /* Подъём только у кликабельных: у пилюли-факта ховера быть не должно. */
+  a.pill:hover,
+  button.pill:hover {
+    transform: translateY(-1px);
+    background: rgb(255 255 255 / 9%);
+    color: var(--ink);
+  }
+
+  /* :not — потому что правило уехало ниже aria-pressed и иначе
+       перекрасило бы активный таб, у которого специфичность та же. */
+  .fbtn:not([aria-pressed='true']):hover {
+    transform: translateY(-1px);
+    background: rgb(255 255 255 / 8.5%);
+    color: var(--ink);
+  }
 }

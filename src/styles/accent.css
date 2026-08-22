@@ -7,32 +7,43 @@
  * в tokens.css подхватывается сама.
  *
  * Переход между парами плавный за счёт transition на :root в tokens.css.
- * Работает он только потому, что --acc и --acc2 зарегистрированы через
- * @property: незарегистрированную переменную браузер считает строкой,
+ * Работает он только потому, что --acc, --acc-ink и --acc2 зарегистрированы
+ * через @property: незарегистрированную переменную браузер считает строкой,
  * а строки не интерполируются.
+ *
+ * Каждая тройка — заливка, чернила и напарник. Чернила отличаются от заливки
+ * только у индиго: #4f46e5 не проходит по контрасту ни как текст, ни как
+ * обводка (tokens.css). У остальных четырёх они совпадают, и повторять
+ * их через var(--acc) нельзя — @property не примет ссылку на самого себя
+ * в переходе, да и читать так тяжелее.
  */
 
 html[data-acc='cyan'] {
   --acc: var(--cyan);
+  --acc-ink: var(--cyan);
   --acc2: var(--indigo);
 }
 
 html[data-acc='indigo'] {
   --acc: var(--indigo);
+  --acc-ink: var(--indigo-ink);
   --acc2: var(--cyan);
 }
 
 html[data-acc='violet'] {
   --acc: var(--violet);
+  --acc-ink: var(--violet);
   --acc2: var(--rose);
 }
 
 html[data-acc='amber'] {
   --acc: var(--amber);
+  --acc-ink: var(--amber);
   --acc2: var(--rose);
 }
 
 html[data-acc='rose'] {
   --acc: var(--rose);
+  --acc-ink: var(--rose);
   --acc2: var(--violet);
 }

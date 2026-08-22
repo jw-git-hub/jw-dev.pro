@@ -31,6 +31,6 @@
 }
 
 .stub-links a {
-  color: var(--acc);
+  color: var(--acc-ink);
   text-underline-offset: 4px;
 }
