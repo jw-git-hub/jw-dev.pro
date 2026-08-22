@@ -1,0 +1,302 @@
+/**
+ * Слот скриншота — DESIGN-GUIDE §8. Прямоугольник 16:10 и три слоя над
+ * содержимым: тинт цветом карточки, диагональный блик и вуаль, уходящая
+ * в цвет подложки.
+ *
+ * Вуаль — это и есть ответ на «встроить скриншоты, не портя дизайн»:
+ * любой пёстрый снимок уходит в палитру карточки. Пока снимков нет,
+ * внутри лежит условная вёрстка (`SiteMock`, `ChatMock`) — силуэт
+ * интерфейса из пустых блоков, который не притворяется фотографией.
+ *
+ * `--sc` красит эту вёрстку, `--cardc` задаёт цвет вуали. Оба берутся
+ * из `--cc`, то есть из класса `.tone-*`: произвольного цвета в разметке
+ * не бывает (tone.css).
+ */
+
+.shot {
+  /* Подложка чуть светлее панели: иначе тёмный слот сливается со стеклом. */
+  --sc: var(--cc, var(--cyan));
+  --cardc: color-mix(in srgb, var(--panel2) 96%, transparent);
+
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+  background: linear-gradient(
+    168deg,
+    color-mix(in srgb, var(--panel) 94%, var(--slate)),
+    var(--panel2)
+  );
+}
+
+/* Слой содержимого: в фазе 6 его место займёт <Picture>. */
+.shot-i {
+  position: absolute;
+  inset: 0;
+}
+
+.shot-b {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 5%;
+  padding: 4.5% 5.5%;
+}
+
+/* ---- условная вёрстка сайта ---- */
+
+.s-hdr {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.s-logo {
+  width: 13%;
+  height: 8px;
+  border-radius: 3px;
+  background: linear-gradient(90deg, var(--sc), color-mix(in srgb, var(--sc) 25%, transparent));
+}
+
+.s-nav {
+  display: flex;
+  gap: 4px;
+  margin-left: auto;
+}
+
+.s-nav i {
+  width: 16px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 20%);
+}
+
+.s-btn {
+  width: 26px;
+  height: 10px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--sc) 55%, transparent);
+}
+
+.s-hero {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 5% 0 2%;
+}
+
+.s-t {
+  width: 76%;
+  height: 11px;
+  border-radius: 4px;
+  background: linear-gradient(90deg, rgb(255 255 255 / 62%), rgb(255 255 255 / 20%));
+}
+
+.s-t.b {
+  width: 52%;
+}
+
+.s-p {
+  width: 62%;
+  height: 5px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 16%);
+}
+
+.s-cta {
+  width: 34%;
+  height: 13px;
+  margin-top: 3px;
+  border-radius: 999px;
+  background: linear-gradient(100deg, var(--sc), color-mix(in srgb, var(--sc) 30%, transparent));
+}
+
+.s-grid {
+  display: grid;
+  flex: 1;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 5px;
+}
+
+.s-grid > div {
+  position: relative;
+  border: 1px solid rgb(255 255 255 / 6%);
+  border-radius: 5px;
+  overflow: hidden;
+  background: linear-gradient(160deg, rgb(255 255 255 / 11%), rgb(255 255 255 / 3%));
+}
+
+/* Картинка карточки и строка подписи под ней. */
+.s-grid > div::before {
+  content: '';
+  position: absolute;
+  top: 14%;
+  left: 12%;
+  width: 44%;
+  height: 22%;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--sc) 42%, transparent);
+}
+
+.s-grid > div::after {
+  content: '';
+  position: absolute;
+  right: 12%;
+  bottom: 16%;
+  left: 12%;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 15%);
+}
+
+/* ---- условная вёрстка Telegram ---- */
+
+.shot.tg .shot-b {
+  gap: 0;
+  padding: 5% 6%;
+}
+
+.tg-hdr {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid rgb(255 255 255 / 7%);
+}
+
+.tg-hdr > span:last-child {
+  display: block;
+  flex: 1;
+}
+
+.tg-av {
+  flex: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: linear-gradient(140deg, var(--sc), var(--indigo));
+}
+
+.tg-nm {
+  display: block;
+  width: 44%;
+  height: 6px;
+  border-radius: 3px;
+  background: rgb(255 255 255 / 50%);
+}
+
+.tg-on {
+  display: block;
+  width: 22%;
+  height: 4px;
+  margin-top: 3px;
+  border-radius: 2px;
+  background: color-mix(in srgb, var(--sc) 70%, transparent);
+}
+
+.tg-msgs {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 5px;
+  padding: 7px 0;
+}
+
+.bub {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-width: 70%;
+  padding: 5px 7px;
+  border-radius: 9px;
+  background: rgb(255 255 255 / 11%);
+}
+
+.bub i {
+  display: block;
+  height: 4px;
+  border-radius: 2px;
+  background: rgb(255 255 255 / 32%);
+}
+
+.bub i:nth-child(2) {
+  width: 66%;
+}
+
+.bub.out {
+  align-self: flex-end;
+  border-bottom-right-radius: 3px;
+  background: color-mix(in srgb, var(--sc) 40%, transparent);
+}
+
+.bub.out i {
+  background: rgb(255 255 255 / 55%);
+}
+
+.tg-kb {
+  display: flex;
+  gap: 4px;
+}
+
+.tg-kb i {
+  flex: 1;
+  height: 11px;
+  border: 1px solid color-mix(in srgb, var(--sc) 40%, transparent);
+  border-radius: 5px;
+  background: color-mix(in srgb, var(--sc) 28%, transparent);
+}
+
+.tg-in {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-top: 6px;
+}
+
+.tg-in i {
+  flex: 1;
+  height: 11px;
+  border-radius: 999px;
+  background: rgb(255 255 255 / 9%);
+}
+
+.tg-in b {
+  flex: none;
+  width: 11px;
+  height: 11px;
+  border-radius: 50%;
+  background: var(--sc);
+}
+
+/* ---- слои поверх содержимого ---- */
+
+.shot-tint {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(160deg, var(--sc), transparent 75%);
+  opacity: 0.55;
+  mix-blend-mode: color;
+  pointer-events: none;
+}
+
+.shot-gloss {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    112deg,
+    rgb(255 255 255 / 14%) 0%,
+    transparent 32%,
+    transparent 70%,
+    rgb(255 255 255 / 6%) 100%
+  );
+  pointer-events: none;
+}
+
+.shot-veil {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, transparent 30%, var(--cardc) 100%);
+  transition: opacity 0.8s var(--e);
+  pointer-events: none;
+}

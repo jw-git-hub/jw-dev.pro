@@ -1,0 +1,53 @@
+---
+/**
+ * Герой — DESIGN-GUIDE §10. Слева кто и что делает, справа 3D-сцена.
+ *
+ * Порядок колонок в разметке — текст, потом сцена: на узком экране
+ * заголовок обязан остаться выше сцены, и надёжнее всего это делает
+ * сам поток документа, а не `order` в CSS.
+ *
+ * H1 разрезан на три ключа: переливается одно слово, а не весь заголовок.
+ * Запятая уехала внутрь переливающегося куска намеренно — иначе перенос
+ * строки в шаблоне превращается в пробел перед знаком препинания.
+ */
+import { localeFromUrl, useTranslations, sectionPath } from '../../i18n';
+import { SITE } from '../../data/site';
+import Icon from '../chrome/Icon.astro';
+import HeroStage from './HeroStage.astro';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<section class="hero" id="hero" data-acc="cyan">
+  <div class="wrap hero-grid">
+    <div class="hero-l" data-damp="0.46">
+      <span class="hero-eyebrow rv">
+        <span class="dot live"></span>
+        {t('hero.eyebrow')}
+      </span>
+
+      <h1 class="rv">
+        {t('hero.h1a')}
+        <span class="grad">{t('hero.h1b')}</span>
+        {t('hero.h1c')}
+      </h1>
+
+      <p class="hero-sub rv">{t('hero.sub')}</p>
+
+      <div class="hero-cta rv">
+        <a class="btn p" href={sectionPath(locale, 'work')}>
+          {t('hero.work')}
+          <Icon name="arr" />
+        </a>
+
+        <a class="btn s" href={SITE.bot} target="_blank" rel="noopener">
+          <Icon name="tg" />
+          {t('hero.bot')}
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-r"><HeroStage /></div>
+  </div>
+</section>

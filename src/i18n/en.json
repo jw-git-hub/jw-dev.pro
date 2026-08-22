@@ -25,6 +25,31 @@
   "dock.work": "See the work",
   "dock.msg": "Message",
 
+  "hero.eyebrow": "Full-cycle developer · Da Nang, Vietnam",
+  "hero.h1a": "Bots, websites, automation.",
+  "hero.h1b": "Engineered,",
+  "hero.h1c": "not assembled.",
+  "hero.sub": "Architecture, code, tests, deploy — end to end. Seven projects in production, Lighthouse 94–98 on mobile, and the repository is yours at handover.",
+  "hero.work": "See the work",
+  "hero.bot": "Open the live bot",
+  "hero.site": "vn.neva.beauty — clinic · 16 pages",
+  "hero.panel": "Lighthouse",
+  "hero.panelNote": "psy-krasnogor.pro · mobile",
+
+  "hud.status.k": "Status",
+  "hud.status.v": "Online",
+  "hud.stack.k": "Stack",
+  "hud.stack.v": "Python · aiogram · Docker",
+  "hud.code.k": "Code",
+  "hud.code.v": "8 repositories",
+  "hud.prices.k": "Prices",
+  "hud.prices.v": "204 in one file",
+
+  "stat.projects": "projects in production",
+  "stat.lighthouse": "Lighthouse on mobile",
+  "stat.weight": "page weight after leaving Tilda",
+  "stat.tests": "automated tests guard the content",
+
   "footer.note": "Built without frameworks or third-party libraries.",
   "footer.privacy": "Privacy",
   "footer.telegram": "Telegram",
@@ -41,8 +66,5 @@
 
   "e404.title": "Page not found",
   "e404.lead": "No such address, or the entry has moved.",
-  "e404.cta": "Go home",
-
-  "stub.title": "Site under construction",
-  "stub.text": "The portfolio lands here soon. Meanwhile the code is on GitHub."
+  "e404.cta": "Go home"
 }

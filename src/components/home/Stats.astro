@@ -1,0 +1,43 @@
+---
+/**
+ * Статистика — четыре измеренных числа (DESIGN-GUIDE §8).
+ *
+ * Секция вплотную к герою (`.sec-flush`): цифры — это подпись под первым
+ * экраном, а не отдельный разговор.
+ *
+ * Финальное значение стоит в разметке, а не подставляется скриптом:
+ * без JS счётчику неоткуда взяться, а число обязано быть верным всегда.
+ * counters.js только отматывает его назад и досчитывает при появлении.
+ */
+import { localeFromUrl, useTranslations } from '../../i18n';
+import { STATS, type Stat } from '../../data/stats';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const finalText = (stat: Stat) => `${stat.prefix ?? ''}${stat.value}${stat.suffix ?? ''}`;
+---
+
+<section class="sec-flush" id="stats" data-acc="indigo">
+  <div class="wrap">
+    <div class="stats">
+      {
+        STATS.map((stat) => (
+          <div class:list={['stat', 'g', 'gd', 'irid', 'rv', `tone-${stat.accent}`]} data-damp>
+            <span class="glow" />
+            <div
+              class="v"
+              data-num={stat.value}
+              data-from={stat.from}
+              data-pre={stat.prefix}
+              data-suf={stat.suffix}
+            >
+              {finalText(stat)}
+            </div>
+            <div class="l">{t(stat.key)}</div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

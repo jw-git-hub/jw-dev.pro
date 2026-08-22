@@ -39,6 +39,9 @@ const glow = { x: 0, y: 0 };
 let running = false;
 let placed = false;
 
+/** Кто ещё едет от этого же курсора. Пока один — сцена героя. */
+const followers = [];
+
 const active = () => finePointer.matches && !reducedMotion.matches;
 
 const approach = (from, to, ease) => from + (to - from) * ease;
@@ -59,6 +62,8 @@ function aimAt(event) {
 function paint() {
   light.style.transform = `translate3d(${glow.x.toFixed(1)}px, ${glow.y.toFixed(1)}px, 0)`;
   aurora.style.transform = `translate3d(${(plane.x * AURORA_X).toFixed(2)}px, ${(plane.y * AURORA_Y).toFixed(2)}px, 0)`;
+
+  for (const follow of followers) follow(plane.x, plane.y);
 }
 
 const settled = () =>
@@ -97,6 +102,21 @@ function onLeave() {
   aim.y = 0;
   document.body.classList.remove('pt');
   wake();
+}
+
+/**
+ * Подписка на сглаженное положение курсора: -1 у левого края экрана, 1 у правого.
+ *
+ * Сцена героя обязана ехать от того же значения, что и аврора. Второе такое же
+ * сглаживание в собственном цикле разъезжается с этим на доли кадра, и слои
+ * начинают дрожать друг относительно друга.
+ *
+ * Обработчик зовётся сразу: там, где курсора не будет вовсе (тач-экран,
+ * reduced-motion), подписчику всё равно нужно исходное положение.
+ */
+export function onPlane(follow) {
+  followers.push(follow);
+  follow(plane.x, plane.y);
 }
 
 if (light && aurora) {

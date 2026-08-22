@@ -1,0 +1,43 @@
+---
+/**
+ * Панель метрик — третье окно сцены (§10): подпись, крупное число,
+ * спарклайн и шесть столбиков.
+ *
+ * Цвета спарклайна заданы классами, а не атрибутами `stop-color`:
+ * значение цвета в проекте живёт только в tokens.css.
+ */
+interface Props {
+  title: string;
+  value: string;
+  note: string;
+}
+
+const { title, value, note } = Astro.props;
+---
+
+<div class="mp-hd">
+  <span class="mono">{title}</span>
+  <span class="dot live"></span>
+</div>
+
+<div class="mp-v">{value}</div>
+<div class="mp-sub">{note}</div>
+
+<svg class="mp-spark" viewBox="0 0 120 34" preserveAspectRatio="none">
+  <defs>
+    <linearGradient id="hero-spark" x1="0" y1="0" x2="120" y2="0" gradientUnits="userSpaceOnUse">
+      <stop class="from"></stop>
+      <stop class="to" offset="1"></stop>
+    </linearGradient>
+  </defs>
+  <polyline
+    points="0,28 14,22 28,25 42,15 56,18 70,9 84,12 98,5 120,7"
+    fill="none"
+    stroke="url(#hero-spark)"
+    stroke-width="2"
+    stroke-linecap="round"
+    stroke-linejoin="round"></polyline>
+  <circle cx="120" cy="7" r="2.6"></circle>
+</svg>
+
+<div class="mp-bars"><i></i><i></i><i></i><i></i><i></i><i></i></div>
