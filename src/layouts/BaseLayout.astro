@@ -16,6 +16,10 @@ interface Props {
   noindex?: boolean;
   /** Куда ведёт переключатель языка, если «эта же страница» на другом языке не существует. */
   langPath?: string;
+  /** Картинка превью, путь от корня. Без неё мессенджер покажет ссылку одной строкой. */
+  image?: string;
+  /** Тип страницы для OG: разбор кейса — это статья, а не сайт целиком. */
+  ogType?: 'website' | 'article';
   /**
    * Акцент страницы до первой прокрутки. На главной его дальше ведёт accent.js
    * по секциям, на внутренних он остаётся один. Задан в разметке, а не в скрипте,
@@ -32,6 +36,8 @@ const {
   description = t('site.description'),
   noindex = false,
   langPath,
+  image,
+  ogType = 'website',
   accent = 'cyan',
 } = Astro.props;
 
@@ -94,11 +100,24 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
       crossorigin
     />
 
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
     <meta property="og:title" content={pageTitle} />
     <meta property="og:description" content={description} />
     <meta property="og:url" content={canonical.href} />
     <meta property="og:locale" content={locale === 'ru' ? 'ru_RU' : 'en_US'} />
+
+    {
+      /* Абсолютный адрес обязателен: относительный путь Telegram и Slack
+        не разворачивают и картинку просто не покажут. */
+      image && (
+        <>
+          <meta property="og:image" content={new URL(image, Astro.site).href} />
+          <meta property="og:image:width" content="1200" />
+          <meta property="og:image:height" content="630" />
+          <meta name="twitter:card" content="summary_large_image" />
+        </>
+      )
+    }
   </head>
 
   <body>
