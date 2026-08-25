@@ -8,6 +8,8 @@ import Schema from '../components/chrome/Schema.astro';
 import { SITE } from '../data/site';
 import { feedPath } from '../lib/feed';
 import { ogPath } from '../lib/og';
+import { iconPath } from '../lib/icons';
+import { manifestPath } from '../lib/manifest';
 import type { Accent } from '../data/accent';
 import '../styles/main.css';
 
@@ -95,7 +97,19 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
       )
     }
 
+    {
+      /* Знак нарисован один раз в SVG, PNG растеризуются из него на сборке.
+        Второй файл нужен не браузерам, а iOS и Android: `apple-touch-icon`
+        и иконки манифеста бывают только растровыми.
+
+        `favicon.ico` нет намеренно: PNG 32×32 закрывает те же случаи, а sharp
+        формат `.ico` не пишет — пришлось бы держать в репозитории картинку,
+        собранную вне сборки, и однажды забыть её обновить. */
+    }
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href={iconPath('favicon-32')} type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href={iconPath('apple-touch')} />
+    <link rel="manifest" href={manifestPath(locale)} />
 
     {/* Лента своего языка: читалка подписывает на тот журнал, который человек читает. */}
     <link
