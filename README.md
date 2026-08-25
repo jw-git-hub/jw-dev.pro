@@ -23,7 +23,14 @@ npm run lint     # ESLint + Stylelint + Prettier
 npm run check    # контент, переводы, инлайн, HTML, ссылки, бюджет веса
 ```
 
-Обе команды выполняет CI на каждый push. Красное — деплоя нет.
+Приёмник формы живёт в этом же репозитории и проверяется отдельно:
+
+```bash
+pip install -r server/contact-api/requirements.txt
+python server/contact-api/test_app.py
+```
+
+Все три команды выполняет CI на каждый push. Красное — деплоя нет.
 
 ## Документы
 

@@ -1,0 +1,45 @@
+---
+/**
+ * Обо мне — план Ф9, DESIGN-GUIDE §8.
+ *
+ * Знак крупно и три факта: пилюли говорят то, что покупателю действительно
+ * нужно знать заранее, — на каких языках идёт переписка, в каком часовом
+ * поясе я отвечаю и что код открыт.
+ *
+ * Города здесь нет по решению владельца от 25.08.2026: работа идёт онлайн,
+ * покупателю география безразлична, а строка «Дананг, Вьетнам» из макета
+ * никем не подтверждалась и оказалась неверной.
+ */
+import Mark from '../chrome/Mark.astro';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const FACTS = ['about.f1', 'about.f2', 'about.f3'];
+---
+
+<section id="about" data-acc="indigo" data-name={t('nav.about')} data-dock="how">
+  <div class="wrap">
+    <div class="about">
+      <div class="about-card g gd irid rv" data-damp="0.5">
+        <div class="about-mark">
+          <span class="ringline r1"></span>
+          <span class="ringline r2"></span>
+          <span class="ringline r3"></span>
+          <Mark anchor="indigo" />
+        </div>
+      </div>
+
+      <div class="rv">
+        <span class="kick">{t('kick.about')}</span>
+        <h2>{t('about.t')}</h2>
+        <p class="lead">{t('about.p')}</p>
+
+        <div class="facts">
+          {FACTS.map((fact) => <span class="pill mn">{t(fact)}</span>)}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

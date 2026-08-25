@@ -1,7 +1,8 @@
 ---
 /**
- * Подвал. Контактов здесь ровно столько, сколько существует: GitHub открыт
- * и проверяем, почты и Telegram-хендла пока нет (см. src/data/site.ts).
+ * Подвал. Контактов здесь ровно столько, сколько существует: GitHub и Telegram.
+ * Почты нет — временный адрес владельца на сайте не показывается, а корпоративная
+ * появится вместе с доменом (см. src/data/site.ts).
  */
 import { SITE, BUILD_YEAR } from '../../data/site';
 import { localeFromUrl, useTranslations, localizePath } from '../../i18n';
@@ -23,6 +24,9 @@ const t = useTranslations(locale);
 
     <div class="foot-l">
       <a href={localizePath('/privacy/', locale)}>{t('footer.privacy')}</a>
+      <a href={SITE.telegram} target="_blank" rel="noopener" aria-label={t('footer.telegram')}>
+        <Icon name="tg" size={17} />
+      </a>
       <a href={SITE.github} target="_blank" rel="noopener" aria-label={t('footer.github')}>
         <Icon name="gh" size={17} />
       </a>

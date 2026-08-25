@@ -122,16 +122,14 @@ html.rvall .rv {
     transform: none !important;
   }
 
-  /* Аккордеон обязан открываться и закрываться — просто без анимации высоты. */
-  .acc-a {
-    max-height: none;
-  }
-
-  .acc-i:not(.open) .acc-a {
-    max-height: 0;
-  }
-
-  .acc-i.open .acc-a {
-    max-height: 400px;
+  /**
+   * Три правила гайда про `.acc-a` и `max-height` заменены одним: аккордеон
+   * собран на `<details>`, высоту ведёт `grid-template-rows`, и общее
+   * `transition-duration: .01ms` выше уже открывает его мгновенно.
+   * Оставить правила гайда значило бы прятать ответ насовсем — класса
+   * `.open` у `<details>` нет.
+   */
+  .acc-i::details-content {
+    transition: none !important;
   }
 }

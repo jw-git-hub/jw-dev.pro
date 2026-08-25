@@ -1,0 +1,178 @@
+---
+/**
+ * Форма заявки — план Ф9, DESIGN-GUIDE §8.
+ *
+ * Работает без JS: обычный `POST /api/contact`, приёмник отвечает редиректом
+ * на `/sent/` или `/not-sent/`. Скрипт `form.js` перехватывает отправку и
+ * показывает тот же ответ прямо в карточке, не уводя со страницы, — это
+ * надстройка, а не условие работы.
+ *
+ * Проверка полей — браузерная (`required`, `type`, `pattern`): без JS другой
+ * и нет, а с JS дублировать её значит спорить с браузером о формулировках.
+ * Сервер проверяет всё заново — на него приходят и запросы мимо формы.
+ *
+ * Ловушка для ботов — поле `company`: спрятано от глаз и от скринридера,
+ * заполнено — заявка молча выбрасывается на сервере.
+ *
+ * Поле `started` проставляет скрипт: человек не заполняет форму за две секунды.
+ * Страница статическая и лежит в кеше, поэтому время открытия неоткуда взять
+ * на сборке — без JS поле уходит пустым, и сервер эту проверку просто пропускает.
+ * Ловушка и лимит по адресу работают в обоих случаях.
+ */
+import Icon from '../chrome/Icon.astro';
+import { SITE } from '../../data/site';
+import { localeFromUrl, useTranslations, localizePath } from '../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const KINDS = ['form.k1', 'form.k2', 'form.k3', 'form.k4'];
+---
+
+<section id="contact" data-acc="rose" data-name={t('nav.contact')} data-dock="how">
+  <div class="wrap">
+    <div class="sec-head sec-head--mid rv">
+      <span class="kick">{t('kick.contact')}</span>
+      <h2>{t('contact.t')}</h2>
+      <p class="lead">{t('contact.sub')}</p>
+    </div>
+
+    <div class="ctaform">
+      <form
+        class="frm g gd irid rv"
+        id="frm"
+        method="post"
+        action="/api/contact"
+        aria-label={t('a11y.form')}
+        data-damp="0.5"
+      >
+        <input type="hidden" name="locale" value={locale} />
+        <input type="hidden" name="started" value="" id="f-started" />
+
+        {
+          /* Ловушка. `tabindex="-1"` и `aria-hidden` убирают её у клавиатуры
+            и у скринридера, `autocomplete="off"` — у автозаполнения. */
+        }
+        <p class="trap" aria-hidden="true">
+          <label for="f-company">Company</label>
+          <input id="f-company" name="company" type="text" tabindex="-1" autocomplete="off" />
+        </p>
+
+        <div class="fbody">
+          <p class="fld">
+            <label for="f-name">{t('form.name')}</label>
+            <input
+              class="inp"
+              id="f-name"
+              name="name"
+              type="text"
+              autocomplete="name"
+              maxlength="80"
+              placeholder={t('form.namePh')}
+            />
+          </p>
+
+          <p class="fld">
+            <label for="f-contact">{t('form.contact')}</label>
+            <span class="inp-ic">
+              <Icon name="tg" size={15} />
+              <input
+                class="inp"
+                id="f-contact"
+                name="contact"
+                type="text"
+                required
+                maxlength="120"
+                aria-describedby="f-contact-err"
+                placeholder={t('form.contactPh')}
+              />
+            </span>
+            <span class="emsg" id="f-contact-err">
+              <Icon name="x" size={13} />
+              <span>{t('form.contactErr')}</span>
+            </span>
+          </p>
+
+          <p class="fld">
+            <label for="f-link">{t('form.link')}</label>
+            <span class="inp-ic">
+              <Icon name="site" size={15} />
+              <input
+                class="inp"
+                id="f-link"
+                name="link"
+                type="text"
+                maxlength="200"
+                placeholder={t('form.linkPh')}
+              />
+            </span>
+          </p>
+
+          <p class="fld">
+            <label for="f-kind">{t('form.kind')}</label>
+            <select class="inp" id="f-kind" name="kind">
+              {KINDS.map((kind) => <option value={t(kind)}>{t(kind)}</option>)}
+            </select>
+          </p>
+
+          <p class="fld">
+            <label for="f-task">{t('form.task')}</label>
+            <textarea
+              class="inp"
+              id="f-task"
+              name="task"
+              rows="3"
+              maxlength="4000"
+              placeholder={t('form.taskPh')}></textarea>
+          </p>
+
+          <button class="btn p trav frm-send" type="submit">
+            <span data-sending={t('form.sending')}>{t('form.send')}</span>
+            <Icon name="arr" size={16} />
+          </button>
+
+          <p class="frm-note">
+            {t('form.consent')}{' '}
+            <a href={localizePath('/privacy/', locale)}>{t('form.consentLink')}</a>.
+          </p>
+        </div>
+
+        {
+          /* Ответ приёмника. Без JS сюда не попадают — уходят на /sent/;
+            role="status" озвучивает его, когда скрипт подменяет содержимое. */
+        }
+        <div class="frm-done" id="frm-done" role="status" hidden>
+          <span class="tick">
+            <Icon name="check" size={24} />
+          </span>
+          <strong id="frm-done-t"></strong>
+          <span id="frm-done-d"></span>
+        </div>
+      </form>
+
+      <div class="contact-side rv">
+        <div class="g gd contact-card">
+          <p class="mono">{t('contact.sideT')}</p>
+          <p class="contact-note">{t('contact.sideD')}</p>
+
+          <div class="facts">
+            <span class="pill mn">{t('about.f1')}</span>
+            <span class="pill mn">{t('about.f2')}</span>
+          </div>
+        </div>
+
+        <div class="ctalist">
+          <a class="btn s trav" href={SITE.telegram} target="_blank" rel="noopener">
+            <Icon name="tg" size={18} />
+            <span>Telegram → {SITE.telegramName}</span>
+          </a>
+
+          <a class="btn s trav" href={SITE.github} target="_blank" rel="noopener">
+            <Icon name="gh" size={18} />
+            <span>GitHub → jw-git-hub</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

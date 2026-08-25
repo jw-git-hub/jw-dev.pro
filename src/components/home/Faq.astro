@@ -1,0 +1,47 @@
+---
+/**
+ * Аккордеон вопросов — план Ф9, DESIGN-GUIDE §16.
+ *
+ * Каждый пункт — настоящий `<details>`, а не кнопка с обработчиком: без JS
+ * ответы обязаны раскрываться (правило 6), и то же решение уже принято
+ * для шторки разделов в §13. Общий `name` даёт нативный аккордеон —
+ * открытый пункт закрывает соседей без единой строчки скрипта.
+ *
+ * Первый пункт открыт: закрытый блок из семи одинаковых строк читается
+ * как список ссылок, и посетитель не понимает, что внутри есть ответы.
+ */
+import { localeFromUrl, useTranslations } from '../../i18n';
+import { FAQ } from '../../data/faq';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<section id="faq" data-acc="cyan" data-name={t('kick.faq')} data-dock="how">
+  <div class="wrap">
+    <div class="sec-head rv">
+      <span class="kick">{t('kick.faq')}</span>
+      <h2>{t('sec.faq.t')}</h2>
+      <p class="lead">{t('sec.faq.s')}</p>
+    </div>
+
+    <div class="acc g gd rv" data-damp="0.5">
+      {
+        FAQ.map((item, index) => (
+          <details class="acc-i" name="faq" open={index === 0}>
+            <summary class="acc-q">
+              <span>{t(item.q)}</span>
+              <span class="pm" aria-hidden="true" />
+            </summary>
+
+            <div class="acc-a">
+              {item.a.map((paragraph) => (
+                <p>{t(paragraph)}</p>
+              ))}
+            </div>
+          </details>
+        ))
+      }
+    </div>
+  </div>
+</section>

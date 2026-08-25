@@ -30,7 +30,10 @@
 @import './components/ticker.css';
 @import './components/ring.css';
 @import './components/process.css';
+@import './components/about.css';
 @import './components/case.css';
 @import './components/overlay.css';
+@import './components/faq.css';
+@import './components/form.css';
 @import './components/log.css';
 @import './components/note.css';

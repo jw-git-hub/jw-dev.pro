@@ -17,7 +17,7 @@ const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 ---
 
-<section id="services" data-acc="violet">
+<section id="services" data-acc="violet" data-name={t('nav.services')} data-dock="work">
   <div class="wrap">
     <div class="sec-head rv">
       <span class="kick">{t('kick.services')}</span>

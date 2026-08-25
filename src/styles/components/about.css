@@ -1,0 +1,81 @@
+/**
+ * Обо мне — DESIGN-GUIDE §8. Знак крупно в стеклянной карточке, справа текст.
+ *
+ * Кольца вокруг знака вращаются в разные стороны с разной скоростью: одна
+ * скорость читается как деталь картинки, разные — как работающий механизм.
+ */
+
+.about {
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  gap: clamp(24px, 4vw, 58px);
+  align-items: center;
+}
+
+.about-card {
+  position: relative;
+  overflow: hidden;
+  padding: 34px 32px;
+  border-radius: 26px;
+}
+
+.about-mark {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: min(100%, 300px);
+  margin: 0 auto;
+  overflow: hidden;
+  border-radius: 26px;
+  background: radial-gradient(circle at 50% 40%, rgb(255 255 255 / 7%), transparent 62%);
+  aspect-ratio: 1;
+}
+
+/* Знак здесь — картина блока, а не марка в шапке: свои 34px он перерастает. */
+.about-mark .mark {
+  width: 52%;
+  height: 52%;
+  filter: drop-shadow(0 0 34px color-mix(in srgb, var(--acc) 55%, transparent));
+}
+
+.ringline {
+  position: absolute;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 50%;
+}
+
+.r1 {
+  inset: 12%;
+  animation: about-spin 34s linear infinite;
+}
+
+.r2 {
+  inset: 24%;
+  border-color: color-mix(in srgb, var(--acc) 26%, transparent);
+  border-style: dashed;
+  animation: about-spin 26s linear infinite reverse;
+}
+
+.r3 {
+  inset: 2%;
+  border-color: rgb(255 255 255 / 5%);
+}
+
+@keyframes about-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 22px;
+}
+
+@media (max-width: 900px) {
+  .about {
+    grid-template-columns: 1fr;
+  }
+}

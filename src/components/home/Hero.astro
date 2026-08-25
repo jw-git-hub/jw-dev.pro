@@ -19,7 +19,7 @@ const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 ---
 
-<section class="hero" id="hero" data-acc="cyan">
+<section class="hero" id="hero" data-acc="cyan" data-name={t('dock.intro')} data-dock="work">
   <div class="wrap hero-grid">
     <div class="hero-l" data-damp="0.46">
       <span class="hero-eyebrow rv">
