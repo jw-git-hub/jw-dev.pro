@@ -141,7 +141,12 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
     </main>
 
     <Footer />
-    <Dock />
+
+    {
+      /* На внутренней странице «сейчас читаете» — это имя самой страницы:
+      секций с акцентом там нет, и вести подпись по прокрутке нечем. */
+    }
+    <Dock label={title} />
 
     <script>
       import '../scripts/header.js';
@@ -157,6 +162,7 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
       import '../scripts/since.js';
       import '../scripts/ring.js';
       import '../scripts/process.js';
+      import '../scripts/form.js';
       import '../scripts/overlay.js';
       import '../scripts/accent.js';
     </script>

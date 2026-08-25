@@ -1,9 +1,9 @@
 # Прод-стенд jw-dev.pro.
 #
 # Сайт — статика: Nginx просто раздаёт содержимое dist/, собранного в CI.
-# Контейнер contact-api добавится в фазе 9; он нужен только форме, потому
-# что доставка заявки требует секрета (токен бота, пароль SMTP), а всё,
-# что попадает в браузер, публично.
+# Рядом стоит contact-api: он нужен только форме, потому что доставка заявки
+# требует секрета (токен бота, пароль почты), а всё, что попадает в браузер,
+# публично. Наружу он не смотрит — только через Nginx.
 
 services:
   web:
@@ -15,8 +15,31 @@ services:
     volumes:
       - ../dist:/srv/site:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - contact-api
     healthcheck:
       test: ['CMD', 'wget', '--spider', '-q', 'http://localhost/']
+      interval: 30s
+      timeout: 5s
+      retries: 3
+
+  contact-api:
+    build: ../server/contact-api
+    container_name: jw-dev-contact
+    restart: unless-stopped
+    # Портов наружу нет намеренно: единственный вход — location /api/ в Nginx.
+    expose:
+      - '8080'
+    env_file:
+      - .env
+    healthcheck:
+      test:
+        [
+          'CMD',
+          'python',
+          '-c',
+          "import urllib.request; urllib.request.urlopen('http://localhost:8080/api/health')",
+        ]
       interval: 30s
       timeout: 5s
       retries: 3

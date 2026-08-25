@@ -81,10 +81,16 @@
   font-size: 9px;
 }
 
+/**
+ * Ширина ограничена сверху: в подписи стоит имя раздела, а на внутренней
+ * странице — её собственное имя длиной до 32 знаков. Без потолка длинное
+ * имя растягивало бы весь док, вместо того чтобы обрезаться многоточием.
+ */
 .dock-lb {
   display: flex;
   flex-direction: column;
   min-width: 112px;
+  max-width: 168px;
   margin-right: 2px;
   padding-right: 6px;
   border-right: 1px solid rgb(255 255 255 / 10%);

@@ -8,13 +8,35 @@
  * повторяют ссылки шапки и подвала. Поэтому в состоянии покоя он ещё и
  * visibility: hidden — невидимый, но фокусируемый элемент это ловушка
  * для клавиатуры.
+ *
+ * Контекстных действий в разметке четыре, показано всегда одно. Подписи
+ * переведены на сборке, поэтому подменять их в браузере нельзя — туда уехал бы
+ * словарь. Скрипт только переключает, какое из готовых действий видно.
  */
 import { SITE } from '../../data/site';
 import { localeFromUrl, useTranslations, sectionPath } from '../../i18n';
+import { dockActions, DEFAULT_CTX } from '../../data/dock';
+import { getCases } from '../../lib/cases';
 import Icon from './Icon.astro';
+
+interface Props {
+  /**
+   * Что стоит в строке «сейчас читаете» до первой прокрутки. На главной
+   * дальше её ведёт dock.js по секциям, на внутренних странице нечем
+   * вести — там это имя самой страницы.
+   */
+  label?: string;
+}
 
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
+
+const { label = t('dock.intro') } = Astro.props;
+
+// «Открыть разбор кейса» ведёт в избранный кейс: он живой и открыт кодом.
+const cases = await getCases(locale);
+const featured = cases.find((item) => item.featured) ?? cases[0];
+const actions = dockActions(locale, featured.slug);
 ---
 
 <aside class="dock g blur" id="dock" aria-label={t('a11y.dock')}>
@@ -28,14 +50,26 @@ const t = useTranslations(locale);
 
   <span class="dock-lb">
     <em>{t('dock.now')}</em>
-    <strong id="dock-sec">{t('dock.intro')}</strong>
+    <strong id="dock-sec">{label}</strong>
   </span>
 
   <span class="dock-acts">
-    <a class="btn s dock-ctx" id="dock-ctx" href={sectionPath(locale, 'work')}>
-      <Icon name="arr" size={15} />
-      <span class="dock-lbl">{t('dock.work')}</span>
-    </a>
+    {
+      /* aria-label повторяет видимую подпись слово в слово: на узком экране
+        она скрыта, и без него у кнопки не остаётся доступного имени. */
+      actions.map((action) => (
+        <a
+          class="btn s dock-ctx"
+          href={action.href}
+          data-ctx={action.kind}
+          aria-label={t(action.key)}
+          hidden={action.kind !== DEFAULT_CTX}
+        >
+          <Icon name={action.icon} size={15} />
+          <span class="dock-lbl">{t(action.key)}</span>
+        </a>
+      ))
+    }
 
     <span class="tip">
       <a class="btn s ico" href={SITE.bot} target="_blank" rel="noopener" aria-label={t('cta.bot')}>
@@ -44,7 +78,7 @@ const t = useTranslations(locale);
       <span class="tipb">{t('cta.botTip')}</span>
     </span>
 
-    <a class="btn p" href={sectionPath(locale, 'contact')}>
+    <a class="btn p" href={sectionPath(locale, 'contact')} aria-label={t('dock.msg')}>
       <Icon name="mail" size={15} />
       <span class="dock-lbl">{t('dock.msg')}</span>
     </a>

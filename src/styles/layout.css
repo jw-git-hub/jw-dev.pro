@@ -58,6 +58,23 @@ main > .sec-flush {
   margin-bottom: clamp(34px, 4vw, 58px);
 }
 
+/* Шапка по центру: так стоит только приглашение написать — оно обращено
+   к читателю, а не подписывает список под собой. */
+.sec-head--mid {
+  margin-right: auto;
+  margin-left: auto;
+  text-align: center;
+}
+
+.sec-head--mid .lead {
+  margin-right: auto;
+  margin-left: auto;
+}
+
+.sec-head--mid .kick::before {
+  display: none;
+}
+
 /* Заголовок и действие в одну строку: «Кейсы» + фильтры, «Журнал» + все записи. */
 .sec-head.row {
   display: flex;

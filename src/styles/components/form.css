@@ -1,0 +1,237 @@
+/**
+ * Форма заявки и колонка контактов — DESIGN-GUIDE §8.
+ *
+ * Поля и кнопка отправки собраны на классах макета (`.frm`, `.fld`, `.inp`),
+ * инлайновые стили из прототипа разложены по правилам: центрирование шапки
+ * секции стало `.sec-head--mid`, вертикальный ритм формы — `gap`.
+ */
+
+.ctaform {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: clamp(24px, 4vw, 54px);
+  align-items: start;
+}
+
+.frm {
+  padding: 30px;
+  border-radius: 26px;
+}
+
+.fbody {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.fld {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+.fld label {
+  color: var(--ink3);
+  font-family: var(--fm);
+  font-size: 10.5px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.inp {
+  width: 100%;
+  padding: 12px 15px;
+  border: 1px solid rgb(255 255 255 / 9%);
+  border-radius: 14px;
+  background: rgb(255 255 255 / 3.5%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 7%);
+  font-size: 14.5px;
+  transition: 0.4s var(--e);
+}
+
+.inp::placeholder {
+  color: rgb(240 244 250 / 34%);
+}
+
+.inp:focus {
+  outline: none;
+  border-color: var(--acc-ink);
+  background: rgb(255 255 255 / 5.5%);
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--acc) 18%, transparent),
+    inset 0 1px 0 rgb(255 255 255 / 10%);
+}
+
+textarea.inp {
+  min-height: 92px;
+  resize: vertical;
+}
+
+/**
+ * Стрелка селекта нарисована двумя градиентами, как в макете: своя иконка
+ * потребовала бы обёртки вокруг элемента, который и так умеет её показывать.
+ */
+select.inp {
+  appearance: none;
+  background-image:
+    linear-gradient(45deg, transparent 50%, rgb(240 244 250 / 55%) 50%),
+    linear-gradient(135deg, rgb(240 244 250 / 55%) 50%, transparent 50%);
+  background-repeat: no-repeat;
+  background-position:
+    calc(100% - 18px) 19px,
+    calc(100% - 13px) 19px;
+  background-size: 5px 5px;
+}
+
+select.inp option {
+  background: var(--panel);
+  color: var(--ink);
+}
+
+.inp-ic {
+  display: block;
+  position: relative;
+}
+
+.inp-ic .icon {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 15px;
+  height: 15px;
+  color: var(--ink3);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.inp-ic .inp {
+  padding-left: 39px;
+}
+
+/**
+ * Ошибку показывает браузер: без JS другой проверки нет, а `:user-invalid`
+ * в отличие от `:invalid` молчит, пока поле не тронули, — иначе пустая форма
+ * краснеет при открытии страницы.
+ */
+.emsg {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  color: var(--rose);
+  font-size: 12px;
+}
+
+.fld:has(.inp:user-invalid) .inp {
+  border-color: var(--rose);
+  box-shadow: 0 0 0 3px rgb(255 77 158 / 16%);
+}
+
+.fld:has(.inp:user-invalid) .emsg {
+  display: flex;
+}
+
+.frm-send {
+  align-self: flex-start;
+}
+
+.frm-note {
+  color: var(--ink3);
+  font-size: 12px;
+}
+
+/* Ссылка на политику обязана быть видна ссылкой: под кнопкой она несёт
+   согласие, а согласие с текстом, который не открыть, — не согласие. */
+.frm-note a {
+  color: var(--ink2);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* Ловушка для ботов: из потока, из обхода и из озвучки — но не display:none,
+   часть ботов такие поля пропускает именно по этому признаку. */
+.trap {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.frm-done {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 26px 10px;
+  text-align: center;
+}
+
+.frm-done strong {
+  font-size: 1.05rem;
+}
+
+.frm-done span:last-child {
+  max-width: 42ch;
+  color: var(--ink2);
+  font-size: 14px;
+}
+
+.frm-done .tick {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: linear-gradient(120deg, var(--mint), var(--cyan));
+  color: var(--on-light);
+}
+
+.contact-card {
+  padding: 20px 22px;
+  border-radius: 22px;
+}
+
+.contact-note {
+  margin-top: 10px;
+  color: var(--ink2);
+  font-size: 14px;
+}
+
+.ctalist {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 16px;
+}
+
+.contact-side .btn {
+  justify-content: flex-start;
+  width: 100%;
+  padding: 16px 24px;
+  font-size: 15px;
+}
+
+.contact-side .btn .icon {
+  width: 18px;
+  height: 18px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .inp:hover {
+    border-color: rgb(255 255 255 / 16%);
+  }
+}
+
+@media (max-width: 1020px) {
+  .ctaform {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 640px) {
+  .frm {
+    padding: 22px;
+  }
+}

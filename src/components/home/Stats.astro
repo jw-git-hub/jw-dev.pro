@@ -18,7 +18,13 @@ const t = useTranslations(locale);
 const finalText = (stat: Stat) => `${stat.prefix ?? ''}${stat.value}${stat.suffix ?? ''}`;
 ---
 
-<section class="sec-flush" id="stats" data-acc="indigo">
+<section
+  class="sec-flush"
+  id="stats"
+  data-acc="indigo"
+  data-name={t('dock.sec.stats')}
+  data-dock="work"
+>
   <div class="wrap">
     <div class="stats">
       {

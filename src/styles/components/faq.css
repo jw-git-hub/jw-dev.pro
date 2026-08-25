@@ -1,0 +1,136 @@
+/**
+ * Аккордеон вопросов — DESIGN-GUIDE §16.
+ *
+ * Пункт — настоящий `<details>`, поэтому раскрытие анимирует
+ * `::details-content`, а не отдельный слой разметки.
+ *
+ * Отступление от гайда (25.08.2026): в §16 открытый ответ ограничен
+ * `max-height: 340px`. Ответы владельца длиннее макетных — часть из них
+ * такой потолок обрезала бы молча, а поднимать число под самый длинный
+ * ответ значит привязывать стиль к тексту. Вместо потолка — сетка
+ * `0fr → 1fr`: она едет до фактической высоты. Длительность и easing
+ * гайда сохранены.
+ */
+
+.acc {
+  overflow: hidden;
+  border-radius: 22px;
+}
+
+.acc-i {
+  border-top: 1px solid rgb(255 255 255 / 6%);
+}
+
+.acc-i:first-child {
+  border-top: 0;
+}
+
+/* Треугольник браузера убираем: его роль играет пилюля с плюсом. */
+.acc-q::-webkit-details-marker {
+  display: none;
+}
+
+.acc-q {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  padding: 19px 22px;
+  color: var(--ink);
+  font-size: 15.2px;
+  font-weight: 580;
+  letter-spacing: -0.015em;
+  text-align: left;
+  list-style: none;
+  cursor: pointer;
+  transition: 0.4s var(--e);
+}
+
+.pm {
+  position: relative;
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 24px;
+  height: 24px;
+  margin-left: auto;
+  border: 1px solid rgb(255 255 255 / 12%);
+  border-radius: 50%;
+  transition: 0.5s var(--e);
+}
+
+.pm::before,
+.pm::after {
+  content: '';
+  position: absolute;
+  border-radius: 2px;
+  background: var(--ink2);
+  transition: 0.5s var(--e);
+}
+
+.pm::before {
+  width: 10px;
+  height: 1.6px;
+}
+
+.pm::after {
+  width: 1.6px;
+  height: 10px;
+}
+
+/* Открытый пункт: плюс поворачивается в минус вместе с пилюлей. */
+.acc-i[open] .pm {
+  border-color: var(--acc);
+  background: color-mix(in srgb, var(--acc) 16%, transparent);
+  transform: rotate(180deg);
+}
+
+.acc-i[open] .pm::after {
+  transform: scaleY(0);
+}
+
+/**
+ * Закрытый `<details>` держит содержимое в `content-visibility: hidden`,
+ * поэтому без `allow-discrete` анимация закрытия не проигрывается вовсе:
+ * содержимое пропадает первым же кадром.
+ */
+.acc-i::details-content {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition:
+    grid-template-rows 0.6s var(--e),
+    content-visibility 0.6s var(--e) allow-discrete;
+}
+
+.acc-i[open]::details-content {
+  grid-template-rows: 1fr;
+}
+
+/* Сетка едет от нуля только тогда, когда ребёнок разрешает себя сжать. */
+.acc-a {
+  overflow: hidden;
+  min-height: 0;
+}
+
+/**
+ * Строка ответа не тянется на всю ширину блока: в макете аккордеон делил
+ * ряд с таблицей пакетов и был вдвое уже, а у нас ряд свободен. На 1440px
+ * это дало бы строку под 140 знаков — вдвое длиннее читаемой. Потолок тот же,
+ * что у `.lead`, только с поправкой на мелкий кегль.
+ */
+.acc-a p {
+  max-width: 74ch;
+  padding: 0 22px 20px;
+  color: var(--ink2);
+  font-size: 14.2px;
+}
+
+.acc-a p + p {
+  margin-top: -6px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .acc-q:hover {
+    background: rgb(255 255 255 / 3.5%);
+  }
+}

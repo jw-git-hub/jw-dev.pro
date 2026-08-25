@@ -1,0 +1,24 @@
+---
+/**
+ * Ответ приёмника формы. Страница нужна тем, у кого выключен JS: без него
+ * браузер уходит по редиректу, и ответ должен быть местом на сайте,
+ * а не текстом от Nginx. Со скриптом её содержимое показывается
+ * прямо в карточке формы — тексты одни и те же.
+ *
+ * noindex: это не раздел сайта, а ответ на действие.
+ */
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import PageStub from '../../../components/chrome/PageStub.astro';
+import { localeFromUrl, useTranslations, homePath } from '../../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+---
+
+<BaseLayout title={t('form.okT')} description={t('form.okD')} noindex accent="rose">
+  <PageStub title={t('form.okT')} lead={t('form.okD')}>
+    <p class="page-back">
+      <a class="btn s" href={homePath(locale)}>{t('form.back')}</a>
+    </p>
+  </PageStub>
+</BaseLayout>

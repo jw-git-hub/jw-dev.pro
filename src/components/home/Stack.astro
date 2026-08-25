@@ -21,7 +21,7 @@ const t = useTranslations(locale);
 const chipsOf = (group: string) => CHIPS.filter((chip) => chip.group === group);
 ---
 
-<section id="stack" data-acc="cyan">
+<section id="stack" data-acc="cyan" data-name={t('nav.stack')} data-dock="how">
   <div class="wrap">
     <div class="sec-head rv">
       <span class="kick">{t('kick.stack')}</span>

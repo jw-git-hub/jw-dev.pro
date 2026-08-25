@@ -37,6 +37,17 @@ jobs:
       - name: Проверки контента и вывода
         run: npm run check
 
+      # Приёмник формы живёт в этом же репозитории и ломается так же тихо,
+      # как остальное: тринадцать проверок решают, доставлять заявку или нет.
+      - uses: actions/setup-python@v6
+        with:
+          python-version: '3.13'
+
+      - name: Приёмник формы
+        run: |
+          pip install -r server/contact-api/requirements.txt
+          python server/contact-api/test_app.py
+
       - name: Сохранить сборку
         uses: actions/upload-artifact@v5
         with:
