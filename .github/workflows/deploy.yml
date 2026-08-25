@@ -33,6 +33,8 @@ jobs:
       # Деплой без прохождения ворот невозможен: те же проверки, что в ci.yml.
       - run: npm run lint
       - run: npm run build
+        env:
+          PUBLIC_METRIKA_ID: ${{ vars.PUBLIC_METRIKA_ID }}
       - run: npm run check
 
       - name: Ключ доступа
