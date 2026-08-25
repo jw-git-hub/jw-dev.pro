@@ -144,7 +144,10 @@
   border-radius: 50%;
   background: rgb(255 255 255 / 4%);
   color: var(--acc-ink);
-  transition: 0.45s var(--e);
+  transition:
+    background 0.45s var(--e),
+    border-color 0.45s var(--e),
+    transform 0.45s var(--e);
 }
 
 /* Счётчик таба: своё число у каждого фильтра, а не «7 / 7» одной строкой. */

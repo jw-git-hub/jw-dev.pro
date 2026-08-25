@@ -31,6 +31,7 @@ const state = document.querySelector('[data-pr-state]');
 const marks = nodes.map((node) => Number(node.dataset.prNode));
 
 let pathLength = 0;
+let railHeight = 0;
 let startedAt = 0;
 let frameId = 0;
 let active = -1;
@@ -38,8 +39,19 @@ let pinned = -1;
 let auto = true;
 let inView = false;
 
+/**
+ * Живая дорожка ровно одна: на широком экране импульс открывает кривую,
+ * на узком SVG скрыт целиком и остаётся вертикальная рельса (process.css).
+ * Нулевая высота у скрытой рельсы — она же и признак, какой сейчас режим:
+ * писать в обе значило бы каждый кадр трогать то, чего нет на экране.
+ */
+function measureRail() {
+  railHeight = railDot?.parentElement?.clientHeight ?? 0;
+}
+
 /** Раскладывает узлы по кривой. Без длины пути координат не существует. */
 function placeNodes() {
+  measureRail();
   pathLength = line.getTotalLength();
   nodes.forEach((node, index) => {
     const point = line.getPointAtLength(pathLength * marks[index]);
@@ -50,8 +62,14 @@ function placeNodes() {
 }
 
 function drawTo(progress) {
+  if (railHeight) {
+    // transform, а не top: положение точки ведёт кадр анимации, и layout-свойству
+    // тут делать нечего — его пересчитывают шестьдесят раз в секунду впустую.
+    railDot.style.setProperty('transform', `translateY(${(progress * railHeight).toFixed(1)}px)`);
+    return;
+  }
+
   line.style.setProperty('stroke-dashoffset', String(pathLength * (1 - progress)));
-  railDot.style.setProperty('top', `${progress * 100}%`);
 }
 
 function setActive(index) {
