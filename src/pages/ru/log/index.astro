@@ -3,6 +3,8 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import LogArchive from '../../../components/log/LogArchive.astro';
 import { useTranslations } from '../../../i18n';
 import { ogPath } from '../../../lib/og';
+import { pageGraph } from '../../../lib/jsonld';
+import { logPath } from '../../../lib/journal';
 
 const t = useTranslations('ru');
 ---
@@ -12,6 +14,7 @@ const t = useTranslations('ru');
   description={t('log.lead')}
   accent="violet"
   image={ogPath('ru', 'log')}
+  schema={pageGraph(t('log.title'), logPath('ru'), 'ru', Astro.site)}
 >
   <LogArchive />
 </BaseLayout>

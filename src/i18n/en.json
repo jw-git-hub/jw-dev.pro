@@ -2,6 +2,8 @@
   "site.title": "jw-dev.pro — bots, websites, automation",
   "site.description": "Full-cycle developer: Telegram bots, websites, automation. The first look is free; after handover the code and the accounts are yours — no subscription, no lock-in.",
 
+  "schema.job": "Full-cycle developer",
+
   "a11y.skip": "Skip to content",
   "a11y.langSwitch": "Language",
   "a11y.nav": "Primary",

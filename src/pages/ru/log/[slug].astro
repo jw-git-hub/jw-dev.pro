@@ -8,6 +8,7 @@ import NoteArticle from '../../../components/log/NoteArticle.astro';
 import Icon from '../../../components/chrome/Icon.astro';
 import { getNotes, getNoteBody, logPath } from '../../../lib/journal';
 import { ogPath } from '../../../lib/og';
+import { noteGraph } from '../../../lib/jsonld';
 import { useTranslations } from '../../../i18n';
 
 export async function getStaticPaths() {
@@ -30,6 +31,7 @@ const Content = body?.Content;
   accent="violet"
   image={ogPath('ru', `note/${note.slug}`)}
   ogType="article"
+  schema={noteGraph(note, 'ru', Astro.site)}
 >
   <section>
     <div class="wrap">

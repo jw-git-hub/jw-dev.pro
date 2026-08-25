@@ -17,7 +17,7 @@
     "lint:css": "stylelint \"src/**/*.css\"",
     "lint:format": "prettier --check .",
     "format": "prettier --write .",
-    "check": "npm run check:astro && npm run check:content && npm run check:journal && npm run check:i18n && npm run check:css && npm run check:inline && npm run check:html && npm run check:links && npm run check:budget",
+    "check": "npm run check:astro && npm run check:content && npm run check:journal && npm run check:i18n && npm run check:css && npm run check:inline && npm run check:html && npm run check:seo && npm run check:links && npm run check:budget",
     "check:astro": "astro check",
     "check:content": "node tests/check-content.mjs",
     "check:journal": "node tests/check-journal.mjs",
@@ -25,6 +25,7 @@
     "check:css": "node tests/check-css.mjs",
     "check:inline": "node tests/check-inline.mjs",
     "check:html": "html-validate \"dist/**/*.html\"",
+    "check:seo": "node tests/check-seo.mjs",
     "check:links": "node tests/check-links.mjs",
     "check:budget": "node tests/check-budget.mjs"
   },
