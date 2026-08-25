@@ -2,10 +2,16 @@
 import BaseLayout from '../../layouts/BaseLayout.astro';
 import LogArchive from '../../components/log/LogArchive.astro';
 import { useTranslations } from '../../i18n';
+import { ogPath } from '../../lib/og';
 
 const t = useTranslations('en');
 ---
 
-<BaseLayout title={t('log.title')} description={t('log.lead')} accent="violet">
+<BaseLayout
+  title={t('log.title')}
+  description={t('log.lead')}
+  accent="violet"
+  image={ogPath('en', 'log')}
+>
   <LogArchive />
 </BaseLayout>

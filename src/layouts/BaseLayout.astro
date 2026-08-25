@@ -6,6 +6,7 @@ import Footer from '../components/chrome/Footer.astro';
 import Dock from '../components/chrome/Dock.astro';
 import { SITE } from '../data/site';
 import { feedPath } from '../lib/feed';
+import { ogPath } from '../lib/og';
 import type { Accent } from '../data/accent';
 import '../styles/main.css';
 
@@ -17,7 +18,11 @@ interface Props {
   noindex?: boolean;
   /** Куда ведёт переключатель языка, если «эта же страница» на другом языке не существует. */
   langPath?: string;
-  /** Картинка превью, путь от корня. Без неё мессенджер покажет ссылку одной строкой. */
+  /**
+   * Картинка превью, путь от корня. По умолчанию — карточка главной: без неё
+   * мессенджер показывает ссылку одной строкой, и это относится к любой
+   * странице, а не только к тем, у кого есть своя карточка.
+   */
   image?: string;
   /** Тип страницы для OG: разбор кейса — это статья, а не сайт целиком. */
   ogType?: 'website' | 'article';
@@ -37,7 +42,7 @@ const {
   description = t('site.description'),
   noindex = false,
   langPath,
-  image,
+  image = ogPath(locale, 'home'),
   ogType = 'website',
   accent = 'cyan',
 } = Astro.props;

@@ -57,6 +57,13 @@ export default defineConfig({
 
   integrations: [
     sitemap({
+      /*
+       * Ответы формы (`/sent/`, `/not-sent/`) помечены noindex: это не разделы
+       * сайта, а ответ на действие. Карта сайта звала бы в индекс ровно то,
+       * что разметка просит не индексировать, — поэтому их здесь нет.
+       */
+      filter: (page) => !/\/(?:sent|not-sent)\/$/.test(page),
+
       i18n: {
         defaultLocale: 'en',
         locales: { en: 'en', ru: 'ru' },
