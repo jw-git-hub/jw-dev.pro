@@ -9,18 +9,16 @@
  * Кейс, статья и главная различаются только тем, что кладут в эти три места
  * (`src/lib/og-cards.ts`) — второй вёрстки для второго типа страницы не нужно.
  *
- * Палитра читается из `tokens.css`, а не переписывается сюда: цвет в двух
- * местах — это цвет, который однажды разъедется. Растеризатор CSS-переменных
- * не понимает, поэтому значения достаются регуляркой на сборке.
+ * Цвета берутся из общей палитры проекта (`lib/palette.ts`).
  */
 import { readFile } from 'node:fs/promises';
 import satori from 'satori';
 import sharp from 'sharp';
+import { loadPalette } from './palette';
 
 const WIDTH = 1200;
 const HEIGHT = 630;
 const FONT_PATH = 'src/assets/fonts/Onest-SemiBold.ttf';
-const TOKENS_PATH = 'src/styles/tokens.css';
 
 /** Что кладётся в три места раскладки. Пустое поле просто не рисуется. */
 export interface CardSpec {
@@ -39,23 +37,10 @@ export interface CardSpec {
 
 /** Читается один раз на сборку: карточек больше двадцати, файл один. */
 let fontPromise: Promise<Buffer> | undefined;
-let palettePromise: Promise<Record<string, string>> | undefined;
 
 function loadFont() {
   fontPromise ??= readFile(FONT_PATH);
   return fontPromise;
-}
-
-/** Все `--имя: #hex` из токенов: `{ cyan: '#22d3ee', ink: '#f0f4fa', … }`. */
-async function loadPalette() {
-  palettePromise ??= readFile(TOKENS_PATH, 'utf8').then((css) => {
-    const palette: Record<string, string> = {};
-    for (const [, name, value] of css.matchAll(/--([\w-]+):\s*(#[0-9a-f]{3,8})\s*;/gi)) {
-      palette[name] = value;
-    }
-    return palette;
-  });
-  return palettePromise;
 }
 
 /** Узел satori. Своего JSX в проекте нет, поэтому дерево описывается объектами. */
