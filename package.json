@@ -27,9 +27,15 @@
     "check:html": "html-validate \"dist/**/*.html\"",
     "check:seo": "node tests/check-seo.mjs",
     "check:links": "node tests/check-links.mjs",
-    "check:budget": "node tests/check-budget.mjs"
+    "check:budget": "node tests/check-budget.mjs",
+    "verify": "npm run check:a11y && npm run check:nojs && npm run check:browsers && npm run check:lighthouse",
+    "check:a11y": "node tests/check-a11y.mjs",
+    "check:nojs": "node tests/check-nojs.mjs",
+    "check:browsers": "node tests/check-browsers.mjs",
+    "check:lighthouse": "node tests/check-lighthouse.mjs"
   },
   "dependencies": {
+    "@astrojs/markdown-satteri": "^0.3.8",
     "@astrojs/rss": "^4.0.19",
     "@astrojs/sitemap": "^3.7.3",
     "astro": "^7.2.4",
@@ -38,11 +44,14 @@
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^10.0.1",
     "eslint": "^10.9.0",
     "eslint-plugin-astro": "^1.7.0",
     "globals": "^17.11.0",
     "html-validate": "^11.9.0",
+    "lighthouse": "^13.4.1",
+    "playwright": "^1.62.1",
     "prettier": "^3.9.6",
     "prettier-plugin-astro": "^0.14.1",
     "satori": "^0.33.3",

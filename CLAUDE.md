@@ -53,9 +53,16 @@ npm run dev      сервер разработки
 npm run build    прод-сборка в dist/
 npm run lint     ESLint + Stylelint + Prettier
 npm run check    схема контента, переводы, инлайн, HTML, ссылки, бюджет веса
+npm run verify   браузерные ворота: доступность, работа без JS, три движка, Lighthouse
 ```
 
-`npm run lint` и `npm run check` — те же ворота, что в CI. Красное — деплоя нет.
+`npm run lint`, `npm run check` и `npm run verify` — те же ворота, что в CI.
+Красное — деплоя нет.
+
+`verify` поднимает собранный `dist` и открывает его в настоящем браузере, поэтому
+идёт после `build` и требует движков: `npx playwright install chromium firefox webkit`
+один раз. Минута с небольшим — почти всё это Lighthouse, который меряет каждую
+страницу трижды и берёт средний результат.
 
 ## Чистый код
 

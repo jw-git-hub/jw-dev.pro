@@ -1,5 +1,7 @@
 import { defineConfig } from 'astro/config';
 import sitemap from '@astrojs/sitemap';
+import { satteri } from '@astrojs/markdown-satteri';
+import { codeFocusable } from './src/lib/code-focusable.mjs';
 
 /**
  * Конфигурация сборки jw-dev.pro.
@@ -32,6 +34,7 @@ export default defineConfig({
 
   markdown: {
     syntaxHighlight: 'prism',
+    processor: satteri({ hastPlugins: [codeFocusable] }),
   },
 
   i18n: {

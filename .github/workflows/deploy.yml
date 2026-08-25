@@ -37,6 +37,15 @@ jobs:
           PUBLIC_METRIKA_ID: ${{ vars.PUBLIC_METRIKA_ID }}
       - run: npm run check
 
+      - name: Кеш движков браузеров
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - run: npx playwright install --with-deps chromium firefox webkit
+      - run: npm run verify
+
       - name: Ключ доступа
         run: |
           mkdir -p ~/.ssh
