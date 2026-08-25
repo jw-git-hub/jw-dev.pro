@@ -4,6 +4,10 @@
 # Рядом стоит contact-api: он нужен только форме, потому что доставка заявки
 # требует секрета (токен бота, пароль почты), а всё, что попадает в браузер,
 # публично. Наружу он не смотрит — только через Nginx.
+#
+# Сертификат выпускает и обновляет certbot на хосте, а не контейнер. Причина:
+# обновление раз в три месяца не стоит второго образа в памяти, а системный
+# certbot.timer уже стоит в Ubuntu и работает без нашего участия.
 
 services:
   web:
@@ -12,13 +16,25 @@ services:
     restart: unless-stopped
     ports:
       - '80:80'
+      - '443:443'
     volumes:
       - ../dist:/srv/site:ro
       - ./nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      # Подключаемые куски конфига. Каталогом, а не по файлу: их два и будет
+      # больше. В snippets/, а не в conf.d/ — conf.d nginx включает сам,
+      # и заголовки уехали бы в общий http-контекст вместо нужных мест.
+      - ./snippets:/etc/nginx/snippets:ro
+      # Сертификаты и каталог подтверждения — общие с certbot на хосте.
+      # Только на чтение: выпускает и обновляет их хост, контейнер лишь отдаёт.
+      - /etc/letsencrypt:/etc/letsencrypt:ro
+      - ./certbot-webroot:/var/www/certbot:ro
     depends_on:
       - contact-api
     healthcheck:
-      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost/']
+      # Отдельный адрес вместо '/': корень отвечает редиректом на HTTPS,
+      # и wget считал бы 301 ошибкой. Дёргать 443 изнутри тоже нельзя —
+      # сертификат выписан на домен, а не на localhost.
+      test: ['CMD', 'wget', '--spider', '-q', 'http://localhost/healthz']
       interval: 30s
       timeout: 5s
       retries: 3
