@@ -21,7 +21,9 @@
   font-family: var(--fm);
   font-size: 11px;
   letter-spacing: 0.08em;
-  transition: 0.35s var(--e);
+  transition:
+    color 0.35s var(--e),
+    background 0.35s var(--e);
 }
 
 .lang a[aria-current] {

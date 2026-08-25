@@ -31,16 +31,38 @@ const actions = [...document.querySelectorAll('.dock-ctx')];
 
 let lastY = window.scrollY;
 let acc = 0;
+let scrollMax = 0;
+let shownPercent = -1;
+
+/**
+ * Высота документа меряется по событию, а не в кадре прокрутки.
+ * scrollHeight заставляет браузер разложить страницу целиком, и в кадре он
+ * читается уже после того, как шапка и акцент секции записали свои классы, —
+ * то есть каждый кадр прокрутки оплачивает полный проход стилей и раскладки
+ * ради числа, которое за визит меняется несколько раз.
+ *
+ * Наблюдатель на body ловит и появление блоков при прокрутке, и фильтрацию
+ * кейсов; window.resize — смену высоты самого экрана.
+ */
+function measureScroll() {
+  scrollMax = document.documentElement.scrollHeight - window.innerHeight;
+}
 
 /** Доля прочитанного: 0 — верх страницы, 1 — конец. */
 function readProgress(scrollY) {
-  const max = document.documentElement.scrollHeight - window.innerHeight;
-  return max > 0 ? Math.min(scrollY / max, 1) : 0;
+  return scrollMax > 0 ? Math.min(scrollY / scrollMax, 1) : 0;
 }
 
 function paintRing(progress) {
   arc.style.strokeDashoffset = String(RING * (1 - progress));
-  percent.textContent = `${Math.round(progress * 100)}%`;
+
+  // Подпись меняется сто раз на всю страницу, а не шестьдесят раз в секунду:
+  // запись в текстовый узел — это перерисовка, даже когда текст тот же.
+  const nowPercent = Math.round(progress * 100);
+  if (nowPercent === shownPercent) return;
+
+  shownPercent = nowPercent;
+  percent.textContent = `${nowPercent}%`;
 }
 
 /** Накопитель сбрасывается при смене направления — иначе док залипает. */
@@ -67,6 +89,10 @@ function showAction(kind) {
 }
 
 if (dock && arc && percent) {
+  measureScroll();
+  new ResizeObserver(measureScroll).observe(document.body);
+  window.addEventListener('resize', measureScroll, { passive: true });
+
   onScroll((scrollY) => {
     const progress = readProgress(scrollY);
     paintRing(progress);

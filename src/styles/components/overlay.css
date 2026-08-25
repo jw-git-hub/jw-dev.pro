@@ -67,7 +67,9 @@
   background: color-mix(in srgb, var(--panel2) 70%, transparent);
   color: var(--ink);
   cursor: pointer;
-  transition: 0.4s var(--e);
+  transition:
+    background 0.4s var(--e),
+    transform 0.4s var(--e);
 }
 
 /* В оверлее у разбора нет своей страницы: убираем внешние поля статьи. */
