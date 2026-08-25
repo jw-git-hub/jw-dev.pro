@@ -11,9 +11,10 @@ import About from '../components/home/About.astro';
 import JournalFeed from '../components/log/JournalFeed.astro';
 import Faq from '../components/home/Faq.astro';
 import ContactForm from '../components/home/ContactForm.astro';
+import { homeGraph } from '../lib/jsonld';
 ---
 
-<BaseLayout>
+<BaseLayout schema={homeGraph('en', Astro.site)}>
   <Hero />
   <Stats />
   <WorkGrid />

@@ -1,11 +1,17 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageStub from '../../../components/chrome/PageStub.astro';
-import { localeFromUrl, useTranslations } from '../../../i18n';
+import { localeFromUrl, useTranslations, localizePath } from '../../../i18n';
+import { pageGraph } from '../../../lib/jsonld';
 
-const t = useTranslations(localeFromUrl(Astro.url));
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
 ---
 
-<BaseLayout title={t('privacy.title')} description={t('privacy.lead')}>
+<BaseLayout
+  title={t('privacy.title')}
+  description={t('privacy.lead')}
+  schema={pageGraph(t('privacy.title'), localizePath('/privacy/', locale), locale, Astro.site)}
+>
   <PageStub title={t('privacy.title')} lead={t('privacy.lead')} note={t('privacy.empty')} />
 </BaseLayout>

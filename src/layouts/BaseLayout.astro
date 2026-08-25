@@ -4,6 +4,7 @@ import Backdrop from '../components/chrome/Backdrop.astro';
 import Header from '../components/chrome/Header.astro';
 import Footer from '../components/chrome/Footer.astro';
 import Dock from '../components/chrome/Dock.astro';
+import Schema from '../components/chrome/Schema.astro';
 import { SITE } from '../data/site';
 import { feedPath } from '../lib/feed';
 import { ogPath } from '../lib/og';
@@ -27,6 +28,11 @@ interface Props {
   /** Тип страницы для OG: разбор кейса — это статья, а не сайт целиком. */
   ogType?: 'website' | 'article';
   /**
+   * Граф schema.org этой страницы — из `lib/jsonld.ts`. Собирает его страница:
+   * только она знает, кейс это, статья или раздел без своей сущности.
+   */
+  schema?: Record<string, unknown>[];
+  /**
    * Акцент страницы до первой прокрутки. На главной его дальше ведёт accent.js
    * по секциям, на внутренних он остаётся один. Задан в разметке, а не в скрипте,
    * чтобы страница открывалась в своём цвете и без JS.
@@ -44,6 +50,7 @@ const {
   langPath,
   image = ogPath(locale, 'home'),
   ogType = 'website',
+  schema,
   accent = 'cyan',
 } = Astro.props;
 
@@ -132,6 +139,8 @@ const defaultHref = alternates.find((a) => a.code === 'en')!.href;
         </>
       )
     }
+
+    {schema && <Schema nodes={schema} />}
   </head>
 
   <body>
