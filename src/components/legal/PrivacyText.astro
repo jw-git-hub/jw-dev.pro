@@ -1,0 +1,43 @@
+---
+/**
+ * Текст политики конфиденциальности.
+ *
+ * Один компонент на оба языка: разделы и их порядок — это структура, а не
+ * содержание, и второй копии структуры для второго языка быть не должно.
+ *
+ * Набран классом `.prose` — тем же, что и статьи журнала. Это экран связного
+ * текста с заголовками, и второй набор правил для тех же абзацев отличался бы
+ * от первого ровно на величину невнимательности.
+ */
+import { PRIVACY, PRIVACY_ANALYTICS, PRIVACY_TAIL } from '../../data/privacy';
+import { SITE } from '../../data/site';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+const t = useTranslations(localeFromUrl(Astro.url));
+
+/* Счётчик задан переменной сборки — тогда и только тогда о нём есть раздел. */
+const sections = [
+  ...PRIVACY,
+  ...(import.meta.env.PUBLIC_METRIKA_ID ? [PRIVACY_ANALYTICS] : []),
+  ...PRIVACY_TAIL,
+];
+---
+
+<div class="prose page-prose">
+  <p class="mono">{t('privacy.updated')}</p>
+
+  {
+    sections.map((section) => (
+      <>
+        <h2>{t(section.t)}</h2>
+        {section.p.map((key) => (
+          <p>{t(key)}</p>
+        ))}
+      </>
+    ))
+  }
+
+  <p>
+    <a href={SITE.telegram} target="_blank" rel="noopener">Telegram → {SITE.telegramName}</a>
+  </p>
+</div>

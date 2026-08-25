@@ -1,6 +1,7 @@
 ---
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import PageStub from '../../../components/chrome/PageStub.astro';
+import PrivacyText from '../../../components/legal/PrivacyText.astro';
 import { localeFromUrl, useTranslations, localizePath } from '../../../i18n';
 import { pageGraph } from '../../../lib/jsonld';
 
@@ -13,5 +14,7 @@ const t = useTranslations(locale);
   description={t('privacy.lead')}
   schema={pageGraph(t('privacy.title'), localizePath('/privacy/', locale), locale, Astro.site)}
 >
-  <PageStub title={t('privacy.title')} lead={t('privacy.lead')} note={t('privacy.empty')} />
+  <PageStub title={t('privacy.title')} lead={t('privacy.lead')}>
+    <PrivacyText />
+  </PageStub>
 </BaseLayout>
