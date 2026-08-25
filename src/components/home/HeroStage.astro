@@ -12,7 +12,7 @@
  */
 import { localeFromUrl, useTranslations } from '../../i18n';
 import { SITE } from '../../data/site';
-import { HUD_PILLS, PANEL_SCORE } from '../../data/hero';
+import { HUD_PILLS, OPEN_REPOS } from '../../data/hero';
 import HeroWindow from './HeroWindow.astro';
 import MetricPanel from './MetricPanel.astro';
 import ShotSlot from '../shot/ShotSlot.astro';
@@ -22,8 +22,8 @@ import ChatMock from '../shot/ChatMock.astro';
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 
-/** Хендл бота режется из его адреса: два написания одного имени разъезжаются. */
-const botHandle = `@${SITE.bot.split('/').pop()}`;
+/** Имя бота режется из его адреса: два написания одного имени разъезжаются. */
+const botName = `@${SITE.bot.split('/').pop()}`;
 ---
 
 <div class="stage" aria-hidden="true">
@@ -36,12 +36,12 @@ const botHandle = `@${SITE.bot.split('/').pop()}`;
       <ShotSlot class="tone-cyan"><SiteMock /></ShotSlot>
     </HeroWindow>
 
-    <HeroWindow place="wB" drift="drift2" amp={9} accent="violet" side="right" title={botHandle}>
+    <HeroWindow place="wB" drift="drift2" amp={9} accent="violet" side="right" title={botName}>
       <ShotSlot class="tg tone-violet"><ChatMock /></ShotSlot>
     </HeroWindow>
 
     <HeroWindow place="wC" drift="drift3" amp={12} accent="indigo" side="right" panel>
-      <MetricPanel title={t('hero.panel')} value={PANEL_SCORE} note={t('hero.panelNote')} />
+      <MetricPanel title={t('hero.panel')} value={OPEN_REPOS} note={t('hero.panelNote')} />
     </HeroWindow>
 
     <div class="hudwrap">
