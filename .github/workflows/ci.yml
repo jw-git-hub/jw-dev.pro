@@ -41,6 +41,20 @@ jobs:
       - name: Проверки контента и вывода
         run: npm run check
 
+      # Движки кешируются по версии Playwright: скачивать три браузера
+      # на каждый прогон — несколько минут впустую.
+      - name: Кеш движков браузеров
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/ms-playwright
+          key: playwright-${{ runner.os }}-${{ hashFiles('package-lock.json') }}
+
+      - name: Движки браузеров
+        run: npx playwright install --with-deps chromium firefox webkit
+
+      - name: Браузерные ворота
+        run: npm run verify
+
       # Приёмник формы живёт в этом же репозитории и ломается так же тихо,
       # как остальное: тринадцать проверок решают, доставлять заявку или нет.
       - uses: actions/setup-python@v6
