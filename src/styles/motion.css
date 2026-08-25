@@ -80,16 +80,33 @@ html.rvall .rv {
  * при добавлении компонента про его reduced-motion легко забыть.
  */
 @media (prefers-reduced-motion: reduce) {
+  /**
+   * Выключается движение, а не отклик. Анимации не идут, переходы остаются
+   * только у свойств, которые ничего не смещают: цвет, заливка, прозрачность.
+   * Глушить переходы целиком значит показать страницу разом собранной —
+   * именно это и читается как «сайт сломался», хотя просьба была про другое.
+   */
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    transition-duration: 0.01ms !important;
     animation: none !important;
+    transition-property:
+      opacity, color, background, background-color, border-color, box-shadow, fill, stroke !important;
   }
 
+  /**
+   * Акцент секции продолжает перетекать: смена цвета не укачивает.
+   * Список задан отдельно и только на корне — эти три токена наследуются,
+   * и разрешить их переход всем элементам значило бы завести тысячу
+   * интерполяций вместо одной (tokens.css).
+   */
+  :root {
+    transition-property: --acc, --acc-ink, --acc2 !important;
+  }
+
+  /* Блок проявляется, но не подъезжает. */
   .rv {
-    opacity: 1 !important;
     transform: none !important;
   }
 

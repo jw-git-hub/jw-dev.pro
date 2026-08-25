@@ -37,6 +37,10 @@
  * из модификатора: сам рецепт заливки один на все шесть.
  */
 .blob {
+  /* Точки масштаба дрейфа: их задаёт каждое пятно, гасит — медиазапрос ниже. */
+  --blob-from: 1;
+  --blob-to: 1;
+
   position: absolute;
   border-radius: 50%;
   background: radial-gradient(
@@ -52,6 +56,7 @@
 }
 
 .b1 {
+  --blob-to: 1.22;
   --blob-color: var(--indigo);
   --blob-edge: 86%;
 
@@ -65,6 +70,8 @@
 }
 
 .b2 {
+  --blob-from: 1.1;
+  --blob-to: 0.86;
   --blob-color: var(--cyan);
   --blob-edge: 84%;
 
@@ -78,6 +85,8 @@
 }
 
 .b3 {
+  --blob-from: 0.92;
+  --blob-to: 1.18;
   --blob-color: var(--violet);
   --blob-edge: 86%;
 
@@ -91,6 +100,7 @@
 }
 
 .b4 {
+  --blob-to: 1.3;
   --blob-color: var(--amber);
   --blob-edge: 82%;
 
@@ -105,6 +115,8 @@
 }
 
 .b5 {
+  --blob-from: 1.05;
+  --blob-to: 0.88;
   --blob-color: var(--rose);
   --blob-edge: 84%;
 
@@ -119,6 +131,8 @@
 }
 
 .b6 {
+  --blob-from: 1.1;
+  --blob-to: 0.86;
   --blob-color: var(--cyan);
   --blob-edge: 80%;
 
@@ -138,43 +152,57 @@
  */
 @keyframes drift-1 {
   to {
-    transform: translate3d(16vw, 14vh, 0) scale(1.22);
+    transform: translate3d(16vw, 14vh, 0) scale(var(--blob-to));
   }
 }
 
 @keyframes drift-2 {
   from {
-    transform: translate3d(0, 0, 0) scale(1.1);
+    transform: translate3d(0, 0, 0) scale(var(--blob-from));
   }
 
   to {
-    transform: translate3d(-18vw, 20vh, 0) scale(0.86);
+    transform: translate3d(-18vw, 20vh, 0) scale(var(--blob-to));
   }
 }
 
 @keyframes drift-3 {
   from {
-    transform: translate3d(0, 0, 0) scale(0.92);
+    transform: translate3d(0, 0, 0) scale(var(--blob-from));
   }
 
   to {
-    transform: translate3d(20vw, -18vh, 0) scale(1.18);
+    transform: translate3d(20vw, -18vh, 0) scale(var(--blob-to));
   }
 }
 
 @keyframes drift-4 {
   to {
-    transform: translate3d(-16vw, -12vh, 0) scale(1.3);
+    transform: translate3d(-16vw, -12vh, 0) scale(var(--blob-to));
   }
 }
 
 @keyframes drift-5 {
   from {
-    transform: translate3d(0, 0, 0) scale(1.05);
+    transform: translate3d(0, 0, 0) scale(var(--blob-from));
   }
 
   to {
-    transform: translate3d(-14vw, 16vh, 0) scale(0.88);
+    transform: translate3d(-14vw, 16vh, 0) scale(var(--blob-to));
+  }
+}
+
+/**
+ * На узком экране пятна только плывут, но не дышат. Масштаб — единственный
+ * transform, который композитор не может отдать бесплатно: он либо заново
+ * растрирует градиент под новый размер, либо показывает мыльный апскейл,
+ * и так шесть раз подряд на слоях в пол-экрана. Дрейф остаётся, а разницу
+ * в масштабе на размытом пятне такого размера глаз не считывает.
+ */
+@media (max-width: 900px) {
+  .blob {
+    --blob-from: 1;
+    --blob-to: 1;
   }
 }
 
@@ -266,4 +294,18 @@ body::after {
   opacity: 0.045;
   mix-blend-mode: overlay;
   pointer-events: none;
+}
+
+/**
+ * На узком экране зерна поверх страницы нет. Overlay во весь экран смешивает
+ * весь собранный кадр целиком, а под ним каждый кадр меняется канвас графа —
+ * то есть эта строка одна заставляла пересобирать вьюпорт шестьдесят раз
+ * в секунду. При непрозрачности .045 на плотном экране телефона она платит
+ * эту цену за то, чего там не разглядеть; зерно внутри стекла (glass.css)
+ * остаётся, и «пластик» убирает по-прежнему оно.
+ */
+@media (max-width: 900px) {
+  body::after {
+    display: none;
+  }
 }

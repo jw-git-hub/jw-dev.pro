@@ -21,13 +21,25 @@ import * as anchors from './graph/anchors.js';
 import * as pulses from './graph/pulses.js';
 import * as damp from './graph/damp.js';
 
-/** Выше двух ретина уже не различает, а площадь канваса растёт квадратом. */
-const MAX_DPR = 2;
+/**
+ * Один пиксель растра на пиксель CSS, без ретины. Канвас растянут во весь
+ * экран, и удвоение плотности учетверяет число пикселей, которые нужно
+ * очистить и залить каждый кадр: на 1440×900 это разница между 17 и 67 мс
+ * на кадр, то есть между шестьюдесятью кадрами в секунду и пятнадцатью.
+ * Сеть — это линии в один пиксель под непрозрачностью .66 (backdrop.css);
+ * чёткости, за которую платят вчетверо, на них не видно.
+ */
+const MAX_DPR = 1;
 
 const MEASURE_EVERY = 560; // мс
+/** На узком экране двигать якоря нечему: сцена плоская, параллакса нет. */
+const MEASURE_EVERY_NARROW = 1120;
+const DRAW_EVERY_NARROW = 1000 / 30;
 const RESIZE_DELAY = 180;
 const TINT_EASE = 0.035; // доля пути к цвету секции за кадр
 const DEFAULT_TINT = 'cyan';
+
+const narrow = window.matchMedia('(max-width: 900px)');
 
 const canvas = document.getElementById('graph');
 const ctx = canvas ? canvas.getContext('2d', { alpha: true }) : null;
@@ -44,6 +56,7 @@ let frameId = 0;
 let staticId = 0;
 let lastSpawn = 0;
 let lastMeasure = 0;
+let lastDraw = 0;
 let resizeTimer = 0;
 
 const sparks = [];
@@ -70,18 +83,20 @@ function measure() {
  * Размер канваса в CSS-пикселях задаёт разметка (position: fixed; inset: 0),
  * здесь настраивается только растр под плотность экрана.
  */
-function resize() {
+function resizeRaster() {
   const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
   width = canvas.clientWidth;
   height = canvas.clientHeight;
   canvas.width = Math.round(width * dpr);
   canvas.height = Math.round(height * dpr);
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
 
+/** Поле строится заново: и число узлов, и радиус связи считаются от ширины. */
+function rebuildField() {
   limit = edgeLimit(width);
   nodes = buildNodes(width, height);
   sparks.length = 0;
-  collect();
 }
 
 /** Цвет рёбер догоняет акцент секции, а не прыгает вместе с ним. */
@@ -103,6 +118,24 @@ function draw(time) {
   damp.draw(ctx, dampHoles, { scrollY, height });
 }
 
+/**
+ * На узком экране сеть рисуется тридцать раз в секунду вместо шестидесяти.
+ * Узел проходит за кадр 0,13 px, между отрисовками выйдет 0,26 — на слое
+ * с непрозрачностью .66 такой шаг не читается. А каждая перерисовка канваса
+ * во весь экран тянет за собой всё, что лежит поверх него, поэтому она
+ * и есть самая дорогая строка кадра.
+ *
+ * Движение узлов и искр при этом идёт покадрово: тридцать восемь сложений
+ * стоят несравнимо меньше, чем один проход по холсту.
+ */
+function drawDue(time) {
+  if (!narrow.matches) return true;
+  if (time - lastDraw < DRAW_EVERY_NARROW) return false;
+
+  lastDraw = time;
+  return true;
+}
+
 function frame(time) {
   stepNodes(nodes, width, height);
   pulses.step(sparks, nodes, limit);
@@ -112,12 +145,13 @@ function frame(time) {
     pulses.spawn(sparks, nodes, limit);
   }
 
-  if (time - lastMeasure > MEASURE_EVERY) {
+  const measureEvery = narrow.matches ? MEASURE_EVERY_NARROW : MEASURE_EVERY;
+  if (time - lastMeasure > measureEvery) {
     lastMeasure = time;
     measure();
   }
 
-  draw(time);
+  if (drawDue(time)) draw(time);
   frameId = requestAnimationFrame(frame);
 }
 
@@ -166,10 +200,9 @@ function requestStatic() {
   });
 }
 
-/** Условия рисования изменились: перестроить поле под новый экран и продолжить. */
-function sync() {
+/** Цикл или один статичный кадр — смотря о чём просил посетитель. */
+function restart() {
   stop();
-  resize();
 
   if (reducedMotion.matches) {
     staticFrame();
@@ -179,10 +212,41 @@ function sync() {
   start();
 }
 
+/** Первая настройка: растр под плотность экрана, поле, геометрия якорей. */
+function sync() {
+  resizeRaster();
+  rebuildField();
+  collect();
+  restart();
+}
+
+/**
+ * Экран изменился. Поле перестраивается только при смене ширины: от неё
+ * считаются и число узлов, и радиус связи (field.js), а высота на них
+ * не влияет. Мобильный браузер шлёт resize на каждое прятанье адресной
+ * строки, то есть посреди прокрутки, — и перестройка по высоте рассыпала бы
+ * сеть заново прямо под пальцем.
+ */
+function onResize() {
+  const widthChanged = canvas.clientWidth !== width;
+  const heightChanged = canvas.clientHeight !== height;
+  if (!widthChanged && !heightChanged) return;
+
+  resizeRaster();
+  if (widthChanged) rebuildField();
+  collect();
+  restart();
+}
+
 function listen() {
+  // §9 описывает подсветку как курсорную. Палец курсором не является:
+  // pointerleave на тач-экране не приходит вовсе, поэтому один тап включал бы
+  // подсветку до конца сессии — и кадр за кадром считал бы расстояние
+  // от каждого узла и каждого ребра до точки, где посетитель однажды коснулся.
   window.addEventListener(
     'pointermove',
     (event) => {
+      if (event.pointerType !== 'mouse') return;
       pointer.x = event.clientX;
       pointer.y = event.clientY;
       pointer.on = true;
@@ -190,19 +254,15 @@ function listen() {
     { passive: true },
   );
 
-  window.addEventListener(
-    'pointerleave',
-    () => {
-      pointer.on = false;
-    },
-    { passive: true },
-  );
+  for (const away of ['pointerleave', 'pointerup', 'pointercancel']) {
+    window.addEventListener(away, () => (pointer.on = false), { passive: true });
+  }
 
   window.addEventListener(
     'resize',
     () => {
       clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(sync, RESIZE_DELAY);
+      resizeTimer = setTimeout(onResize, RESIZE_DELAY);
     },
     { passive: true },
   );
@@ -218,7 +278,7 @@ function listen() {
 
   // Вкладку только приостанавливаем: перестраивать поле незачем, экран тот же.
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
-  reducedMotion.addEventListener('change', sync);
+  reducedMotion.addEventListener('change', restart);
 }
 
 /** Перекрасить сеть в акцент секции. Имена цветов — те же, что у `data-acc`. */

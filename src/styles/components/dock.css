@@ -68,7 +68,6 @@
   stroke-dasharray: 88;
   stroke-dashoffset: 88;
   stroke-linecap: round;
-  transition: stroke-dashoffset 0.25s linear;
 }
 
 .dock-p b {
@@ -160,7 +159,9 @@
   white-space: nowrap;
   transform: translate(-50%, 6px);
   opacity: 0;
-  transition: 0.35s var(--e);
+  transition:
+    opacity 0.35s var(--e),
+    transform 0.35s var(--e);
   pointer-events: none;
 }
 

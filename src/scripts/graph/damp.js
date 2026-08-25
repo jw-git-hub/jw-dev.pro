@@ -44,11 +44,24 @@ export function measure(elements, scrollY) {
   return holes;
 }
 
+/**
+ * Градиент зависит только от силы, а сил на странице три. Он строится
+ * в единичном круге и растягивается матрицей уже на отрисовке, поэтому
+ * от размера дыры не зависит и переживает любой ресайз. Без кеша это
+ * семьсот с лишним новых объектов в секунду там, где хватает трёх.
+ */
+const fades = new Map();
+
 function fade(ctx, strength) {
+  const cached = fades.get(strength);
+  if (cached) return cached;
+
   const gradient = ctx.createRadialGradient(0, 0, 0, 0, 0, 1);
   gradient.addColorStop(0, `rgba(0,0,0,${strength})`);
   gradient.addColorStop(MID_STOP, `rgba(0,0,0,${(strength * MID_FACTOR).toFixed(3)})`);
   gradient.addColorStop(1, 'rgba(0,0,0,0)');
+  fades.set(strength, gradient);
+
   return gradient;
 }
 
@@ -63,13 +76,22 @@ function punch(ctx, hole, y) {
 }
 
 export function draw(ctx, holes, { scrollY, height }) {
-  if (!holes.length) return;
+  let punched = false;
 
-  ctx.globalCompositeOperation = 'destination-out';
   for (const hole of holes) {
     const y = hole.y - scrollY;
     if (y + hole.ry < 0 || y - hole.ry > height) continue;
+
+    // Режим композиции включается по первой попавшей в кадр дыре: смена
+    // режима сбрасывает состояние канваса, и платить за неё, когда прожигать
+    // нечего, незачем — на внутренних страницах в кадре часто ни одной.
+    if (!punched) {
+      ctx.globalCompositeOperation = 'destination-out';
+      punched = true;
+    }
+
     punch(ctx, hole, y);
   }
-  ctx.globalCompositeOperation = 'source-over';
+
+  if (punched) ctx.globalCompositeOperation = 'source-over';
 }

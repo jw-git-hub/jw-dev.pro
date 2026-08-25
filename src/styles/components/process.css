@@ -227,7 +227,6 @@
     border-radius: 50%;
     background: var(--acc);
     box-shadow: 0 0 14px var(--acc);
-    transition: top 0.9s var(--e);
   }
 
   .pstep.on {

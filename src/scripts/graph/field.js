@@ -23,6 +23,13 @@ const TWO_PI = Math.PI * 2;
 
 const EDGE_ALPHA = 0.28;
 
+/**
+ * Ступеней прозрачности у рёбер. Восемь на диапазон 0,28 дают шаг 0,035,
+ * а холст лежит под непрозрачностью .66 (backdrop.css) — на тёмном фоне
+ * это 0,023 между соседними ступенями, то есть за порогом различимости.
+ */
+const EDGE_LEVELS = 8;
+
 /* Курсор поднимает всё, что рядом: рёбра ярче и толще, узлы крупнее. */
 const CURSOR_RADIUS = 180;
 const CURSOR_ALPHA = 0.38;
@@ -94,23 +101,59 @@ function cursorLift(pointer, x, y) {
   return distance < CURSOR_RADIUS ? 1 - distance / CURSOR_RADIUS : 0;
 }
 
-function drawEdge(ctx, a, b, { limit, tint, pointer }) {
+/**
+ * Ребро либо ложится в дорожку своей прозрачности, либо, если его поднял
+ * курсор, рисуется сразу: у поднятого своя толщина, и в общую обводку
+ * он не встаёт.
+ */
+function addEdge(ctx, a, b, { limit, tint, pointer }, lanes) {
   const squared = squaredTo(b, a.x, a.y);
   if (squared > limit * limit) return;
 
+  const near = 1 - Math.sqrt(squared) / limit;
   const lift = cursorLift(pointer, (a.x + b.x) / 2, (a.y + b.y) / 2);
-  const alpha = (1 - Math.sqrt(squared) / limit) * EDGE_ALPHA + lift * CURSOR_ALPHA;
 
-  ctx.lineWidth = 1 + lift * CURSOR_WIDTH;
-  ctx.strokeStyle = rgba(tint, alpha.toFixed(3));
-  line(ctx, a.x, a.y, b.x, b.y);
+  if (lift > 0) {
+    ctx.lineWidth = 1 + lift * CURSOR_WIDTH;
+    ctx.strokeStyle = rgba(tint, (near * EDGE_ALPHA + lift * CURSOR_ALPHA).toFixed(3));
+    line(ctx, a.x, a.y, b.x, b.y);
+    return;
+  }
+
+  const level = Math.min(EDGE_LEVELS - 1, Math.round(near * (EDGE_LEVELS - 1)));
+  const lane = lanes[level] ?? (lanes[level] = new Path2D());
+  lane.moveTo(a.x, a.y);
+  lane.lineTo(b.x, b.y);
 }
 
-/** Пары, а не каждый с каждым дважды: связь симметрична. */
-export function drawEdges(ctx, nodes, options) {
-  for (let i = 0; i < nodes.length; i++) {
-    for (let j = i + 1; j < nodes.length; j++) drawEdge(ctx, nodes[i], nodes[j], options);
+/** Одна обводка на ступень прозрачности вместо одной на ребро. */
+function strokeLanes(ctx, lanes, tint) {
+  ctx.lineWidth = 1;
+
+  for (let level = 0; level < lanes.length; level++) {
+    if (!lanes[level]) continue;
+    const alpha = ((level / (EDGE_LEVELS - 1)) * EDGE_ALPHA).toFixed(3);
+    ctx.strokeStyle = rgba(tint, alpha);
+    ctx.stroke(lanes[level]);
   }
+}
+
+/**
+ * Пары, а не каждый с каждым дважды: связь симметрична.
+ *
+ * Рёбра копятся по ступеням прозрачности и уходят на холст восемью
+ * обводками вместо семисот. Отдельный stroke на ребро — это своя строка
+ * цвета, свой её разбор браузером и свой проход растеризатора, а число
+ * пар растёт квадратом числа узлов.
+ */
+export function drawEdges(ctx, nodes, options) {
+  const lanes = [];
+
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) addEdge(ctx, nodes[i], nodes[j], options, lanes);
+  }
+
+  strokeLanes(ctx, lanes, options.tint);
 }
 
 function nodeAlpha(node, time, lift) {

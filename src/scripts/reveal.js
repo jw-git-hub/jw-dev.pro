@@ -16,8 +16,6 @@
  *
  * Случай «JS выключен» закрыт в CSS: @media (scripting: none) в motion.css.
  */
-import { reducedMotion } from './lib/motion.js';
-
 const FUSE_MS = 1200;
 const ROOT_MARGIN = '0px 0px -8% 0px';
 const THRESHOLD = 0.06;
@@ -51,8 +49,13 @@ function observe() {
   else armFuse();
 }
 
+/**
+ * Наблюдатель работает и при `prefers-reduced-motion`. Просьба «меньше
+ * движения» — про смещение, а не про то, что блок проявляется: сдвиг
+ * у появления снимает motion.css, прозрачность остаётся. Показать страницу
+ * разом собранной значит отдать её не спокойной, а сломанной на вид.
+ */
 if (items.length) {
-  const canWatch = 'IntersectionObserver' in window && !reducedMotion.matches;
-  if (canWatch) observe();
+  if ('IntersectionObserver' in window) observe();
   else revealAll();
 }
