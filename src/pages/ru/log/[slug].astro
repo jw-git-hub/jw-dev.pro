@@ -7,6 +7,7 @@ import BaseLayout from '../../../layouts/BaseLayout.astro';
 import NoteArticle from '../../../components/log/NoteArticle.astro';
 import Icon from '../../../components/chrome/Icon.astro';
 import { getNotes, getNoteBody, logPath } from '../../../lib/journal';
+import { ogPath } from '../../../lib/og';
 import { useTranslations } from '../../../i18n';
 
 export async function getStaticPaths() {
@@ -23,7 +24,13 @@ const body = await getNoteBody('ru', note.slug);
 const Content = body?.Content;
 ---
 
-<BaseLayout title={note.title} description={note.summary} accent="violet" ogType="article">
+<BaseLayout
+  title={note.title}
+  description={note.summary}
+  accent="violet"
+  image={ogPath('ru', `note/${note.slug}`)}
+  ogType="article"
+>
   <section>
     <div class="wrap">
       <a class="case-back" href={logPath('ru')}>
