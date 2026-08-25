@@ -69,7 +69,13 @@ function websiteNode(locale: Locale, site: Site): Node {
   };
 }
 
-/** Три направления с главной. Цены нет намеренно — её называют после разбора. */
+/**
+ * Три направления с главной. Цены нет намеренно — её называют после разбора.
+ *
+ * Языка у узла тоже нет: `inLanguage` и `availableLanguage` в словаре `Service`
+ * не значатся (сверено со schema.org/Service 25.08.2026), а свойство не из типа
+ * валидатор отметит замечанием. Язык страницы сообщает узел `WebSite`.
+ */
 function serviceNodes(locale: Locale, site: Site): Node[] {
   const t = useTranslations(locale);
   return SERVICES.map((service) => ({
@@ -77,7 +83,6 @@ function serviceNodes(locale: Locale, site: Site): Node[] {
     name: t(`${service.key}.t`),
     description: t(`${service.key}.d`),
     provider: ref(absolute(PERSON, site)),
-    inLanguage: locale,
   }));
 }
 
