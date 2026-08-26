@@ -10,6 +10,7 @@ import { readFile } from 'node:fs/promises';
 import { relative } from 'node:path';
 import { filesWithExt } from './lib/walk.mjs';
 import { report } from './lib/report.mjs';
+import { stripComments, lineOf } from './lib/css.mjs';
 
 const STYLES = 'src/styles';
 const TOKENS = 'src/styles/tokens.css';
@@ -37,12 +38,6 @@ const PALETTE = [
   '#94a3b8',
   '#05070e',
 ];
-
-const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
-
-function lineOf(text, index) {
-  return text.slice(0, index).split('\n').length;
-}
 
 /** Собирает нарушения одного правила: регулярка + решение, что считать ошибкой. */
 function scan(css, where, re, judge) {
