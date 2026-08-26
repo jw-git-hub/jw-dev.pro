@@ -52,7 +52,8 @@ WCAG 2.2 AA. Проверяется `html-validate` на собранном HTML
 npm run dev      сервер разработки
 npm run build    прод-сборка в dist/
 npm run lint     ESLint + Stylelint + Prettier
-npm run check    схема контента, переводы, инлайн, HTML, ссылки, бюджет веса
+npm run check    сами ворота, схема контента, переводы, покадровые свойства,
+                 инлайн, HTML, ссылки, бюджет веса
 npm run verify   браузерные ворота: доступность, работа без JS, три движка, Lighthouse
 ```
 
