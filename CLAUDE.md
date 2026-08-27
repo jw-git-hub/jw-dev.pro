@@ -24,7 +24,7 @@
 Владелец следит за прогрессом в своём Obsidian:
 
 ```
-/Users/jw/jw_sync_vault/💼 Работа/Project - jw-dev.pro/Процесс разработки парсера сайта jw-dev.pro.md
+/Users/jw/jw_sync_vault/📒 Obsidian/💼 Работа/Project - jw-dev.pro/Процесс разработки парсера сайта jw-dev.pro.md
 ```
 
 Держать его в актуальном состоянии — обязанность, а не опция. Обновлять, когда
