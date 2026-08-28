@@ -166,8 +166,10 @@
   left: 50%;
   width: 0;
   height: 0;
+
+  /* Только 3D-контекст для чипов: сама точка не движется, `ring.js` расставляет
+     каждый чип отдельно. `will-change` здесь держал бы слой композитора зря. */
   transform-style: preserve-3d;
-  will-change: transform;
 }
 
 .ring.on .ring-group {

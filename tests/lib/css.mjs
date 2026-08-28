@@ -7,7 +7,9 @@
  * поэтому селектор внутри `@media` доезжает до правила, а не теряется.
  */
 
-export const stripComments = (css) => css.replace(/\/\*[\s\S]*?\*\//g, '');
+/** Комментарий уходит, его переводы строки остаются: иначе номера строк в отчёте врут. */
+export const stripComments = (css) =>
+  css.replace(/\/\*[\s\S]*?\*\//g, (comment) => comment.replace(/[^\n]/g, ''));
 
 export function lineOf(text, index) {
   return text.slice(0, index).split('\n').length;
@@ -128,6 +130,54 @@ export function varConsumers(css) {
   });
 
   return consumers;
+}
+
+/** Каждое объявление названного свойства со своим селектором. */
+export function propDecls(css, name) {
+  const clean = stripComments(css);
+  const wanted = new RegExp(`^\\s*${name}\\s*:\\s*([\\s\\S]+)$`, 'i');
+  const decls = [];
+
+  eachDeclaration(clean, (text, stack, index) => {
+    const match = wanted.exec(text);
+    if (!match) return;
+    decls.push({
+      selector: selectorOf(stack),
+      value: match[1]
+        .replace(/!important/i, '')
+        .trim()
+        .toLowerCase(),
+      line: lineOf(clean, index),
+    });
+  });
+
+  return decls;
+}
+
+/** Блоки `@keyframes` со свойствами, которые они анимируют. */
+export function keyframeBlocks(css) {
+  const clean = stripComments(css);
+  const blocks = [];
+  const opening = /@keyframes\s+([\w-]+)\s*\{/g;
+
+  for (const match of clean.matchAll(opening)) {
+    const start = match.index + match[0].length;
+    let depth = 1;
+    let i = start;
+    while (i < clean.length && depth > 0) {
+      if (clean[i] === '{') depth++;
+      else if (clean[i] === '}') depth--;
+      i++;
+    }
+    const props = new Set();
+    eachDeclaration(clean.slice(start, i - 1), (text) => {
+      const prop = /^\s*(-{0,2}[a-z][\w-]*)\s*:/i.exec(text);
+      if (prop && !prop[1].startsWith('--')) props.add(prop[1].toLowerCase());
+    });
+    blocks.push({ name: match[1], props, line: lineOf(clean, match.index) });
+  }
+
+  return blocks;
 }
 
 const SIMPLE = /^[a-z][\w-]*|[.#][\w-]+|\[[^\]]*\]|::?[\w-]+(?:\([^)]*\))?/gi;

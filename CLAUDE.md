@@ -24,7 +24,7 @@
 Владелец следит за прогрессом в своём Obsidian:
 
 ```
-/Users/jw/jw_sync_vault/📒 Obsidian/💼 Работа/Project - jw-dev.pro/Процесс разработки парсера сайта jw-dev.pro.md
+/Users/jw/jw_sync_vault/📒 Obsidian/💼 Работа/Project - jw-dev.pro/Процесс разработки сайта jw-dev.pro.md
 ```
 
 Держать его в актуальном состоянии — обязанность, а не опция. Обновлять, когда
@@ -70,7 +70,7 @@ npm run dev      сервер разработки
 npm run build    прод-сборка в dist/
 npm run lint     ESLint + Stylelint + Prettier
 npm run check    сами ворота, схема контента, переводы, покадровые свойства,
-                 инлайн, HTML, ссылки, бюджет веса
+                 бюджеты слоёв, инлайн, HTML, ссылки, бюджет веса
 npm run verify   браузерные ворота: доступность, работа без JS, три движка, Lighthouse
 ```
 
