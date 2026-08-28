@@ -34,7 +34,7 @@ const STYLES = 'src/styles';
  * `.plane` стоит вместе с `#aurora`: аврора — один из двух слоёв этого класса,
  * и переход, поставленный на класс, достанется и ей.
  */
-const FRAME_TARGETS = {
+export const FRAME_TARGETS = {
   'dock.js': ['#dock-arc', '.dock-p .fg'],
   'parallax.js': ['.stage-in', '.win', '.hud', '.caustic'],
   'pointer.js': ['#light', '#aurora', '.plane'],
