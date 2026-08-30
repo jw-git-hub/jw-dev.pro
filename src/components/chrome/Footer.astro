@@ -5,6 +5,7 @@
  * появится вместе с доменом (см. src/data/site.ts).
  */
 import { SITE, BUILD_YEAR } from '../../data/site';
+import { HAS_ANALYTICS } from '../../data/analytics';
 import { localeFromUrl, useTranslations, localizePath } from '../../i18n';
 import Icon from './Icon.astro';
 import Mark from './Mark.astro';
@@ -24,6 +25,16 @@ const t = useTranslations(locale);
 
     <div class="foot-l">
       <a href={localizePath('/privacy/', locale)}>{t('footer.privacy')}</a>
+      {
+        /* Отозвать согласие должно быть так же легко, как дать: ссылка открывает
+           баннер заново. Без JS она ведёт в раздел политики про куки — там
+           написано то же самое словами, а счётчика без JS всё равно нет. */
+        HAS_ANALYTICS && (
+          <a href={`${localizePath('/privacy/', locale)}#cookies`} data-consent>
+            {t('footer.cookies')}
+          </a>
+        )
+      }
       <a href={SITE.telegram} target="_blank" rel="noopener" aria-label={t('footer.telegram')}>
         <Icon name="tg" size={17} />
       </a>

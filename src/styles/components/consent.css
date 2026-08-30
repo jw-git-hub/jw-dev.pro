@@ -1,0 +1,84 @@
+/**
+ * Баннер согласия на аналитику. Материал и низ экрана — те же, что у дока
+ * (DESIGN-GUIDE §5, §14), и это не совпадение: обе полосы служебные,
+ * обе приходят поверх страницы и обе обязаны выглядеть частью интерфейса,
+ * а не наклейкой сверху.
+ *
+ * В покое — visibility: hidden, а не просто прозрачность. Прозрачный элемент
+ * остаётся в порядке обхода, и клавиатура улетала бы в невидимые кнопки.
+ * Приём разобран подробно в dock.css.
+ */
+
+.consent {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  z-index: 60;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  width: min(720px, calc(100vw - 24px));
+  padding: 14px 16px 14px 18px;
+  border-radius: var(--r);
+  transform: translate(-50%, 150%);
+  visibility: hidden;
+  opacity: 0;
+  transition:
+    transform 0.7s var(--e),
+    opacity 0.5s var(--e),
+    visibility 0.5s;
+}
+
+/* Док стоит на z-index 48 — вопрос о слежке важнее быстрых действий. */
+html.asking .consent {
+  transform: translate(-50%, 0);
+  visibility: visible;
+  opacity: 1;
+}
+
+.consent-tx {
+  margin: 0;
+  color: var(--ink2);
+  font-size: 12.5px;
+  line-height: 1.45;
+}
+
+.consent-tx strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--ink);
+  font-size: 13.5px;
+  font-weight: 620;
+  letter-spacing: -0.012em;
+}
+
+.consent-tx a {
+  color: var(--acc-ink);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.consent-acts {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+/**
+ * На узком экране полоса становится карточкой: текст сверху, кнопки под ним
+ * во всю ширину. Держать их в строке значило бы обрезать либо подпись,
+ * либо сами кнопки — обе одинаково нужны.
+ */
+@media (max-width: 640px) {
+  .consent {
+    bottom: 12px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    padding: 15px 16px;
+  }
+
+  .consent-acts .btn {
+    flex: 1;
+  }
+}

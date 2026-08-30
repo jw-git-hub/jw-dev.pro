@@ -12,6 +12,8 @@
 export interface LegalSection {
   /** Ключ заголовка раздела. */
   t: string;
+  /** Якорь, если на раздел ссылаются снаружи. Есть не у всех — только у нужных. */
+  id?: string;
   /** Ключи абзацев по порядку. Абзац — единица правки, а не строка. */
   p: string[];
 }
@@ -29,10 +31,11 @@ export const PRIVACY: LegalSection[] = [
  */
 export const PRIVACY_ANALYTICS: LegalSection = {
   t: 'privacy.metrika.t',
-  p: ['privacy.metrika.p1', 'privacy.metrika.p2'],
+  p: ['privacy.metrika.p1', 'privacy.metrika.p2', 'privacy.metrika.p3'],
 };
 
 export const PRIVACY_TAIL: LegalSection[] = [
-  { t: 'privacy.cookies.t', p: ['privacy.cookies.p1'] },
+  /* На «#cookies» ведут баннер согласия и ссылка «Куки» в подвале. */
+  { t: 'privacy.cookies.t', id: 'cookies', p: ['privacy.cookies.p1'] },
   { t: 'privacy.rights.t', p: ['privacy.rights.p1'] },
 ];

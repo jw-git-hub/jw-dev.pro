@@ -1,25 +1,20 @@
 {
   "site.title": "jw-dev.pro — bots, websites, automation",
   "site.description": "Full-cycle developer: Telegram bots, websites, automation. The first look is free; after handover the code and the accounts are yours — no subscription, no lock-in.",
-
   "schema.job": "Full-cycle developer",
-
   "a11y.skip": "Skip to content",
   "a11y.langSwitch": "Language",
   "a11y.nav": "Primary",
   "a11y.navMobile": "Sections",
   "a11y.menu": "Menu",
   "a11y.dock": "Quick actions",
-
   "nav.work": "Work",
   "nav.services": "Services",
   "nav.stack": "Stack",
   "nav.process": "Process",
   "nav.about": "About",
   "nav.contact": "Contact",
-
   "cta.header": "Discuss a project",
-
   "cta.bot": "Live bot",
   "cta.botTip": "Live bot — open it and press a button",
   "dock.now": "Now reading",
@@ -30,7 +25,6 @@
   "dock.ctx.case": "Open a case study",
   "dock.ctx.how": "How I work",
   "dock.ctx.log": "All entries",
-
   "hero.eyebrow": "Full-cycle developer · working online",
   "hero.h1a": "Bots, websites, automation.",
   "hero.h1b": "Engineered,",
@@ -41,7 +35,6 @@
   "hero.site": "vn.neva.beauty — clinic · 16 pages",
   "hero.panel": "Open code",
   "hero.panelNote": "repositories on GitHub",
-
   "hud.bot.k": "Bot",
   "hud.bot.v": "answering now",
   "hud.stack.k": "Stack",
@@ -50,27 +43,22 @@
   "hud.code.v": "yours at handover",
   "hud.prices.k": "Prices",
   "hud.prices.v": "edited in one place",
-
   "stat.projects": "projects in flight",
   "stat.speed": "speed score on the clinic site",
   "stat.weight": "less page code after moving off Tilda",
   "stat.tests": "automated checks guard prices and copy",
-
   "kick.work": "Selected work",
   "sec.work.t": "Seven projects, and every one's code is open",
   "work.note": "Every project below is a public repository — you can read the code before you pay.",
-
   "a11y.filters": "Filter work",
   "f.all": "All",
   "f.sites": "Websites",
   "f.bots": "Bots",
   "f.ai": "AI",
-
   "shot.cap": "screenshot",
   "c.badge.live": "Live demo",
   "c.badge.off": "Demo closed",
   "c.open": "Case study",
-
   "case.task": "Task",
   "case.did": "What I did",
   "case.result": "Result",
@@ -85,34 +73,29 @@
   "case.close": "Close",
   "case.back": "All work",
   "case.nav": "Neighbouring cases",
-
   "kick.services": "Services",
   "sec.services.t": "What I build",
   "sec.services.s": "Pricing comes after I look at the task — before that it is guesswork.",
   "svc.in": "What's included",
   "svc.out": "What you get",
-
   "svc.bots.t": "Telegram bots",
   "svc.bots.d": "A bot that does the work instead of showing a menu: takes requests, serves content, runs mailouts, and is managed from inside Telegram.",
   "svc.bots.p1": "Dialogue flow and an owner's admin panel",
   "svc.bots.p2": "Database and request export",
   "svc.bots.p3": "Docker deployment on your own server",
   "svc.bots.out": "A working bot, its source code, and instructions to redeploy it",
-
   "svc.sites.t": "Websites",
   "svc.sites.d": "Pages are assembled from content by a generator instead of being drawn one by one. Changing a price or a line of text means one edit, not a hunt for copies.",
   "svc.sites.p1": "Content model and URL structure",
   "svc.sites.p2": "Markup, speed, accessibility",
   "svc.sites.p3": "Deployment and automated checks in CI",
   "svc.sites.out": "A site on your domain and the repository it is built from",
-
   "svc.auto.t": "Automation",
   "svc.auto.d": "Work done by hand every day moves into a script: data collection, scheduled publishing, checks before release.",
   "svc.auto.p1": "The manual process broken down step by step",
   "svc.auto.p2": "Script, schedule, failure notifications",
   "svc.auto.p3": "Checks that catch a failure before you do",
   "svc.auto.out": "A process that runs itself and tells you when something breaks",
-
   "kick.stack": "Stack",
   "sec.stack.t": "What I work with",
   "sec.stack.s": "Every name here appears in one of the projects above or in this site's own build.",
@@ -124,7 +107,6 @@
   "stack.ai": "AI",
   "a11y.stack": "Stack groups",
   "a11y.ticker": "Stack technologies",
-
   "kick.process": "Process",
   "sec.process.t": "How the work goes",
   "sec.process.s": "Five steps. The first one is free: if the job isn't worth doing, you'll hear it there.",
@@ -132,7 +114,6 @@
   "process.on": "on",
   "process.off": "off",
   "a11y.process": "Process steps",
-
   "step.audit.t": "Audit",
   "step.audit.d": "I look at what's already there, measure speed and weight, and say honestly whether the job is worth doing. Free.",
   "step.arch.t": "Architecture and content",
@@ -143,20 +124,24 @@
   "step.ship.d": "Content, figures, headings, and images are checked on every deploy. A wrong number never reaches a visitor.",
   "step.hand.t": "Handover",
   "step.hand.d": "The repository moves to you. No subscription, no hostage hosting, no access you don't have.",
-
   "kick.about": "About",
   "about.t": "Hi, I'm jw",
   "about.p": "I build the whole thing: architecture, backend, frontend, infrastructure and the tests that hold it together. I work online, with clients across time zones. The code of every project is public — you can read it before you pay for it.",
   "about.f1": "RU / EN",
   "about.f2": "UTC+7",
   "about.f3": "Code is public",
-
   "footer.note": "Built with Astro. Not a single third-party library in the browser.",
   "footer.privacy": "Privacy",
+  "footer.cookies": "Cookies",
   "footer.telegram": "Telegram",
   "footer.github": "GitHub",
+  "consent.aria": "Analytics consent",
+  "consent.t": "Cookies for statistics",
+  "consent.p": "Analytics counts visits — that is how I see which pages get read. It sets its own cookies and does not load until you allow it.",
+  "consent.yes": "Accept",
+  "consent.no": "Decline",
+  "consent.more": "Privacy policy",
   "footer.email": "Email",
-
   "kick.journal": "Journal",
   "sec.journal.t": "What the work looks like",
   "sec.journal.s": "New case studies, write-ups of the techniques behind them, and short updates. The dates show the work is still going, not finished a year ago.",
@@ -165,48 +150,38 @@
   "j.kind.case": "Case",
   "j.kind.note": "Note",
   "j.kind.update": "Update",
-
   "kick.faq": "FAQ",
   "sec.faq.t": "Straight answers",
   "sec.faq.s": "The terms people ask about in their first message. Answered here so they don't have to be answered by email.",
-
   "faq.time.q": "How long does the work take?",
   "faq.time.a1": "In working days, counted from the moment the deposit and the materials arrive. A one-page site takes 4–6 days, a landing page with a quiz 6–9, a site with a price list and sections 10–15, a move off Tilda or Wix 14–21. A simple bot takes 2–4 days, a booking bot with a database and an admin panel 5–10, a channel on autopilot 7–12, a utility bot with subscriptions 7–12, a lead parser 7–14. An integration with a CRM or with payments adds 2–5 days.",
   "faq.time.a2": "What holds the schedule is not the build but how ready the materials are: copy, price list, photos, access. Second comes the speed of approvals: if the final call is made by someone other than the person I'm writing to, the schedule doubles. Third is scope. The build itself matters least.",
-
   "faq.scope.q": "What is included, and what is a separate stage?",
   "faq.scope.a1": "Everything technical is included: mobile layout, schema.org markup, speed, analytics, deployment, and a machine-readable summary for AI search engines.",
   "faq.scope.a2": "Separate stages: keyword research and the copy written for it, Google Business Profile and maps, copywriting itself. Design defaults to my own base fitted to your brand: your colours, fonts and photos. A bespoke design with concepts is discussed separately, and with finished mockups the schedule is shorter.",
-
   "faq.pay.q": "How does payment work?",
   "faq.pay.a1": "50% up front, 50% on handover. Projects above ₽60,000 are split into three payments of 40/30/30 against checkpoints; monthly support is paid a month ahead. I don't start without a deposit.",
   "faq.pay.a2": "Card or SBP; in Thailand and Vietnam a normal local transfer in baht or dong — I hold accounts in both countries; outside the region Wise, Payoneer, or USDT. On freelance platforms I work through escrow only. Two rounds of revisions are included, anything beyond that is hourly — written into the brief in advance.",
-
   "faq.code.q": "Who owns the code?",
   "faq.code.a1": "You do. The repository moves to your account whole, not as an archive — after the final payment. Until then the project runs on my server: you can look at it, test it and show it to anyone. If seeing the code from day one matters, I'll open read access straight away and transfer ownership on payment.",
   "faq.code.a2": "Everything the code needs to run goes with it: deployment configuration, tests and automated checks, an administrator's guide. Keys and passwords are handed over separately — they are not in the repository.",
-
   "faq.monthly.q": "Is there a monthly fee?",
   "faq.monthly.a1": "For a site, none. There is one cost: the domain, around ₽1,000–2,000 a year, registered in your name. Hosting is free, and you edit prices and copy yourself — no developer needed for that. If you'd rather not bother, support costs ₽3,000–8,000 a month, but that's an option, not a condition.",
   "faq.monthly.a2": "A bot is different: it lives on a server, from $5 a month, billed to you directly; a bot with AI adds model access, also on your account. You can watch it yourself or hand that to me: ₽5,000–15,000 a month, ₽10,000–25,000 for a channel on autopilot. The first month is free either way. Every account — domain, server, analytics — is registered in your name, so nothing ties you to me.",
-
   "faq.legacy.q": "Will you take on someone else's project?",
   "faq.legacy.a1": "Yes, by the hour: ₽2,500–4,000 an hour, three hours minimum. I start with 2–4 hours to look through it — I read the code and tell you what's there and how long it will take. I won't quote a fixed price for code I haven't opened: that would be unfair to both of us.",
   "faq.legacy.a2": "If it turns out that rewriting is cheaper than fixing, you get both numbers: fixing as it stands costs this much, but the frame stays fragile and the next change will be expensive again; rewriting costs more now and less to maintain. You decide. I won't quietly rewrite it and call it a fix.",
   "faq.legacy.a3": "I won't take it on without access to the code and the server, on a \"fix it but don't touch anything\" basis, or on a stack I don't work with.",
-
   "faq.start.q": "What do you need from me to start?",
   "faq.start.a1": "Four things: answers to the brief, your sign-off on a short scope document, the deposit, and one person who makes the final calls.",
   "faq.start.a2": "Access. For a bot — the BotFather token, access to the CRM, spreadsheets or payment provider with their documentation, the IDs of admins and chats. For a site — the domain or permission to register it, access to the current site and hosting if it's a move, an analytics account.",
   "faq.start.a3": "Materials. Copy about your services; the full price list in a single file, every item; your own photos, not stock; the logo in vector; contacts and the messenger where enquiries should land. For a channel on autopilot — a list of sources and 5–10 sample posts in your voice.",
   "faq.start.a4": "The price list has to be complete and in one file for a reason: prices live in a single source, so a number is changed once and changes everywhere — in the table, in the service descriptions and in the markup search engines read. And one organisational thing: answers within one working day. Disappear for a week and the schedule moves by a week.",
-
   "kick.contact": "Contact",
   "contact.t": "Tell me about the job",
   "contact.sideT": "Or skip the form",
   "contact.sub": "Describe what needs building, and add a link if the site already exists — looking at it is free. I'll name the price and the schedule after that: before it, it's guesswork.",
   "contact.sideD": "Anything sent through the form lands in my Telegram. Writing there directly is the same thing, one step shorter.",
-
   "form.name": "Name",
   "form.namePh": "What to call you",
   "form.contact": "Telegram or email",
@@ -231,7 +206,6 @@
   "form.failD": "Something broke on my side, and it isn't your fault. Write to me on Telegram — it lands in the same place.",
   "form.back": "Back to the homepage",
   "a11y.form": "Project enquiry",
-
   "log.title": "Journal",
   "log.lead": "Cases, notes and updates in one feed, newest first.",
   "log.empty": "Nothing under this filter yet.",
@@ -241,22 +215,18 @@
   "log.tab.note": "Notes",
   "log.tab.update": "Updates",
   "a11y.logtabs": "Filter entries",
-
   "note.back": "All entries",
   "note.nav": "Nearby entries",
   "note.newer": "Newer",
   "note.older": "Older",
-
   "tag.measure": "measurement",
   "tag.performance": "performance",
   "tag.fonts": "fonts",
-
   "rss.title": "jw-dev.pro journal",
   "rss.desc": "New case studies and notes on the web, speed and automated checks.",
-
   "privacy.title": "Privacy policy",
   "privacy.lead": "What the form collects and what happens to it.",
-  "privacy.updated": "Updated 25 August 2026",
+  "privacy.updated": "Updated 30 August 2026",
   "privacy.form.t": "What the form collects",
   "privacy.form.p1": "The form sends only what you typed into it: a way to reach you — the one required field — your name, a link to your site, the kind of work you picked and a description of the task. There are no other fields.",
   "privacy.form.p2": "Two technical fields travel with them: the time the form was opened and an empty decoy field. That is how the server tells a person from a bot — a request filled in two seconds is not accepted.",
@@ -267,14 +237,14 @@
   "privacy.server.p1": "The form handler counts requests per IP address: no more than five an hour from one address. That is spam protection. The counter lives in memory and is wiped after an hour, and the address never appears in the request itself.",
   "privacy.server.p2": "The web server, like any other, keeps a technical access log: address, time, requested page and browser. It exists so a failure can be traced.",
   "privacy.metrika.t": "Analytics",
-  "privacy.metrika.p1": "The site runs Yandex Metrica: it counts visits — pages, referrers, devices. The counter loads after your first action on the page rather than immediately, and sets its own cookies to tell a repeat visit from a new one.",
-  "privacy.metrika.p2": "Recording of mouse movement and field contents is off: that is no longer visit statistics. If “do not track” is enabled in your browser, the counter does not load at all.",
+  "privacy.metrika.p1": "The site runs Yandex Metrica: it counts visits — pages, referrers, devices. The counter does not load until you press “Accept” in the banner at the bottom of the screen: before your answer not a single request goes to Metrica and it sets no cookies.",
+  "privacy.metrika.p2": "Recording of mouse movement and field contents is off: that is no longer visit statistics. If “do not track” is enabled in your browser, the counter does not load and you are not asked at all.",
   "privacy.cookies.t": "Cookies",
   "privacy.cookies.p1": "The site itself sets no cookies: it has no login, no cart and no saved preferences.",
   "privacy.rights.t": "How to have your data deleted",
   "privacy.rights.p1": "Write to me and ask me to delete the conversation — I will. There is no separate storage to pick anything out of.",
-
   "e404.title": "Page not found",
   "e404.lead": "No such address, or the entry has moved.",
-  "e404.cta": "Go home"
+  "e404.cta": "Go home",
+  "privacy.metrika.p3": "Your answer is stored in your browser — not as a cookie but as a local record, and it never leaves for the server: it exists so that you are not asked on every visit. You can change your mind at any time — the “Cookies” link in the footer reopens the question, and declining after having accepted reloads the page, otherwise the counter already loaded would keep working until the end of the visit."
 }
