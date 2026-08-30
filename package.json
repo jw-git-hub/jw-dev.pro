@@ -31,6 +31,7 @@
     "check:seo": "node tests/check-seo.mjs",
     "check:links": "node tests/check-links.mjs",
     "check:budget": "node tests/check-budget.mjs",
+    "check:prod": "node tests/check-prod.mjs",
     "verify": "npm run check:a11y && npm run check:nojs && npm run check:consent && npm run check:browsers && npm run check:runtime && npm run check:lighthouse",
     "check:a11y": "node tests/check-a11y.mjs",
     "check:nojs": "node tests/check-nojs.mjs",

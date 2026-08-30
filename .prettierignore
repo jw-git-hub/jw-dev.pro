@@ -7,3 +7,8 @@ package-lock.json
 docs/13-final.html
 docs/DESIGN-GUIDE.md
 docs/CONTENT-CASES.md
+
+# Рабочие материалы владельца рядом с репозиторием: git их не видит
+# (.git/info/exclude — локальное исключение), а Prettier видел и красил
+# `npm run lint` в красный на машине владельца при зелёном CI.
+Материалы/
