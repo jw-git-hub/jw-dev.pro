@@ -31,9 +31,10 @@
     "check:seo": "node tests/check-seo.mjs",
     "check:links": "node tests/check-links.mjs",
     "check:budget": "node tests/check-budget.mjs",
-    "verify": "npm run check:a11y && npm run check:nojs && npm run check:browsers && npm run check:runtime && npm run check:lighthouse",
+    "verify": "npm run check:a11y && npm run check:nojs && npm run check:consent && npm run check:browsers && npm run check:runtime && npm run check:lighthouse",
     "check:a11y": "node tests/check-a11y.mjs",
     "check:nojs": "node tests/check-nojs.mjs",
+    "check:consent": "node tests/check-consent.mjs",
     "check:browsers": "node tests/check-browsers.mjs",
     "check:runtime": "node tests/check-runtime.mjs",
     "check:lighthouse": "node tests/check-lighthouse.mjs"

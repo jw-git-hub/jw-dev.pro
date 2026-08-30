@@ -1,0 +1,46 @@
+---
+/**
+ * Баннер согласия на аналитику — стекло §5, кнопки §7 гайда.
+ *
+ * Кнопки одинаковые намеренно. Согласие считается свободным, только если
+ * отказать не труднее, чем согласиться: «Принять» градиентом, а «Отклонить»
+ * серой ссылкой — это и есть подталкивание, из-за которого баннер перестаёт
+ * что-либо значить.
+ *
+ * Стекло без `.gd`: тихий вариант рассчитан на карточки, лежащие в потоке
+ * на фоне страницы, а эта полоса висит поверх текста. На узком экране блюра
+ * нет вовсе (§5), и заливка в 3% белого оставила бы подпись читаться сквозь
+ * скриншот под ней — ровно то же стекло, что у дока, там непрозрачное.
+ *
+ * В разметке скрыт: показывает его consent.js, и только если ответа ещё нет.
+ * Пока ни один счётчик не задан переменной сборки, баннера нет вовсе —
+ * спрашивать не о чем.
+ */
+import { HAS_ANALYTICS } from '../../data/analytics';
+import { localeFromUrl, useTranslations, localizePath } from '../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+
+const policyHref = `${localizePath('/privacy/', locale)}#cookies`;
+---
+
+{
+  HAS_ANALYTICS && (
+    <aside id="consent" class="consent g blur" aria-label={t('consent.aria')} hidden>
+      <p class="consent-tx">
+        <strong>{t('consent.t')}</strong>
+        {t('consent.p')} <a href={policyHref}>{t('consent.more')}</a>
+      </p>
+
+      <div class="consent-acts">
+        <button id="consent-yes" class="btn s sm" type="button">
+          {t('consent.yes')}
+        </button>
+        <button id="consent-no" class="btn s sm" type="button">
+          {t('consent.no')}
+        </button>
+      </div>
+    </aside>
+  )
+}
