@@ -9,8 +9,7 @@
  * в оверлее совпадает со страницей по определению.
  */
 import ShotSlot from '../shot/ShotSlot.astro';
-import SiteMock from '../shot/SiteMock.astro';
-import ChatMock from '../shot/ChatMock.astro';
+import CaseShot from '../shot/CaseShot.astro';
 import Icon from '../chrome/Icon.astro';
 import type { CaseView } from '../../lib/cases';
 import { localeFromUrl, useTranslations, sectionPath } from '../../i18n';
@@ -54,7 +53,7 @@ const date = item.date.toLocaleDateString(locale === 'ru' ? 'ru-RU' : 'en-GB');
   </header>
 
   <ShotSlot class={closed ? 'closed case-cover' : 'case-cover'} label={label}>
-    {item.shotKind === 'telegram' ? <ChatMock /> : <SiteMock />}
+    <CaseShot item={item} role="cover" />
   </ShotSlot>
 
   <div class="case-cols">
