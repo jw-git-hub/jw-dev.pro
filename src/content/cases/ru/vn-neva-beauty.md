@@ -36,7 +36,15 @@ body:
     Performance 96, Accessibility 100, SEO 100, CLS 0. Устранение render-blocking
     подняло Performance с 75 до 98, а нарезка вариативных шрифтов сабсетами убрала
     шесть запросов и 115 КБ. Добавить услугу — одна запись в одном файле.
-screenshots: []
+screenshots:
+  - role: card
+    src: ../shots/vn-neva-beauty/card@2x.webp
+    alt: >-
+      Главная сайта Neva Beauty в Дананге: заголовок центра красоты, меню направлений и кнопка записи
+  - role: cover
+    src: ../shots/vn-neva-beauty/cover@2x.webp
+    alt: >-
+      Первый экран сайта Neva Beauty целиком: навигация по четырём направлениям, приглашение записаться и строка контактов
 ---
 
 Замер Lighthouse 12.8.2 сделан 22.08.2026 на боевом домене: мобильный профиль,

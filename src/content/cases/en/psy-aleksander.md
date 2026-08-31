@@ -28,7 +28,13 @@ body:
     the specialist immediately sees what they are dealing with. Measured on the live
     domain: Accessibility 100, SEO 100, CLS 0, and the schema.org validator accepts
     a thirteen-node graph with no errors and no warnings.
-screenshots: []
+screenshots:
+  - role: card
+    alt: >-
+      Aleksandr Krasnogor's landing page: a heading about working with couples, three promises and the buttons to write on Telegram or pick a format
+  - role: cover
+    alt: >-
+      The full first screen of the landing page: seven-section navigation, the therapist's photo and the entry into the one-minute format quiz
 ---
 
 A separate requirement from the client: the exact address of in-person sessions is

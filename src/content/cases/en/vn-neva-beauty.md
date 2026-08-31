@@ -29,7 +29,13 @@ body:
     96, Accessibility 100, SEO 100, CLS 0. Removing render-blocking lifted Performance
     from 75 to 98, and subsetting variable fonts cut six requests and 115 KB. Adding
     a service takes one entry in one file.
-screenshots: []
+screenshots:
+  - role: card
+    alt: >-
+      Neva Beauty Da Nang home page: the beauty centre heading, the treatment menu and a booking button
+  - role: cover
+    alt: >-
+      The full first screen of the Neva Beauty site: navigation across four treatment areas, a booking call to action and a contact bar
 ---
 
 The Lighthouse 12.8.2 measurement was taken on 22.08.2026 on the live domain: mobile

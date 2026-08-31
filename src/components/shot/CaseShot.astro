@@ -1,0 +1,61 @@
+---
+/**
+ * Содержимое слота скриншота: настоящий кадр, если он снят, иначе условная вёрстка.
+ *
+ * Развилка вынесена из карточки и страницы разбора, потому что она одна на двоих
+ * и обязана решаться одинаково. Пока снимки есть не у всех кейсов, сетка живёт
+ * смешанной, и это нормально: силуэт из пустых блоков не притворяется фотографией.
+ *
+ * Наборы ширин выведены из замера слота, а не из головы: карточка не бывает шире
+ * 458 CSS-пикселей (узкое окно 1020px, две колонки), обложка — 1000.
+ *
+ * Потолок стоит ниже тройной плотности сознательно. Над кадром лежат тинт
+ * `mix-blend-mode: color` на 55% и вуаль в цвет карточки (§8) — мелкая деталь
+ * снимка не доживает до глаза по устройству дизайна. Каждая лишняя ступень
+ * плотности стоит десятки килобайт из бюджета страницы и не покупает ничего
+ * видимого: замер главной дал 5,5 КБ запаса при двух снимках из семи.
+ */
+import { Image } from 'astro:assets';
+import SiteMock from './SiteMock.astro';
+import ChatMock from './ChatMock.astro';
+import type { CaseView } from '../../lib/cases';
+
+interface Props {
+  item: CaseView;
+  role: 'card' | 'cover';
+}
+
+/** Ширины и `sizes` под каждую роль — из замера раскладок (DESIGN-GUIDE §17). */
+const SOURCES = {
+  card: {
+    widths: [380, 460, 760],
+    sizes: '(max-width: 640px) 92vw, (max-width: 1100px) 46vw, 380px',
+  },
+  cover: {
+    widths: [400, 660, 960, 1400],
+    sizes: '(max-width: 1100px) 92vw, 1000px',
+  },
+};
+
+const { item, role } = Astro.props;
+
+const shot = item.screenshots.find((screenshot) => screenshot.role === role);
+const Mock = item.shotKind === 'telegram' ? ChatMock : SiteMock;
+
+/** Обложка разбора — первый экран страницы: ждать её нельзя (CONTENT-CASES §3). */
+const loading = role === 'cover' ? 'eager' : 'lazy';
+---
+
+{
+  shot ? (
+    <Image
+      src={shot.src}
+      alt={shot.alt}
+      widths={SOURCES[role].widths}
+      sizes={SOURCES[role].sizes}
+      loading={loading}
+    />
+  ) : (
+    <Mock />
+  )
+}

@@ -23,6 +23,63 @@ const BUDGET = {
 const sizeOf = async (p) => (await stat(p)).size;
 const fmt = (bytes) => `${(bytes / KB).toFixed(1)} КБ`;
 
+/**
+ * Самый тяжёлый кандидат из `srcset` — то, что действительно скачает посетитель
+ * с плотным экраном.
+ *
+ * Считать `src` у картинки с `srcset` нельзя: туда сборщик кладёт полноразмерный
+ * мастер как запасной вариант для браузеров без поддержки `srcset`, а таких
+ * в живой природе нет с 2015 года. Он вдвое-втрое тяжелее любого кандидата,
+ * и бюджет ловил бы страницы на весе файла, который никто не качает.
+ */
+function heaviestCandidate(srcset) {
+  const candidates = parseSrcset(srcset);
+  if (candidates.length === 0) return null;
+  const widthOf = ([, descriptor]) => Number.parseInt(descriptor, 10) || 0;
+  return candidates.reduce((a, b) => (widthOf(a) >= widthOf(b) ? a : b))[0];
+}
+
+/** `srcset` как список пар «адрес — дескриптор», только свои файлы. */
+function parseSrcset(srcset) {
+  return srcset
+    .split(',')
+    .map((part) => part.trim().split(/\s+/))
+    .filter(([url]) => url?.startsWith('/_astro/'));
+}
+
+/** Все адреса из `srcset` — их считает только тяжелейший, остальные пропускаем. */
+function candidateUrls(srcset) {
+  return parseSrcset(srcset).map(([url]) => url);
+}
+
+/**
+ * Что страница действительно тянет из `_astro`.
+ *
+ * У картинки с `srcset` в счёт идёт тяжелейший кандидат, а остальные кандидаты
+ * и запасной `src` — нет: браузер выбирает ровно один файл. Адреса собираются
+ * в `Set`, потому что один и тот же файл, названный на странице дважды,
+ * скачивается один раз — и в бюджет обязан войти один раз.
+ */
+function collectAssets(html) {
+  const assets = new Set();
+  const skip = new Set();
+
+  for (const [tag] of html.matchAll(/<img\b[^>]*>/gi)) {
+    const srcset = tag.match(/srcset\s*=\s*"([^"]+)"/i)?.[1];
+    if (!srcset) continue;
+    for (const url of candidateUrls(srcset)) skip.add(url);
+    const src = tag.match(/\bsrc\s*=\s*"(\/_astro\/[^"]+)"/i)?.[1];
+    if (src) skip.add(src);
+    const heaviest = heaviestCandidate(srcset);
+    if (heaviest) assets.add(heaviest);
+  }
+
+  for (const [, url] of html.matchAll(/(?:href|src)\s*=\s*"(\/_astro\/[^"]+)"/gi)) {
+    if (!skip.has(url)) assets.add(url);
+  }
+  return assets;
+}
+
 const htmlFiles = await filesWithExt(DIST, '.html');
 const cssFiles = await filesWithExt(DIST, '.css');
 const jsFiles = await filesWithExt(DIST, '.js');
@@ -61,11 +118,9 @@ for (const file of htmlFiles) {
   }
 
   let pageSize = htmlSize + fontTotal;
-  const re = /(?:href|src)\s*=\s*"(\/_astro\/[^"]+)"/gi;
-  let m;
-  while ((m = re.exec(html)) !== null) {
+  for (const asset of collectAssets(html)) {
     try {
-      pageSize += await sizeOf(join(DIST, m[1]));
+      pageSize += await sizeOf(join(DIST, asset));
     } catch {
       /* битую ссылку ловит check-links, здесь молчим */
     }
