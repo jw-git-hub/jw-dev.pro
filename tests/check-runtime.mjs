@@ -11,10 +11,12 @@
  * свайпом на замедленном вчетверо процессоре — так выглядит средний Android.
  * Два вывода за один прогон:
  *
- *   1. Сколько раз код спросил у браузера геометрию во время прокрутки. Счёт
- *      не зависит от загрузки машины, поэтому эти ворота падают воспроизводимо.
- *   2. Медиана и 95-й перцентиль длительности кадра. Здесь загрузка раннера
- *      уже мешает, поэтому прогонов три и берётся средний — как в Lighthouse.
+ *   1. Сколько раз код спросил у браузера геометрию во время прокрутки.
+ *   2. Какую долю прокрутки главный поток был занят работой.
+ *
+ * Оба показателя меряют сделанную работу, а не прождённое время, и поэтому
+ * не зависят от загрузки машины. Прогонов всё равно три, средний — как
+ * в Lighthouse: дешевле, чем разбираться потом, был ли прогон особенным.
  *
  * Прокрутка идёт настоящим жестом, а не `scrollTo`: событие проходит весь
  * конвейер ввода браузера, включая ту его часть, которая и тормозила.
@@ -40,15 +42,35 @@ const CPU_SLOWDOWN = 4;
 // сегодня рвётся и здоровая страница.
 const SCROLL_SPEED = 2500;
 
+/** Кадр длиннее этого пропустил хотя бы один интервал развёртки (16,7 мс при 60 Гц). */
+const LONG_FRAME_MS = 25;
+
 /**
  * Пороги — сегодняшний замер плюс запас, а не идеал.
  *
- * `frameP95` опущен с 60 до 30 мс 28.08.2026, вместе с починкой: перехода
- * у акцента больше нет, и хвост рывков ушёл. Замер на маке — 17,6–17,7 мс
- * три прогона подряд, разброс в десятую. Запас почти двукратный: на чужой
- * машине кадр дороже, а ворота обязаны ловить ухудшение, а не шум.
+ * До 01.09.2026 хвост кадра стерёг 95-й перцентиль с порогом 30 мс, и ворота
+ * краснели примерно на половине прогонов чистого дерева. Причина не в пороге,
+ * а в самой величине: длительность кадра квантована развёрткой, поэтому p95
+ * принимает только значения 16,7 / 33,3 / 50 — между ними нет ничего. «Порог
+ * 30 мс» читался как бюджет в миллисекундах, а был скрытым «не больше 5%
+ * пропущенных кадров», и обещанного запаса до него не существовало вовсе.
+ * Замер это подтвердил: здоровая главная на свободной машине пропускает
+ * 3,3–3,9% кадров, она же при восьми занятых ядрах — 9,0–10,4%, и p95
+ * переваливал с 17,6 сразу на 33,3. Ворота реагировали на загрузку хоста.
+ *
+ * Заменять величину пришлось, а не порог. Кадр меряет, сколько поток **ждал**,
+ * а ждёт он и из-за чужих процессов. Занятость меряет, сколько он **работал**,
+ * и на неё чужая нагрузка почти не действует: девять прогонов здорового дерева —
+ * от простоя до восьми занятых ядер — дали 39,4–46,1%, тогда как доля пропущенных
+ * кадров в тех же прогонах ходила от 2,2% до 10,4%. Дерево `9b2b0f9^`, где ревизия
+ * 26.08.2026 нашла восемь ошибок руками, даёт 71,4–80,7%. Порог 55% стоит между:
+ * девять пунктов до худшего здорового замера и шестнадцать до лучшего больного.
+ *
+ * Медианы кадра здесь больше нет. Она квантована так же, а на больном дереве
+ * равна 16,8 мс — половина кадров выходила вовремя даже там, и порог 20 мс
+ * не мог сработать ни на чём, кроме полного обвала.
  */
-const LIMITS = { frameMedian: 20, frameP95: 30, reads: 320 };
+const LIMITS = { busyShare: 55, reads: 320 };
 
 const PHONE = {
   viewport: { width: 390, height: 844 },
@@ -60,6 +82,26 @@ const PHONE = {
   reducedMotion: 'no-preference',
 };
 
+/**
+ * Доля прокрутки, которую главный поток провёл в задачах, в процентах с десятой.
+ *
+ * `TaskDuration` — счётчик самого браузера: сумма длительности задач главного
+ * потока. Чужая нагрузка растягивает окно и задачи одинаково, поэтому отношение
+ * к ней почти нечувствительно, в отличие от длины кадра.
+ */
+export function busyShareOf(before, after) {
+  const window = after.Timestamp - before.Timestamp;
+  if (window <= 0) return 0;
+  return Math.round(((after.TaskDuration - before.TaskDuration) / window) * 1000) / 10;
+}
+
+/** Доля кадров длиннее порога, в процентах с десятой. Показывается, но не стережётся. */
+export function longFrameShare(frames, limitMs) {
+  if (frames.length === 0) return 0;
+  const long = frames.filter((frame) => frame > limitMs).length;
+  return Math.round((long / frames.length) * 1000) / 10;
+}
+
 /** Значение, ниже которого лежит доля `p` замеров. */
 export function percentile(numbers, p) {
   if (numbers.length === 0) return 0;
@@ -70,8 +112,7 @@ export function percentile(numbers, p) {
 /** Нарушенные пороги, по одной строке на каждый. */
 export function problemsOf(measured, limits, page) {
   const named = [
-    ['frameMedian', 'медиана кадра', 'мс'],
-    ['frameP95', '95-й перцентиль кадра', 'мс'],
+    ['busyShare', 'занятость главного потока', '%'],
     ['reads', 'обращений к геометрии за прокрутку', ''],
   ];
   return named
@@ -111,6 +152,12 @@ function drive(cdp, height) {
   });
 }
 
+/** Счётчики браузера по имени: `Performance.getMetrics` отдаёт их списком пар. */
+async function metricsOf(cdp) {
+  const { metrics } = await cdp.send('Performance.getMetrics');
+  return Object.fromEntries(metrics.map((metric) => [metric.name, metric.value]));
+}
+
 /** Один прогон: свежая вкладка, замедленный процессор, шесть секунд прокрутки. */
 async function runOnce(browser, url, probeScript) {
   const context = await browser.newContext(PHONE);
@@ -126,6 +173,8 @@ async function runOnce(browser, url, probeScript) {
   await page.mouse.move(PHONE.viewport.width / 2, PHONE.viewport.height / 2);
   await page.waitForTimeout(SETTLE_MS);
 
+  await cdp.send('Performance.enable');
+  const before = await metricsOf(cdp);
   await page.evaluate(() => {
     // eslint-disable-next-line no-undef
     window.__probe.start();
@@ -135,11 +184,17 @@ async function runOnce(browser, url, probeScript) {
     // eslint-disable-next-line no-undef
     window.__probe.stop();
   });
+  const after = await metricsOf(cdp);
   // eslint-disable-next-line no-undef
   const { reads, frames } = await page.evaluate(() => window.__probe.result());
 
   await context.close();
-  return { reads, frameMedian: percentile(frames, 50), frameP95: percentile(frames, 95), frames };
+  return {
+    reads,
+    busyShare: busyShareOf(before, after),
+    longShare: longFrameShare(frames, LONG_FRAME_MS),
+    frames,
+  };
 }
 
 /** Средний прогон из трёх по каждому показателю. */
@@ -178,8 +233,7 @@ async function run() {
   await site.stop();
 
   const measured = {
-    frameMedian: middleOf(runs, 'frameMedian'),
-    frameP95: middleOf(runs, 'frameP95'),
+    busyShare: middleOf(runs, 'busyShare'),
     reads: middleOf(runs, 'reads'),
   };
 
@@ -190,9 +244,13 @@ async function run() {
     problems.push(`${PAGE} — зонд не записал ни одного кадра: замера не было`);
   }
 
+  // Доля пропущенных кадров порогом не стережётся — она и есть та величина,
+  // которая шумит от чужой нагрузки, — но краснеющие ворота без неё не объяснить:
+  // она отвечает на вопрос «видно ли это глазом».
   console.log(
-    `    ${PAGE} — кадр ${measured.frameMedian} мс, p95 ${measured.frameP95} мс, ` +
-      `обращений к геометрии ${measured.reads}, кадров в замере ${runs[0].frames.length}`,
+    `    ${PAGE} — главный поток занят ${measured.busyShare}% прокрутки, ` +
+      `обращений к геометрии ${measured.reads}, ` +
+      `пропущенных кадров ${middleOf(runs, 'longShare')}% из ${runs[0].frames.length}`,
   );
 
   return report('бюджет кадра под прокруткой', problems, RUNS, 'прогона');
