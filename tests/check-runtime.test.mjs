@@ -12,9 +12,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 import { installProbe, ownerOf } from './lib/probe.mjs';
-import { percentile, problemsOf } from './check-runtime.mjs';
+import { busyShareOf, longFrameShare, percentile, problemsOf } from './check-runtime.mjs';
 
-const LIMITS = { frameMedian: 20, frameP95: 60, reads: 320 };
+const LIMITS = { busyShare: 55, reads: 320 };
 
 /** Подставной браузер: два прототипа с геометрией, как Element и HTMLElement. */
 function fakeScope() {
@@ -44,16 +44,64 @@ test('пустой ряд кадров даёт ноль, а не NaN', () => {
 });
 
 test('порог нарушен строгим превышением, равенство проходит', () => {
-  const measured = { frameMedian: 20, frameP95: 60, reads: 320 };
+  const measured = { busyShare: 55, reads: 320 };
   assert.deepEqual(problemsOf(measured, LIMITS, '/ru/'), []);
 });
 
 test('каждый нарушенный порог называется своей строкой', () => {
-  const measured = { frameMedian: 31, frameP95: 90, reads: 12000 };
+  const measured = { busyShare: 76, reads: 12000 };
   const problems = problemsOf(measured, LIMITS, '/ru/');
-  assert.equal(problems.length, 3);
-  assert.match(problems[0], /медиана кадра 31мс, порог 20мс/);
-  assert.match(problems[2], /обращений к геометрии за прокрутку 12000, порог 320/);
+  assert.equal(problems.length, 2);
+  assert.match(problems[0], /занятость главного потока 76%, порог 55%/);
+  assert.match(problems[1], /обращений к геометрии за прокрутку 12000, порог 320/);
+});
+
+test('занятость — доля окна, а не сами миллисекунды', () => {
+  const before = { Timestamp: 100, TaskDuration: 10 };
+  const after = { Timestamp: 112, TaskDuration: 15 };
+  assert.equal(busyShareOf(before, after), 41.7);
+});
+
+/**
+ * Ради чего занятость пришла на смену перцентилю кадра. Чужая нагрузка растягивает
+ * и окно, и задачи: работа та же, ждать её дольше. Ряд ниже — один и тот же замер,
+ * снятый на свободной и на занятой машине; занятость обязана остаться прежней.
+ */
+test('занятость не растёт от того, что машину замедлили целиком', () => {
+  const idle = busyShareOf({ Timestamp: 0, TaskDuration: 0 }, { Timestamp: 12, TaskDuration: 5 });
+  const busy = busyShareOf({ Timestamp: 0, TaskDuration: 0 }, { Timestamp: 24, TaskDuration: 10 });
+  assert.equal(idle, busy);
+});
+
+test('нулевое окно даёт ноль, а не деление на ноль', () => {
+  const point = { Timestamp: 7, TaskDuration: 3 };
+  assert.equal(busyShareOf(point, point), 0);
+});
+
+/**
+ * Длительность кадра квантована развёрткой: p95 умеет только перепрыгнуть
+ * с 16,7 на 33,3 целиком. Отсюда и брались красные ворота на чистом дереве —
+ * два по сути одинаковых замера, 4% и 8% пропущенных кадров, дают p95
+ * по разные стороны любого порога между ними. Доля пропущенных осталась
+ * в выводе справкой: она растёт плавно и отвечает, видно ли это глазом.
+ */
+test('доля пропущенных кадров растёт плавно там, где перцентиль прыгает', () => {
+  const healthy = [...Array(96).fill(16.7), ...Array(4).fill(33.3)];
+  const worse = [...Array(92).fill(16.7), ...Array(8).fill(33.3)];
+
+  assert.equal(percentile(healthy, 95), 16.7);
+  assert.equal(percentile(worse, 95), 33.3, 'перцентиль отвечает скачком, а не ростом');
+
+  assert.equal(longFrameShare(healthy, 25), 4);
+  assert.equal(longFrameShare(worse, 25), 8);
+});
+
+test('доля считает строгое превышение: кадр ровно в порог длинным не считается', () => {
+  assert.equal(longFrameShare([25, 25, 25, 26], 25), 25);
+});
+
+test('пустой ряд кадров даёт долю ноль, а не NaN', () => {
+  assert.equal(longFrameShare([], 25), 0);
 });
 
 test('геометрию ищем там, где она объявлена: offsetTop не у Element', () => {
