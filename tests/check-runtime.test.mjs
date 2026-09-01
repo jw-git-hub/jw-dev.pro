@@ -12,9 +12,9 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 
 import { installProbe, ownerOf } from './lib/probe.mjs';
-import { percentile, problemsOf } from './check-runtime.mjs';
+import { longFrameShare, percentile, problemsOf, styleElementsOf } from './check-runtime.mjs';
 
-const LIMITS = { frameMedian: 20, frameP95: 60, reads: 320 };
+const LIMITS = { stylePerFrame: 150, reads: 320 };
 
 /** Подставной браузер: два прототипа с геометрией, как Element и HTMLElement. */
 function fakeScope() {
@@ -44,16 +44,68 @@ test('пустой ряд кадров даёт ноль, а не NaN', () => {
 });
 
 test('порог нарушен строгим превышением, равенство проходит', () => {
-  const measured = { frameMedian: 20, frameP95: 60, reads: 320 };
+  const measured = { stylePerFrame: 150, reads: 320 };
   assert.deepEqual(problemsOf(measured, LIMITS, '/ru/'), []);
 });
 
 test('каждый нарушенный порог называется своей строкой', () => {
-  const measured = { frameMedian: 31, frameP95: 90, reads: 12000 };
+  const measured = { stylePerFrame: 279, reads: 12000 };
   const problems = problemsOf(measured, LIMITS, '/ru/');
-  assert.equal(problems.length, 3);
-  assert.match(problems[0], /медиана кадра 31мс, порог 20мс/);
-  assert.match(problems[2], /обращений к геометрии за прокрутку 12000, порог 320/);
+  assert.equal(problems.length, 2);
+  assert.match(problems[0], /пересчитано элементов на кадр 279, порог 150/);
+  assert.match(problems[1], /обращений к геометрии за прокрутку 12000, порог 320/);
+});
+
+/**
+ * Считаются элементы, а не события. Разница не теоретическая: у дерева `9b2b0f9^`
+ * событий пересчёта на кадр даже меньше, чем у здорового, — 1,43 против 1,55, —
+ * просто каждое из них перебирает всю страницу вместо десятка узлов.
+ */
+test('пересчёт всей страницы дороже частого пересчёта мелочи', () => {
+  const healthy = Array.from({ length: 10 }, () => ({
+    name: 'UpdateLayoutTree',
+    args: { elementCount: 6 },
+  }));
+  const sick = [{ name: 'UpdateLayoutTree', args: { elementCount: 1420 } }];
+
+  assert.ok(sick.length < healthy.length, 'у больного событий меньше');
+  assert.equal(styleElementsOf(healthy), 60);
+  assert.equal(styleElementsOf(sick), 1420);
+});
+
+test('чужие события трассировки в счёт не идут', () => {
+  const events = [
+    { name: 'UpdateLayoutTree', args: { elementCount: 7 } },
+    { name: 'Layout', args: { beginData: { dirtyObjects: 900 } } },
+    { name: 'Paint', args: {} },
+  ];
+  assert.equal(styleElementsOf(events), 7);
+});
+
+test('событие без счётчика элементов не роняет подсчёт', () => {
+  assert.equal(styleElementsOf([{ name: 'UpdateLayoutTree' }]), 0);
+  assert.equal(styleElementsOf([]), 0);
+});
+
+/**
+ * Почему в воротах нет ни одного порога на время. Длительность кадра квантована
+ * развёрткой: p95 умеет только перепрыгнуть с 16,7 на 33,3 целиком. Два по сути
+ * одинаковых замера, 4% и 8% пропущенных кадров, дают его по разные стороны
+ * любого порога между ними — отсюда и красное на чистом дереве.
+ */
+test('перцентиль кадра прыгает через порог там, где доля растёт плавно', () => {
+  const healthy = [...Array(96).fill(16.7), ...Array(4).fill(33.3)];
+  const worse = [...Array(92).fill(16.7), ...Array(8).fill(33.3)];
+
+  assert.equal(percentile(healthy, 95), 16.7);
+  assert.equal(percentile(worse, 95), 33.3, 'перцентиль отвечает скачком, а не ростом');
+
+  assert.equal(longFrameShare(healthy, 25), 4);
+  assert.equal(longFrameShare(worse, 25), 8);
+});
+
+test('пустой ряд кадров даёт долю ноль, а не NaN', () => {
+  assert.equal(longFrameShare([], 25), 0);
 });
 
 test('геометрию ищем там, где она объявлена: offsetTop не у Element', () => {

@@ -11,10 +11,12 @@
  * свайпом на замедленном вчетверо процессоре — так выглядит средний Android.
  * Два вывода за один прогон:
  *
- *   1. Сколько раз код спросил у браузера геометрию во время прокрутки. Счёт
- *      не зависит от загрузки машины, поэтому эти ворота падают воспроизводимо.
- *   2. Медиана и 95-й перцентиль длительности кадра. Здесь загрузка раннера
- *      уже мешает, поэтому прогонов три и берётся средний — как в Lighthouse.
+ *   1. Сколько раз код спросил у браузера геометрию во время прокрутки.
+ *   2. Сколько элементов браузер из-за этого пересчитал — на кадр.
+ *
+ * Обе величины считают **работу**, а не время. Время сюда не годится
+ * принципиально, и это проверено дважды за один день (см. «Пороги» ниже).
+ * Прогонов всё равно три, средний — как в Lighthouse.
  *
  * Прокрутка идёт настоящим жестом, а не `scrollTo`: событие проходит весь
  * конвейер ввода браузера, включая ту его часть, которая и тормозила.
@@ -40,15 +42,44 @@ const CPU_SLOWDOWN = 4;
 // сегодня рвётся и здоровая страница.
 const SCROLL_SPEED = 2500;
 
+/** Кадр длиннее этого пропустил хотя бы один интервал развёртки (16,7 мс при 60 Гц). */
+const LONG_FRAME_MS = 25;
+
 /**
  * Пороги — сегодняшний замер плюс запас, а не идеал.
  *
- * `frameP95` опущен с 60 до 30 мс 28.08.2026, вместе с починкой: перехода
- * у акцента больше нет, и хвост рывков ушёл. Замер на маке — 17,6–17,7 мс
- * три прогона подряд, разброс в десятую. Запас почти двукратный: на чужой
- * машине кадр дороже, а ворота обязаны ловить ухудшение, а не шум.
+ * Ворота стерегут счёт работы, а не время, и это далось не сразу: 01.09.2026
+ * две временные величины подряд оказались непригодны, каждая по-своему.
+ *
+ * Длительность кадра квантована развёрткой: 95-й перцентиль принимает только
+ * 16,7 / 33,3 / 50, между ними нет ничего. Порог «30 мс» читался как бюджет
+ * в миллисекундах, а работал как скрытое «не больше 5% пропущенных кадров»,
+ * и запаса до него не существовало вовсе. Здоровая главная пропускает 2,3–3,3%
+ * кадров на свободной машине и 9,7–12,8% на занятой — число перепрыгивало порог
+ * целиком, не меняя ни байта кода. На маке ворота краснели через раз.
+ *
+ * Занятость главного потока (`TaskDuration` к окну замера) держалась на маке
+ * ровно, 39,4–46,1% от простоя до восьми занятых ядер, — и развалилась на общей
+ * виртуалке: один коммит на двух раннерах в одну минуту дал 48,8% и 69,6% при
+ * пропущенных 0,1% и 0,3%. `TaskDuration` — время по часам, а не время
+ * процессора, и украденное у vCPU ложится прямо в него.
+ *
+ * Счёт пересчитанных элементов от машины не зависит: на маке при вчетверо
+ * замедленном процессоре здоровая главная даёт 60 на кадр, при полностью занятых
+ * восьми ядрах — те же 60, при вдвое более медленном процессоре — 64–67, втрое —
+ * 81–90. Дерево `9b2b0f9^`, где ревизия 26.08.2026 нашла восемь ошибок руками,
+ * даёт 274–279 на любой скорости. Порог 150 стоит посередине: до него
+ * шестидесятикратный запас от худшего здорового замера и вдвое от лучшего больного.
+ *
+ * Счёт **событий** пересчёта на эту роль не годится и был проверен: у больного
+ * дерева их 1,43 на кадр против 1,55 у здорового — меньше, просто каждое дороже
+ * вчетверо. Считать надо элементы, а не события.
+ *
+ * Доля пропущенных кадров осталась в выводе справкой, без порога. Она отвечает
+ * на вопрос «видно ли это глазом», но переносить её между машинами нельзя:
+ * на раннере она в десять раз лучше, чем на маке, на том же самом коде.
  */
-const LIMITS = { frameMedian: 20, frameP95: 30, reads: 320 };
+const LIMITS = { stylePerFrame: 150, reads: 320 };
 
 const PHONE = {
   viewport: { width: 390, height: 844 },
@@ -60,6 +91,20 @@ const PHONE = {
   reducedMotion: 'no-preference',
 };
 
+/** Сколько элементов браузер пересчитал за все события пересчёта стиля. */
+export function styleElementsOf(events) {
+  return events
+    .filter((event) => event.name === 'UpdateLayoutTree')
+    .reduce((total, event) => total + (event.args?.elementCount ?? 0), 0);
+}
+
+/** Доля кадров длиннее порога, в процентах с десятой. Показывается, но не стережётся. */
+export function longFrameShare(frames, limitMs) {
+  if (frames.length === 0) return 0;
+  const long = frames.filter((frame) => frame > limitMs).length;
+  return Math.round((long / frames.length) * 1000) / 10;
+}
+
 /** Значение, ниже которого лежит доля `p` замеров. */
 export function percentile(numbers, p) {
   if (numbers.length === 0) return 0;
@@ -70,8 +115,7 @@ export function percentile(numbers, p) {
 /** Нарушенные пороги, по одной строке на каждый. */
 export function problemsOf(measured, limits, page) {
   const named = [
-    ['frameMedian', 'медиана кадра', 'мс'],
-    ['frameP95', '95-й перцентиль кадра', 'мс'],
+    ['stylePerFrame', 'пересчитано элементов на кадр', ''],
     ['reads', 'обращений к геометрии за прокрутку', ''],
   ];
   return named
@@ -111,6 +155,33 @@ function drive(cdp, height) {
   });
 }
 
+/** Кусок, которым читается поток трассировки. Мегабайт — компромисс вызовов и памяти. */
+const TRACE_CHUNK = 1 << 20;
+
+/** Категория, в которой у события пересчёта стиля есть счётчик элементов. */
+const TRACE_CATEGORY = 'disabled-by-default-devtools.timeline';
+
+/**
+ * Трассировка браузера, собранная в память.
+ *
+ * `Tracing.end` только запускает выгрузку, поэтому сначала подписка на конец,
+ * потом команда: иначе событие успевает прийти раньше подписки и чтение зависает.
+ */
+async function collectTrace(cdp) {
+  const finished = new Promise((done) => cdp.on('Tracing.tracingComplete', done));
+  await cdp.send('Tracing.end');
+  const { stream } = await finished;
+
+  const parts = [];
+  for (;;) {
+    const chunk = await cdp.send('IO.read', { handle: stream, size: TRACE_CHUNK });
+    parts.push(chunk.base64Encoded ? Buffer.from(chunk.data, 'base64').toString() : chunk.data);
+    if (chunk.eof) break;
+  }
+  await cdp.send('IO.close', { handle: stream });
+  return JSON.parse(parts.join('')).traceEvents;
+}
+
 /** Один прогон: свежая вкладка, замедленный процессор, шесть секунд прокрутки. */
 async function runOnce(browser, url, probeScript) {
   const context = await browser.newContext(PHONE);
@@ -126,6 +197,10 @@ async function runOnce(browser, url, probeScript) {
   await page.mouse.move(PHONE.viewport.width / 2, PHONE.viewport.height / 2);
   await page.waitForTimeout(SETTLE_MS);
 
+  await cdp.send('Tracing.start', {
+    transferMode: 'ReturnAsStream',
+    traceConfig: { includedCategories: [TRACE_CATEGORY] },
+  });
   await page.evaluate(() => {
     // eslint-disable-next-line no-undef
     window.__probe.start();
@@ -135,11 +210,19 @@ async function runOnce(browser, url, probeScript) {
     // eslint-disable-next-line no-undef
     window.__probe.stop();
   });
+  const events = await collectTrace(cdp);
   // eslint-disable-next-line no-undef
   const { reads, frames } = await page.evaluate(() => window.__probe.result());
 
   await context.close();
-  return { reads, frameMedian: percentile(frames, 50), frameP95: percentile(frames, 95), frames };
+  const styleElements = styleElementsOf(events);
+  return {
+    reads,
+    styleElements,
+    stylePerFrame: frames.length === 0 ? 0 : Math.round(styleElements / frames.length),
+    longShare: longFrameShare(frames, LONG_FRAME_MS),
+    frames,
+  };
 }
 
 /** Средний прогон из трёх по каждому показателю. */
@@ -178,8 +261,7 @@ async function run() {
   await site.stop();
 
   const measured = {
-    frameMedian: middleOf(runs, 'frameMedian'),
-    frameP95: middleOf(runs, 'frameP95'),
+    stylePerFrame: middleOf(runs, 'stylePerFrame'),
     reads: middleOf(runs, 'reads'),
   };
 
@@ -189,10 +271,15 @@ async function run() {
   if (runs.some((one) => one.frames.length === 0)) {
     problems.push(`${PAGE} — зонд не записал ни одного кадра: замера не было`);
   }
+  // Пустая трассировка даёт ноль элементов, а ноль проходит любой порог.
+  if (runs.some((one) => one.styleElements === 0)) {
+    problems.push(`${PAGE} — трассировка не дала ни одного пересчёта стиля: замера не было`);
+  }
 
   console.log(
-    `    ${PAGE} — кадр ${measured.frameMedian} мс, p95 ${measured.frameP95} мс, ` +
-      `обращений к геометрии ${measured.reads}, кадров в замере ${runs[0].frames.length}`,
+    `    ${PAGE} — пересчитано элементов ${measured.stylePerFrame} на кадр, ` +
+      `обращений к геометрии ${measured.reads}, ` +
+      `пропущенных кадров ${middleOf(runs, 'longShare')}% из ${runs[0].frames.length}`,
   );
 
   return report('бюджет кадра под прокруткой', problems, RUNS, 'прогона');
