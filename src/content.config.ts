@@ -31,6 +31,8 @@ const LIMITS = {
   noteTitle: 57,
   /** Апдейт — одна строка в ленте: длиннее он превращается в заметку без страницы. */
   updateText: 140,
+  /** Имя проекта под текстом апдейта. Одна строка с многоточием — длинное всё равно обрежется. */
+  updateProject: 32,
   summaryMin: 150,
   summaryMax: 210,
 } as const;
@@ -125,10 +127,20 @@ const notesEn = defineCollection({
   schema: z.object({ title: noteShape.title, summary: noteShape.summary }),
 });
 
-/** Апдейт — одна строка в ленте: у него нет тела, только дата и текст. */
+/**
+ * Апдейт — одна строка в ленте: у него нет тела, только дата, проект и текст.
+ *
+ * `project` обязателен, хотя запись про сам сайт вроде бы говорит за себя.
+ * Лента смешивает работу по нескольким проектам, и строка без подписи в таком
+ * списке читается не как «это про сайт», а как забытое поле.
+ */
 const updates = defineCollection({
   loader: glob({ pattern: '**/*.md', base: './src/content/updates/ru' }),
-  schema: z.object({ date: z.coerce.date(), text: z.string().min(1).max(LIMITS.updateText) }),
+  schema: z.object({
+    date: z.coerce.date(),
+    text: z.string().min(1).max(LIMITS.updateText),
+    project: z.string().min(1).max(LIMITS.updateProject),
+  }),
 });
 
 const updatesEn = defineCollection({

@@ -56,6 +56,7 @@ const glyph = entry.kind === 'update' ? 'bolt' : 'doc';
   <span class="jt">
     <strong>{entry.title}</strong>
     {entry.line && <span>{entry.line}</span>}
+    {entry.project && <span class="jp">{entry.project}</span>}
   </span>
 
   {

@@ -26,7 +26,7 @@ const COLLECTIONS = [
  * не существует, и разъезжаться нечему. Копия, которую zod молча выбросит,
  * опаснее ошибки: редактор правит её и не понимает, почему на сайте старое.
  */
-const SOURCE_ONLY = ['date', 'tags'];
+const SOURCE_ONLY = ['date', 'tags', 'project'];
 
 const ru = JSON.parse(await readFile('src/i18n/ru.json', 'utf8'));
 const en = JSON.parse(await readFile('src/i18n/en.json', 'utf8'));

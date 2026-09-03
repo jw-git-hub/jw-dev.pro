@@ -31,6 +31,8 @@ export interface JournalEntry {
   href?: string;
   /** Класс `.tone-*`: цвет значка и бейджа строки. */
   tone: string;
+  /** Чей это проект. Только у апдейта: кейс и статья называют себя заголовком. */
+  project?: string;
   /** Силуэт сайта или переписки в миниатюре — только у кейса. */
   shotKind?: CaseView['shotKind'];
 }
@@ -150,5 +152,6 @@ async function getUpdates(locale: Locale): Promise<JournalEntry[]> {
     date: entry.data.date,
     title: (locale === 'en' ? translations.get(entry.id)?.text : undefined) ?? entry.data.text,
     tone: 'cyan',
+    project: entry.data.project,
   }));
 }
