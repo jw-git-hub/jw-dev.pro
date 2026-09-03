@@ -17,6 +17,14 @@ import { localeFromUrl, useTranslations } from '../../i18n';
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 const entries = await getJournal(locale);
+
+/**
+ * Пустых состояния два, и они разные. «Под этим фильтром пусто» снимает `log.js`
+ * при переключении таба — без JS оно недостижимо и правильно спрятано. «Записей
+ * нет вовсе» обязано быть в разметке: без JS страница иначе окажется пустой
+ * совсем, а это уже не состояние, а поломка.
+ */
+const hasEntries = entries.length > 0;
 ---
 
 <section class="page-head">
@@ -34,12 +42,24 @@ const entries = await getJournal(locale);
       </a>
     </div>
 
-    <LogTabs counts={countByKind(entries)} total={entries.length} />
+    {
+      hasEntries ? (
+        <>
+          <LogTabs counts={countByKind(entries)} total={entries.length} />
 
-    <div class="jfeed rv" data-damp data-log-feed>
-      {entries.map((entry) => <JournalRow entry={entry} />)}
-    </div>
+          <div class="jfeed rv" data-damp data-log-feed>
+            {entries.map((entry) => (
+              <JournalRow entry={entry} />
+            ))}
+          </div>
 
-    <p class="log-none lead" hidden data-log-empty>{t('log.empty')}</p>
+          <p class="sec-none lead" hidden data-log-empty>
+            {t('log.empty')}
+          </p>
+        </>
+      ) : (
+        <p class="sec-none lead">{t('log.none')}</p>
+      )
+    }
   </div>
 </section>

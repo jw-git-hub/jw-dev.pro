@@ -34,9 +34,10 @@ const t = useTranslations(locale);
 const { label = t('dock.intro') } = Astro.props;
 
 // «Открыть разбор кейса» ведёт в избранный кейс: он живой и открыт кодом.
+// Кейсов может не быть вовсе — тогда действия просто нет.
 const cases = await getCases(locale);
 const featured = cases.find((item) => item.featured) ?? cases[0];
-const actions = dockActions(locale, featured.slug);
+const actions = dockActions(locale, featured?.slug);
 ---
 
 <aside class="dock g blur" id="dock" aria-label={t('a11y.dock')}>

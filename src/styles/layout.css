@@ -92,6 +92,12 @@ main > .sec-flush {
   background: linear-gradient(90deg, transparent, var(--line), transparent);
 }
 
+/* «Здесь пока пусто» — одинаково у кейсов и у журнала, поэтому не у них, а тут. */
+.sec-none {
+  padding: 40px 0;
+  text-align: center;
+}
+
 .center {
   margin-inline: auto;
   text-align: center;

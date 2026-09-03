@@ -15,6 +15,10 @@ import { localeFromUrl, useTranslations } from '../../i18n';
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 const cases = await getCases(locale);
+
+// Кейсов может не быть вовсе: их переписывают с нуля. Пустая сетка с фильтром
+// «0 / 0» выглядит как сломанная вёрстка, а не как «здесь пока пусто».
+const hasCases = cases.length > 0;
 ---
 
 <section id="work" data-acc="rose" data-name={t('nav.work')} data-dock="case">
@@ -23,18 +27,32 @@ const cases = await getCases(locale);
       <div>
         <span class="kick">{t('kick.work')}</span>
         <h2>{t('sec.work.t')}</h2>
-        <p class="workline">
-          <Icon name="gh" size={16} />
-          <span>{t('work.note')}</span>
-        </p>
+        {
+          /* «Каждый проект ниже» — обещание про карточки. Без карточек оно
+            указывает в пустоту, поэтому строка уходит вместе с ними. */
+          hasCases && (
+            <p class="workline">
+              <Icon name="gh" size={16} />
+              <span>{t('work.note')}</span>
+            </p>
+          )
+        }
       </div>
 
-      <CaseFilters total={cases.length} />
+      {hasCases && <CaseFilters total={cases.length} />}
     </div>
 
-    <div class="grid6" data-grid>
-      {cases.map((item) => <CaseCard item={item} />)}
-    </div>
+    {
+      hasCases ? (
+        <div class="grid6" data-grid>
+          {cases.map((item) => (
+            <CaseCard item={item} />
+          ))}
+        </div>
+      ) : (
+        <p class="sec-none lead">{t('work.empty')}</p>
+      )
+    }
   </div>
 
   <CaseOverlay />

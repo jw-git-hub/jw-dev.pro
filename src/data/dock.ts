@@ -33,14 +33,23 @@ export interface DockAction {
 }
 
 /**
- * Все четыре действия сразу: они уезжают в разметку готовыми, а скрипт
- * только переключает, какое показано. Так переведённые подписи остаются
- * на сборке и словарь не уезжает в браузер.
+ * Все действия сразу: они уезжают в разметку готовыми, а скрипт только
+ * переключает, какое показано. Так переведённые подписи остаются на сборке
+ * и словарь не уезжает в браузер.
+ *
+ * «Разбор кейса» — единственное действие, которому нужен адрес снаружи, и
+ * единственное необязательное: кейсов может не быть вовсе. Тогда его просто
+ * нет, а секция кейсов получит общее действие — `dock.js` уже умеет обходиться
+ * без запрошенного вида.
  */
-export function dockActions(locale: Locale, caseSlug: string): DockAction[] {
+export function dockActions(locale: Locale, caseSlug?: string): DockAction[] {
+  const openCase: DockAction[] = caseSlug
+    ? [{ kind: 'case', key: 'dock.ctx.case', icon: 'doc', href: casePath(locale, caseSlug) }]
+    : [];
+
   return [
     { kind: 'work', key: 'dock.ctx.work', icon: 'arr', href: sectionPath(locale, 'work') },
-    { kind: 'case', key: 'dock.ctx.case', icon: 'doc', href: casePath(locale, caseSlug) },
+    ...openCase,
     { kind: 'how', key: 'dock.ctx.how', icon: 'bolt', href: sectionPath(locale, 'process') },
     { kind: 'log', key: 'dock.ctx.log', icon: 'doc', href: logPath(locale) },
   ];
