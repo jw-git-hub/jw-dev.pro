@@ -26,6 +26,9 @@ async function followFirst(page, selector) {
   return href;
 }
 
+/** Ссылка в разбор кейса, но не на саму витрину: её адрес — префикс их адресов. */
+const TO_CASE = 'a[href^="/ru/work/"]:not([href="/ru/work/"])';
+
 const CHECKS = [
   {
     name: 'главная открывается и ведёт в разделы',
@@ -39,11 +42,34 @@ const CHECKS = [
     name: 'карточка кейса — ссылка, а не кнопка со скриптом',
     async run(page, origin, fail) {
       await page.goto(`${origin}/ru/`);
-      const cards = await page.locator('a[href^="/ru/work/"]').count();
-      if (cards === 0) return fail('с главной не ведёт ни одной ссылки на кейс');
+      // Саму витрину исключаем: на неё ведут и пункт шапки, и кнопка «Все
+      // работы», а проверяем мы здесь карточку. Пункт шапки на этой ширине
+      // ещё и спрятан под бургером — клик по нему просто истёк бы по времени.
+      if ((await page.locator(TO_CASE).count()) === 0) {
+        return fail('с главной не ведёт ни одной ссылки на кейс');
+      }
 
-      const href = await followFirst(page, 'a[href^="/ru/work/"]');
+      const href = await followFirst(page, TO_CASE);
       if ((await page.locator('h1').count()) !== 1) fail(`кейс ${href} открылся без <h1>`);
+    },
+  },
+  {
+    name: 'витрина работ открывается и ведёт в разбор',
+    async run(page, origin, fail) {
+      await page.goto(`${origin}/ru/`);
+      // Именно из содержимого страницы: пункт шапки ведёт туда же, но на этой
+      // ширине он спрятан под бургером, и клик по нему истёк бы по времени.
+      await followFirst(page, 'main a[href="/ru/work/"]');
+
+      if ((await page.locator('h1').count()) !== 1) fail('на витрине не один <h1>');
+      if ((await page.locator(TO_CASE).count()) === 0) {
+        return fail('с витрины не ведёт ни одной ссылки на кейс');
+      }
+
+      const href = await followFirst(page, TO_CASE);
+      if ((await page.locator('.case-full').count()) === 0) {
+        fail(`кейс ${href} открылся без разбора`);
+      }
     },
   },
   {

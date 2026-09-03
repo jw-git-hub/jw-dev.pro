@@ -12,8 +12,8 @@ import Icon from '../chrome/Icon.astro';
 import { getJournal, logPath } from '../../lib/journal';
 import { localeFromUrl, useTranslations } from '../../i18n';
 
-/** Лента на главной — витрина, а не архив: четыре строки и ссылка на остальное. */
-const PREVIEW_COUNT = 4;
+/** Лента на главной — витрина, а не архив: пять строк и ссылка на остальное. */
+const PREVIEW_COUNT = 5;
 
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);

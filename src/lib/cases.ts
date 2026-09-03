@@ -34,9 +34,14 @@ export interface CaseView {
   href: string;
 }
 
+/** Адрес витрины: `/work/` и `/ru/work/`. Пара к `logPath` у журнала. */
+export function workPath(locale: Locale): string {
+  return `${homePath(locale)}work/`;
+}
+
 /** Адрес страницы кейса: `/work/<slug>/` и `/ru/work/<slug>/`. */
 export function casePath(locale: Locale, slug: string): string {
-  return `${homePath(locale)}work/${slug}/`;
+  return `${workPath(locale)}${slug}/`;
 }
 
 /**

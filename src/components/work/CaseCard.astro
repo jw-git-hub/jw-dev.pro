@@ -21,9 +21,16 @@ import { localeFromUrl, useTranslations } from '../../i18n';
 
 interface Props {
   item: CaseView;
+  /**
+   * Уровень заголовка карточки. На главной над сеткой стоит `h2` секции,
+   * на `/work/` — `h1` страницы, и один и тот же `h3` там валиден, а тут
+   * пропускает ступень. Уровень знает тот, кто ставит сетку, а не карточка.
+   */
+  level: 2 | 3;
 }
 
-const { item } = Astro.props;
+const { item, level } = Astro.props;
+const Heading = `h${level}` as 'h2' | 'h3';
 const t = useTranslations(localeFromUrl(Astro.url));
 
 const closed = item.shotKind === 'closed';
@@ -65,9 +72,9 @@ const host = item.link ? new URL(item.link).host.replace(/^www\./, '') : null;
     <div class="case-hd">
       <div>
         <span class="case-idx">{index}</span>
-        <h3 class="case-ttl">
+        <Heading class="case-ttl">
           <a class="case-go" href={item.href}>{item.title}</a>
-        </h3>
+        </Heading>
         <div class="case-kind">{item.kind}</div>
       </div>
       {live && <span class="badge">{t('c.badge.live')}</span>}

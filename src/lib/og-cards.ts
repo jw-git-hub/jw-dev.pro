@@ -9,7 +9,7 @@
  * просто разворачивает его в файлы. Появился новый тип страницы — цель
  * добавляется сюда, и картинка собирается сама.
  */
-import { getCases } from './cases';
+import { getCases, workPath } from './cases';
 import { getNotes, getJournal, countByKind, logPath, type NoteView } from './journal';
 import type { CaseView } from './cases';
 import type { CardSpec } from './og';
@@ -80,6 +80,21 @@ function noteCard(note: NoteView, t: Translate, locale: Locale): CardSpec {
   };
 }
 
+/**
+ * Витрина работ. Пилюли — типы проектов из фильтра: превью обещает ровно то,
+ * по чему на странице можно отфильтровать.
+ */
+function workCard(t: Translate, locale: Locale): CardSpec {
+  return {
+    kicker: t('kick.workAll'),
+    title: t('work.title'),
+    chips: [t('f.sites'), t('f.bots'), t('f.ai')],
+    foot: [],
+    tail: workPath(locale),
+    accent: 'rose',
+  };
+}
+
 /** Разбор кейса: тип проекта, три метрики, стек и адрес — как на карточке. */
 function caseCard(item: CaseView): CardSpec {
   return {
@@ -100,6 +115,7 @@ export async function ogTargets(): Promise<OgTarget[]> {
     const t = useTranslations(locale);
 
     targets.push({ locale, path: 'home', spec: homeCard(t) });
+    targets.push({ locale, path: 'work', spec: workCard(t, locale) });
     targets.push({
       locale,
       path: 'log',

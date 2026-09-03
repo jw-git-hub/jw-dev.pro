@@ -1,0 +1,37 @@
+---
+/**
+ * Сетка карточек кейсов и оверлей разбора — общая часть витрины на главной
+ * и страницы `/work/`.
+ *
+ * Вынесена, потому что мест теперь два: главная показывает первые карточки
+ * по `order`, страница — все. Различаются они шапкой и фильтрами, а сама
+ * сетка одна и та же, и держать две её копии значит однажды поправить одну.
+ */
+import CaseCard from './CaseCard.astro';
+import CaseOverlay from './CaseOverlay.astro';
+import type { CaseView } from '../../lib/cases';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+interface Props {
+  items: CaseView[];
+  /** Уровень заголовка карточки: 3 под `h2` секции, 2 под `h1` страницы. */
+  level: 2 | 3;
+}
+
+const { items, level } = Astro.props;
+const t = useTranslations(localeFromUrl(Astro.url));
+---
+
+{
+  items.length > 0 ? (
+    <div class="grid6" data-grid>
+      {items.map((item) => (
+        <CaseCard item={item} level={level} />
+      ))}
+    </div>
+  ) : (
+    <p class="sec-none lead">{t('work.empty')}</p>
+  )
+}
+
+<CaseOverlay />

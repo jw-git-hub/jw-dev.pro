@@ -6,10 +6,10 @@
 import BaseLayout from '../../../layouts/BaseLayout.astro';
 import CaseArticle from '../../../components/work/CaseArticle.astro';
 import Icon from '../../../components/chrome/Icon.astro';
-import { getCases, pageAccent } from '../../../lib/cases';
+import { getCases, pageAccent, workPath } from '../../../lib/cases';
 import { ogPath } from '../../../lib/og';
 import { caseGraph } from '../../../lib/jsonld';
-import { useTranslations, sectionPath } from '../../../i18n';
+import { useTranslations } from '../../../i18n';
 
 export async function getStaticPaths() {
   const cases = await getCases('ru');
@@ -33,7 +33,7 @@ const t = useTranslations('ru');
 >
   <section>
     <div class="wrap">
-      <a class="case-back" href={sectionPath('ru', 'work')}>
+      <a class="case-back" href={workPath('ru')}>
         <Icon name="cl" size={14} />
         {t('case.back')}
       </a>

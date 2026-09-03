@@ -1,0 +1,33 @@
+---
+/**
+ * Все работы — содержимое страницы `/work/`.
+ *
+ * Витрина на главной показывает первые карточки по `order` и отвечает на
+ * «умеет ли он вообще»; сюда приходят за «а что ещё» — поэтому здесь все
+ * кейсы и фильтр по типу, а на главной ни того, ни другого.
+ */
+import CaseGrid from './CaseGrid.astro';
+import CaseFilters from './CaseFilters.astro';
+import { getCases } from '../../lib/cases';
+import { localeFromUrl, useTranslations } from '../../i18n';
+
+const locale = localeFromUrl(Astro.url);
+const t = useTranslations(locale);
+const cases = await getCases(locale);
+---
+
+<section class="page-head">
+  <div class="wrap">
+    <div class="sec-head row rv" data-damp>
+      <div>
+        <span class="kick">{t('kick.workAll')}</span>
+        <h1>{t('work.title')}</h1>
+        <p class="lead">{t('work.lead')}</p>
+      </div>
+
+      {cases.length > 0 && <CaseFilters total={cases.length} />}
+    </div>
+
+    <CaseGrid items={cases} level={2} />
+  </div>
+</section>

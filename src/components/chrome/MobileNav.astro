@@ -24,7 +24,7 @@ const t = useTranslations(locale);
   <nav class="mnav-links wrap" aria-label={t('a11y.navMobile')}>
     {
       NAV_ITEMS.map((item, index) => (
-        <a href={sectionPath(locale, item.id)}>
+        <a href={item.href(locale)}>
           <span aria-hidden="true">{String(index + 1).padStart(2, '0')}</span>
           {t(item.key)}
         </a>

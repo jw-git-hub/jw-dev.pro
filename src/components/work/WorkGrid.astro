@@ -1,24 +1,27 @@
 ---
 /**
- * Секция кейсов на главной — DESIGN-GUIDE §8.
+ * Витрина кейсов на главной — DESIGN-GUIDE §8.
  *
- * Порядок карточек задаёт поле `order` кейса, а не дата: сетка — витрина,
- * её очерёдность решает владелец. Хронология живёт в журнале.
+ * Показывает первые карточки по полю `order`, а не последние по дате: дата
+ * кейса равна дате последнего коммита проекта, и правка опечатки в старом боте
+ * вытолкнула бы его вперёд сильной работы. Очерёдность витрины решает владелец,
+ * хронология живёт в журнале.
+ *
+ * Здесь только начало. Все кейсы и фильтр по типу — на `/work/`: фильтровать
+ * три карточки незачем, а сетка из семи съедает первый экран.
  */
-import CaseCard from './CaseCard.astro';
-import CaseFilters from './CaseFilters.astro';
-import CaseOverlay from './CaseOverlay.astro';
+import CaseGrid from './CaseGrid.astro';
 import Icon from '../chrome/Icon.astro';
-import { getCases } from '../../lib/cases';
+import { getCases, workPath } from '../../lib/cases';
 import { localeFromUrl, useTranslations } from '../../i18n';
+
+/** Витрина, а не архив: три карточки и ссылка на остальное. */
+const PREVIEW_COUNT = 3;
 
 const locale = localeFromUrl(Astro.url);
 const t = useTranslations(locale);
 const cases = await getCases(locale);
-
-// Кейсов может не быть вовсе: их переписывают с нуля. Пустая сетка с фильтром
-// «0 / 0» выглядит как сломанная вёрстка, а не как «здесь пока пусто».
-const hasCases = cases.length > 0;
+const shown = cases.slice(0, PREVIEW_COUNT);
 ---
 
 <section id="work" data-acc="rose" data-name={t('nav.work')} data-dock="case">
@@ -30,7 +33,7 @@ const hasCases = cases.length > 0;
         {
           /* «Каждый проект ниже» — обещание про карточки. Без карточек оно
             указывает в пустоту, поэтому строка уходит вместе с ними. */
-          hasCases && (
+          shown.length > 0 && (
             <p class="workline">
               <Icon name="gh" size={16} />
               <span>{t('work.note')}</span>
@@ -39,21 +42,12 @@ const hasCases = cases.length > 0;
         }
       </div>
 
-      {hasCases && <CaseFilters total={cases.length} />}
+      <a class="btn s" href={workPath(locale)}>
+        <Icon name="arr" size={16} />
+        <span>{t('work.all')}</span>
+      </a>
     </div>
 
-    {
-      hasCases ? (
-        <div class="grid6" data-grid>
-          {cases.map((item) => (
-            <CaseCard item={item} />
-          ))}
-        </div>
-      ) : (
-        <p class="sec-none lead">{t('work.empty')}</p>
-      )
-    }
+    <CaseGrid items={shown} level={3} />
   </div>
-
-  <CaseOverlay />
 </section>

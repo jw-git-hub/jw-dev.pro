@@ -1,0 +1,20 @@
+---
+import BaseLayout from '../../../layouts/BaseLayout.astro';
+import WorkArchive from '../../../components/work/WorkArchive.astro';
+import { useTranslations } from '../../../i18n';
+import { ogPath } from '../../../lib/og';
+import { pageGraph } from '../../../lib/jsonld';
+import { workPath } from '../../../lib/cases';
+
+const t = useTranslations('ru');
+---
+
+<BaseLayout
+  title={t('work.title')}
+  description={t('work.lead')}
+  accent="rose"
+  image={ogPath('ru', 'work')}
+  schema={pageGraph(t('work.title'), workPath('ru'), 'ru', Astro.site)}
+>
+  <WorkArchive />
+</BaseLayout>
