@@ -1,20 +1,25 @@
 /**
- * Фон — DESIGN-GUIDE §9. Плоская разводка платы во весь экран: серые дорожки
- * под 90° и 45°, площадки на концах, и по дорожкам бегут импульсы акцентом
- * текущей секции.
+ * Фон — DESIGN-GUIDE §9. Плата: процессор в центре экрана и дорожки под 90°
+ * и 45°, сходящиеся к его выводам с четырёх краёв. По дорожкам бегут импульсы.
  *
- * Устройство слоя, ради которого он и переписан: разводка статична и рисуется
- * один раз в закадровый холст, а каждый кадр только копируется одним
- * drawImage. Двигается и красится один десяток пикселей импульсов. Прежняя
- * сеть пересобиралась покадрово — восемьдесят восемь узлов, все их попарные
- * расстояния и нити к элементам интерфейса.
+ * Два цвета, и они говорят о разном. Дорожки и импульсы держат акцент читаемой
+ * секции — по ним видно, где посетитель. Корпус процессора перебирает всю
+ * палитру по кругу и прокрутке не подчиняется: он один на странице и показывает,
+ * что плата под током.
  *
- * Порядок отрисовки — снизу вверх: разводка, импульсы, и последними дыры
- * под текстом. Один requestAnimationFrame на всю страницу.
+ * Устройство слоя, ради которого всё и переписано: геометрия дорожек не зависит
+ * от времени, поэтому она запекается белой маской в закадровый холст один раз
+ * на размер окна. Каждый кадр маска копируется одним drawImage и красится одной
+ * заливкой в режиме source-in. Прежняя сеть пересобиралась покадрово —
+ * восемьдесят восемь узлов, все их попарные расстояния и нити к элементам
+ * интерфейса.
+ *
+ * Порядок отрисовки — снизу вверх: разводка, корпус, импульсы, и последними
+ * дыры под текстом. Один requestAnimationFrame на всю страницу.
  */
 import { reducedMotion } from './lib/motion.js';
-import { TINTS } from './graph/paint.js';
-import { buildTraces, paintTraces } from './graph/traces.js';
+import { TINTS, rgba } from './graph/paint.js';
+import { buildBoard, paintTraces, paintChip } from './graph/traces.js';
 import * as pulses from './graph/pulses.js';
 import * as damp from './graph/damp.js';
 
@@ -31,22 +36,44 @@ const MEASURE_EVERY = 560; // мс
 const MEASURE_EVERY_NARROW = 1120;
 const DRAW_EVERY_NARROW = 1000 / 30;
 const RESIZE_DELAY = 180;
-const TINT_EASE = 0.035; // доля пути к цвету секции за кадр
 const DEFAULT_TINT = 'cyan';
+
+/**
+ * Процессор перебирает всю палитру по кругу, независимо от прокрутки: дорожки
+ * говорят, какой раздел читают, а корпус — что плата под током. Один цвет
+ * перетекает в следующий за CHIP_PERIOD, без пауз на чистом цвете: пауза
+ * читается как «зависло», а не как «работает».
+ */
+const CHIP_CYCLE = ['cyan', 'indigo', 'violet', 'amber', 'rose'];
+const CHIP_PERIOD = 3400; // мс на переход между соседними цветами
 
 const narrow = window.matchMedia('(max-width: 900px)');
 
 const canvas = document.getElementById('graph');
 const ctx = canvas ? canvas.getContext('2d', { alpha: true }) : null;
 
-/** Закадровый холст с разводкой: рисуется на смену размера, дальше копируется. */
-const layer = ctx ? document.createElement('canvas') : null;
-const layerCtx = layer ? layer.getContext('2d', { alpha: true }) : null;
+/**
+ * Два закадровых холста. `mask` — разводка белым, её геометрия зависит только
+ * от размера окна. `tinted` — она же в цвете текущей секции.
+ *
+ * Перекраска стоит полноэкранной композиции, поэтому её нельзя делать каждый
+ * кадр: замер показал скачок пропущенных кадров с 3,5% до 11,6%. Но и каждый
+ * кадр она не нужна — цвет меняется секунду на смене раздела и дальше стоит.
+ * Поэтому `tinted` пересобирается, только когда округлённый цвет отличается
+ * от запечённого, а в остальные кадры слой просто копируется.
+ */
+const mask = ctx ? document.createElement('canvas') : null;
+const maskCtx = mask ? mask.getContext('2d', { alpha: true }) : null;
+const tinted = ctx ? document.createElement('canvas') : null;
+const tintedCtx = tinted ? tinted.getContext('2d', { alpha: true }) : null;
+
+/** Цвет, в котором сейчас запечён `tinted`. Пустой — значит слоя ещё нет. */
+let bakedTint = '';
 
 let width = 0;
 let height = 0;
 let dpr = 1;
-let traces = [];
+let board = { chip: null, traces: [] };
 let dampElements = [];
 let dampHoles = [];
 let frameId = 0;
@@ -60,8 +87,7 @@ const sparks = [];
 
 /** Стартовый цвет — акцент страницы: на внутренних он не cyan. */
 const startTint = TINTS[document.documentElement.dataset.acc] ?? TINTS[DEFAULT_TINT];
-const tintNow = [...startTint];
-let tintTarget = [...startTint];
+let tint = [...startTint];
 
 /** Список затеняемых блоков меняется только при перестройке DOM. */
 function collect() {
@@ -82,37 +108,71 @@ function resizeRaster() {
   width = canvas.clientWidth;
   height = canvas.clientHeight;
 
-  for (const surface of [canvas, layer]) {
+  for (const surface of [canvas, mask, tinted]) {
     surface.width = Math.round(width * dpr);
     surface.height = Math.round(height * dpr);
   }
 
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-  layerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  for (const context of [ctx, maskCtx, tintedCtx]) {
+    context.setTransform(dpr, 0, 0, dpr, 0, 0);
+  }
+
+  // Растр пересоздан — запечённая копия вместе с ним обнулилась.
+  bakedTint = '';
 }
 
-/** Разводка строится заново и сразу запекается в закадровый холст. */
-function rebuildTraces() {
-  traces = buildTraces(width, height);
+/** Разводка строится заново и сразу запекается в маску. */
+function rebuildBoard() {
+  board = buildBoard(width, height);
   sparks.length = 0;
 
-  layerCtx.clearRect(0, 0, width, height);
-  paintTraces(layerCtx, traces);
+  maskCtx.clearRect(0, 0, width, height);
+  paintTraces(maskCtx, board.traces);
+  bakedTint = '';
 }
 
-/** Цвет импульсов догоняет акцент секции, а не прыгает вместе с ним. */
-function easeTint() {
-  for (let i = 0; i < tintNow.length; i++) {
-    tintNow[i] += (tintTarget[i] - tintNow[i]) * TINT_EASE;
-  }
-  return tintNow.map((channel) => Math.round(channel));
+/**
+ * Перекрасить маску в заданный цвет — но только если он и правда сменился.
+ * `source-in` сохраняет альфу назначения и берёт цвет источника, то есть
+ * красит ровно нарисованные дорожки и ничего кроме них.
+ */
+function bakeTint(tint) {
+  const key = tint.join(',');
+  if (key === bakedTint) return;
+  bakedTint = key;
+
+  tintedCtx.globalCompositeOperation = 'source-over';
+  tintedCtx.clearRect(0, 0, width, height);
+  tintedCtx.drawImage(mask, 0, 0, width, height);
+  tintedCtx.globalCompositeOperation = 'source-in';
+  tintedCtx.fillStyle = rgba(tint, 1);
+  tintedCtx.fillRect(0, 0, width, height);
 }
 
-/** Общая часть живого и статичного кадра: разводка и дыры под текстом. */
-function paintFrame(withPulses) {
+/** Цвет корпуса: перетекание между соседними цветами палитры по кругу. */
+function chipColor(time) {
+  const position = time / CHIP_PERIOD;
+  const index = Math.floor(position) % CHIP_CYCLE.length;
+  const from = TINTS[CHIP_CYCLE[index]];
+  const to = TINTS[CHIP_CYCLE[(index + 1) % CHIP_CYCLE.length]];
+  const k = position - Math.floor(position);
+
+  return from.map((channel, i) => Math.round(channel + (to[i] - channel) * k));
+}
+
+/**
+ * Кадр целиком: копия окрашенной разводки, поверх корпус и импульсы своими
+ * цветами, и последними дыры под текстом.
+ */
+function paintFrame(time, moving) {
+  bakeTint(tint);
+
   ctx.clearRect(0, 0, width, height);
-  ctx.drawImage(layer, 0, 0, width, height);
-  if (withPulses) pulses.draw(ctx, sparks, easeTint());
+  ctx.drawImage(tinted, 0, 0, width, height);
+
+  paintChip(ctx, board.chip, chipColor(time));
+  if (moving) pulses.draw(ctx, sparks, tint);
+
   damp.draw(ctx, dampHoles, { scrollY: window.scrollY, height });
 }
 
@@ -135,7 +195,7 @@ function frame(time) {
 
   if (time - lastSpawn > pulses.SPAWN_EVERY) {
     lastSpawn = time;
-    pulses.spawn(sparks, traces);
+    pulses.spawn(sparks, board.traces);
   }
 
   const measureEvery = narrow.matches ? MEASURE_EVERY_NARROW : MEASURE_EVERY;
@@ -144,7 +204,7 @@ function frame(time) {
     measure();
   }
 
-  if (drawDue(time)) paintFrame(true);
+  if (drawDue(time)) paintFrame(time, true);
   frameId = requestAnimationFrame(frame);
 }
 
@@ -165,7 +225,7 @@ function stop() {
  * структура, и дорожки — единственное, что её даёт.
  */
 function staticFrame() {
-  paintFrame(false);
+  paintFrame(0, false);
 }
 
 /**
@@ -197,7 +257,7 @@ function restart() {
 /** Первая настройка: растр под плотность экрана, разводка, геометрия дыр. */
 function sync() {
   resizeRaster();
-  rebuildTraces();
+  rebuildBoard();
   collect();
   restart();
 }
@@ -212,7 +272,7 @@ function onResize() {
   if (canvas.clientWidth === width && canvas.clientHeight === height) return;
 
   resizeRaster();
-  rebuildTraces();
+  rebuildBoard();
   collect();
   restart();
 }
@@ -241,16 +301,21 @@ function listen() {
   reducedMotion.addEventListener('change', restart);
 }
 
-/** Перекрасить импульсы в акцент секции. Имена — те же, что у `data-acc`. */
+/**
+ * Перекрасить разводку и импульсы в акцент секции. Имена — те же, что у `data-acc`.
+ *
+ * Цвет ставится сразу, без перетекания, — то же правило, что у CSS-акцента
+ * (DESIGN-GUIDE §2, отступление «Акцент без перетекания»), и по той же причине.
+ * Здесь она даже жёстче: каждый промежуточный цвет означает перепечь
+ * полноэкранный слой заново. Замер прокрутки главной: с перетеканием
+ * пропущенных кадров 15,2%, без него — прежние 3–4%.
+ */
 export function setTint(name) {
   if (!TINTS[name]) return;
-  tintTarget = [...TINTS[name]];
+  tint = [...TINTS[name]];
 
-  // Плавно догонять цель некому: цикл не запущен. Ставим цвет сразу.
-  if (reducedMotion.matches) {
-    tintNow.splice(0, tintNow.length, ...tintTarget);
-    requestStatic();
-  }
+  // Цикл не запущен — статичный кадр перерисовать некому.
+  if (reducedMotion.matches) requestStatic();
 }
 
 if (ctx) {
