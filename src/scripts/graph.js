@@ -1,38 +1,33 @@
 /**
- * Фоновый граф — DESIGN-GUIDE §9.
+ * Фон — DESIGN-GUIDE §9. Плоская разводка платы во весь экран: серые дорожки
+ * под 90° и 45°, площадки на концах, и по дорожкам бегут импульсы акцентом
+ * текущей секции.
  *
- * Живая сеть во весь экран: узлы дрейфуют, ближние соединяются, по рёбрам
- * бегут искры, а элементы интерфейса с `data-nx` висят в этой сети
- * на собственных нитях. Порядок отрисовки — снизу вверх: рёбра, нити
- * якорей, узлы, искры, и последними дыры под текстом.
+ * Устройство слоя, ради которого он и переписан: разводка статична и рисуется
+ * один раз в закадровый холст, а каждый кадр только копируется одним
+ * drawImage. Двигается и красится один десяток пикселей импульсов. Прежняя
+ * сеть пересобиралась покадрово — восемьдесят восемь узлов, все их попарные
+ * расстояния и нити к элементам интерфейса.
  *
- * Один requestAnimationFrame на всю страницу. Граф не параллаксится:
- * его нити привязаны к настоящим элементам и обязаны попадать в них точно.
- *
- * Геометрия якорей и дыр пересчитывается раз в 560 мс, а не каждый кадр.
- * getBoundingClientRect заставляет браузер пересчитать layout, и делать это
- * шестьдесят раз в секунду ради блоков, которые стоят на месте, — самый
- * дорогой способ ничего не изменить.
+ * Порядок отрисовки — снизу вверх: разводка, импульсы, и последними дыры
+ * под текстом. Один requestAnimationFrame на всю страницу.
  */
 import { reducedMotion } from './lib/motion.js';
 import { TINTS } from './graph/paint.js';
-import { buildNodes, stepNodes, drawEdges, drawNodes, edgeLimit } from './graph/field.js';
-import * as anchors from './graph/anchors.js';
+import { buildTraces, paintTraces } from './graph/traces.js';
 import * as pulses from './graph/pulses.js';
 import * as damp from './graph/damp.js';
 
 /**
  * Один пиксель растра на пиксель CSS, без ретины. Канвас растянут во весь
- * экран, и удвоение плотности учетверяет число пикселей, которые нужно
- * очистить и залить каждый кадр: на 1440×900 это разница между 17 и 67 мс
- * на кадр, то есть между шестьюдесятью кадрами в секунду и пятнадцатью.
- * Сеть — это линии в один пиксель под непрозрачностью .66 (backdrop.css);
- * чёткости, за которую платят вчетверо, на них не видно.
+ * экран, и удвоение плотности учетверяет число пикселей. Дорожки — линии
+ * в один пиксель под непрозрачностью .66 (backdrop.css); чёткости,
+ * за которую платят вчетверо, на них не видно.
  */
 const MAX_DPR = 1;
 
 const MEASURE_EVERY = 560; // мс
-/** На узком экране двигать якоря нечему: сцена плоская, параллакса нет. */
+/** На узком экране блоки те же и стоят так же — мерить их вдвое реже. */
 const MEASURE_EVERY_NARROW = 1120;
 const DRAW_EVERY_NARROW = 1000 / 30;
 const RESIZE_DELAY = 180;
@@ -44,12 +39,14 @@ const narrow = window.matchMedia('(max-width: 900px)');
 const canvas = document.getElementById('graph');
 const ctx = canvas ? canvas.getContext('2d', { alpha: true }) : null;
 
+/** Закадровый холст с разводкой: рисуется на смену размера, дальше копируется. */
+const layer = ctx ? document.createElement('canvas') : null;
+const layerCtx = layer ? layer.getContext('2d', { alpha: true }) : null;
+
 let width = 0;
 let height = 0;
-let limit = 0;
-let nodes = [];
-let anchorElements = [];
-let anchorPoints = [];
+let dpr = 1;
+let traces = [];
 let dampElements = [];
 let dampHoles = [];
 let frameId = 0;
@@ -60,22 +57,19 @@ let lastDraw = 0;
 let resizeTimer = 0;
 
 const sparks = [];
-const pointer = { x: 0, y: 0, on: false };
 
 /** Стартовый цвет — акцент страницы: на внутренних он не cyan. */
 const startTint = TINTS[document.documentElement.dataset.acc] ?? TINTS[DEFAULT_TINT];
 const tintNow = [...startTint];
 let tintTarget = [...startTint];
 
-/** Список привязанных элементов меняется только при перестройке DOM. */
+/** Список затеняемых блоков меняется только при перестройке DOM. */
 function collect() {
-  anchorElements = anchors.collect();
   dampElements = damp.collect();
   measure();
 }
 
 function measure() {
-  anchorPoints = anchors.measure(anchorElements, window.scrollY);
   dampHoles = damp.measure(dampElements, window.scrollY);
 }
 
@@ -84,22 +78,29 @@ function measure() {
  * здесь настраивается только растр под плотность экрана.
  */
 function resizeRaster() {
-  const dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
+  dpr = Math.min(MAX_DPR, window.devicePixelRatio || 1);
   width = canvas.clientWidth;
   height = canvas.clientHeight;
-  canvas.width = Math.round(width * dpr);
-  canvas.height = Math.round(height * dpr);
+
+  for (const surface of [canvas, layer]) {
+    surface.width = Math.round(width * dpr);
+    surface.height = Math.round(height * dpr);
+  }
+
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  layerCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
 }
 
-/** Поле строится заново: и число узлов, и радиус связи считаются от ширины. */
-function rebuildField() {
-  limit = edgeLimit(width);
-  nodes = buildNodes(width, height);
+/** Разводка строится заново и сразу запекается в закадровый холст. */
+function rebuildTraces() {
+  traces = buildTraces(width, height);
   sparks.length = 0;
+
+  layerCtx.clearRect(0, 0, width, height);
+  paintTraces(layerCtx, traces);
 }
 
-/** Цвет рёбер догоняет акцент секции, а не прыгает вместе с ним. */
+/** Цвет импульсов догоняет акцент секции, а не прыгает вместе с ним. */
 function easeTint() {
   for (let i = 0; i < tintNow.length; i++) {
     tintNow[i] += (tintTarget[i] - tintNow[i]) * TINT_EASE;
@@ -107,26 +108,19 @@ function easeTint() {
   return tintNow.map((channel) => Math.round(channel));
 }
 
-function draw(time) {
-  const scrollY = window.scrollY;
-
+/** Общая часть живого и статичного кадра: разводка и дыры под текстом. */
+function paintFrame(withPulses) {
   ctx.clearRect(0, 0, width, height);
-  drawEdges(ctx, nodes, { limit, tint: easeTint(), pointer });
-  anchors.draw(ctx, anchorPoints, { nodes, scrollY, height });
-  drawNodes(ctx, nodes, { time, pointer });
-  pulses.draw(ctx, sparks, nodes);
-  damp.draw(ctx, dampHoles, { scrollY, height });
+  ctx.drawImage(layer, 0, 0, width, height);
+  if (withPulses) pulses.draw(ctx, sparks, easeTint());
+  damp.draw(ctx, dampHoles, { scrollY: window.scrollY, height });
 }
 
 /**
- * На узком экране сеть рисуется тридцать раз в секунду вместо шестидесяти.
- * Узел проходит за кадр 0,13 px, между отрисовками выйдет 0,26 — на слое
- * с непрозрачностью .66 такой шаг не читается. А каждая перерисовка канваса
- * во весь экран тянет за собой всё, что лежит поверх него, поэтому она
- * и есть самая дорогая строка кадра.
- *
- * Движение узлов и искр при этом идёт покадрово: тридцать восемь сложений
- * стоят несравнимо меньше, чем один проход по холсту.
+ * На узком экране фон рисуется тридцать раз в секунду вместо шестидесяти.
+ * Перерисовка канваса во весь экран тянет за собой всё, что лежит поверх
+ * него, поэтому она и есть самая дорогая строка кадра. Движение импульсов
+ * при этом идёт покадрово: пять сложений стоят несравнимо меньше.
  */
 function drawDue(time) {
   if (!narrow.matches) return true;
@@ -137,12 +131,11 @@ function drawDue(time) {
 }
 
 function frame(time) {
-  stepNodes(nodes, width, height);
-  pulses.step(sparks, nodes, limit);
+  pulses.step(sparks);
 
   if (time - lastSpawn > pulses.SPAWN_EVERY) {
     lastSpawn = time;
-    pulses.spawn(sparks, nodes, limit);
+    pulses.spawn(sparks, traces);
   }
 
   const measureEvery = narrow.matches ? MEASURE_EVERY_NARROW : MEASURE_EVERY;
@@ -151,7 +144,7 @@ function frame(time) {
     measure();
   }
 
-  if (drawDue(time)) draw(time);
+  if (drawDue(time)) paintFrame(true);
   frameId = requestAnimationFrame(frame);
 }
 
@@ -167,29 +160,18 @@ function stop() {
 }
 
 /**
- * Сеть без движения. Просьба «меньше движения» — это просьба про движение,
- * а не про сеть: гайд §5 требует, чтобы под стеклом была видимая структура,
- * и нити якорей — единственное, что привязывает карточки к фону.
- *
- * Рисуется тот же кадр, что и в цикле, но один раз и без искр: они живут
- * только пока их двигают. Время нулевое — мерцание узлов тоже завязано на нём.
+ * Фон без движения. Просьба «меньше движения» — это просьба про импульсы,
+ * а не про разводку: гайд §5 требует, чтобы под стеклом была видимая
+ * структура, и дорожки — единственное, что её даёт.
  */
 function staticFrame() {
-  const scrollY = window.scrollY;
-
-  ctx.clearRect(0, 0, width, height);
-  drawEdges(ctx, nodes, { limit, tint: tintNow.map(Math.round), pointer });
-  anchors.draw(ctx, anchorPoints, { nodes, scrollY, height });
-  drawNodes(ctx, nodes, { time: 0, pointer });
-  damp.draw(ctx, dampHoles, { scrollY, height });
+  paintFrame(false);
 }
 
 /**
- * Перерисовать статичный кадр, но не чаще кадра экрана.
- *
- * Канвас фиксирован, а якоря привязаны к элементам, которые уезжают при
- * прокрутке: без этого нити оставались бы там, где карточка была на момент
- * загрузки. Это не анимация — это то же самое, что видит любой fixed-слой.
+ * Перерисовать статичный кадр, но не чаще кадра экрана. Канвас фиксирован,
+ * а дыры привязаны к блокам, которые уезжают при прокрутке: без этого
+ * затенение оставалось бы там, где текст был на момент загрузки.
  */
 function requestStatic() {
   if (staticId) return;
@@ -212,52 +194,30 @@ function restart() {
   start();
 }
 
-/** Первая настройка: растр под плотность экрана, поле, геометрия якорей. */
+/** Первая настройка: растр под плотность экрана, разводка, геометрия дыр. */
 function sync() {
   resizeRaster();
-  rebuildField();
+  rebuildTraces();
   collect();
   restart();
 }
 
 /**
- * Экран изменился. Поле перестраивается только при смене ширины: от неё
- * считаются и число узлов, и радиус связи (field.js), а высота на них
- * не влияет. Мобильный браузер шлёт resize на каждое прятанье адресной
- * строки, то есть посреди прокрутки, — и перестройка по высоте рассыпала бы
- * сеть заново прямо под пальцем.
+ * Экран изменился. Разводка перестраивается при любой смене размера: в отличие
+ * от прежней сети, она тянется через весь экран и по высоте тоже. Ресайз
+ * приходит уже сглаженным таймером, поэтому прятанье адресной строки
+ * на телефоне до перестройки не доходит.
  */
 function onResize() {
-  const widthChanged = canvas.clientWidth !== width;
-  const heightChanged = canvas.clientHeight !== height;
-  if (!widthChanged && !heightChanged) return;
+  if (canvas.clientWidth === width && canvas.clientHeight === height) return;
 
   resizeRaster();
-  if (widthChanged) rebuildField();
+  rebuildTraces();
   collect();
   restart();
 }
 
 function listen() {
-  // §9 описывает подсветку как курсорную. Палец курсором не является:
-  // pointerleave на тач-экране не приходит вовсе, поэтому один тап включал бы
-  // подсветку до конца сессии — и кадр за кадром считал бы расстояние
-  // от каждого узла и каждого ребра до точки, где посетитель однажды коснулся.
-  window.addEventListener(
-    'pointermove',
-    (event) => {
-      if (event.pointerType !== 'mouse') return;
-      pointer.x = event.clientX;
-      pointer.y = event.clientY;
-      pointer.on = true;
-    },
-    { passive: true },
-  );
-
-  for (const away of ['pointerleave', 'pointerup', 'pointercancel']) {
-    window.addEventListener(away, () => (pointer.on = false), { passive: true });
-  }
-
   window.addEventListener(
     'resize',
     () => {
@@ -267,7 +227,7 @@ function listen() {
     { passive: true },
   );
 
-  // В обычном режиме положение якорей догоняет цикл, в статичном — некому.
+  // В обычном режиме положение дыр догоняет цикл, в статичном — некому.
   window.addEventListener(
     'scroll',
     () => {
@@ -276,12 +236,12 @@ function listen() {
     { passive: true },
   );
 
-  // Вкладку только приостанавливаем: перестраивать поле незачем, экран тот же.
+  // Вкладку только приостанавливаем: перестраивать разводку незачем, экран тот же.
   document.addEventListener('visibilitychange', () => (document.hidden ? stop() : start()));
   reducedMotion.addEventListener('change', restart);
 }
 
-/** Перекрасить сеть в акцент секции. Имена цветов — те же, что у `data-acc`. */
+/** Перекрасить импульсы в акцент секции. Имена — те же, что у `data-acc`. */
 export function setTint(name) {
   if (!TINTS[name]) return;
   tintTarget = [...TINTS[name]];

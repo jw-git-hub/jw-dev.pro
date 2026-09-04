@@ -8,8 +8,6 @@
  * остаться на месте. В разметке остаётся только `data-amp` — размах
  * параллакса, который считает parallax.js.
  */
-import type { Accent } from '../../data/accent';
-
 interface Props {
   /** Класс позиции: `wA` — браузер, `wB` — Telegram, `wC` — панель метрик. */
   place: 'wA' | 'wB' | 'wC';
@@ -17,26 +15,17 @@ interface Props {
   drift: 'drift1' | 'drift2' | 'drift3';
   /** Размах параллакса, §10. */
   amp: number;
-  /** Цвет нитей, которыми окно привязано к фоновой сети (§9). */
-  accent: Accent;
-  /** С какой кромки окна выходит нить. */
-  side: 'left' | 'right';
   /** Строка заголовка окна. Панель метрик обходится без неё. */
   title?: string;
   /** Тело окна — панель с цифрами, а не рамка вокруг снимка. */
   panel?: boolean;
 }
 
-const { place, drift, amp, accent, side, title, panel = false } = Astro.props;
+const { place, drift, amp, title, panel = false } = Astro.props;
 ---
 
 <div class:list={['win', place]} data-amp={amp}>
-  {
-    /* Якорь сети висит на слое дрейфа, а не на самом окне: transform ребёнка
-      не меняет бокс родителя, и нить оставалась бы там, где окно было бы
-      без покачивания. */
-  }
-  <div class:list={['win-drift', drift]} data-nx data-nxc={accent} data-nxg="hero" data-nxp={side}>
+  <div class:list={['win-drift', drift]}>
     <div class:list={['win-body', 'g', 'blur', panel && 'mpanel']}>
       {
         title && (

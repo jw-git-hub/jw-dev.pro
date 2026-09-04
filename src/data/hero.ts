@@ -16,33 +16,29 @@
  *
  * `amp` — размах параллакса (§10), его читает `parallax.js`.
  */
-import type { Accent } from './accent';
-
 export interface HudPill {
   /** Общий ключ пары: `<key>.k` — подпись, `<key>.v` — значение. */
   key: string;
   place: 'hudA' | 'hudB' | 'hudC' | 'hudD';
-  /** Цвет нити, которой пилюля привязана к фоновой сети. */
-  accent: Accent;
   amp: number;
 }
 
 export const HUD_PILLS: HudPill[] = [
   // Бот отвечает прямо сейчас: t.me/jw_social_Downloader_bot, проверено вручную.
-  { key: 'hud.bot', place: 'hudA', accent: 'cyan', amp: 12 },
+  { key: 'hud.bot', place: 'hudA', amp: 12 },
 
   // Стек ботов по их README: Python, aiogram 3, Docker.
-  { key: 'hud.stack', place: 'hudB', accent: 'indigo', amp: 11 },
+  { key: 'hud.stack', place: 'hudB', amp: 11 },
 
   // Условие владельца из ответа FAQ: репозиторий переносится на аккаунт заказчика.
-  { key: 'hud.code', place: 'hudC', accent: 'amber', amp: 10 },
+  { key: 'hud.code', place: 'hudC', amp: 10 },
 
   /*
    * th.neva.beauty: 204 цены сведены в один источник правды. Само число
    * с пилюли снято — вне кейса оно не сообщает посетителю ничего, а польза
    * от одного источника называется словами.
    */
-  { key: 'hud.prices', place: 'hudD', accent: 'rose', amp: 12 },
+  { key: 'hud.prices', place: 'hudD', amp: 12 },
 ];
 
 /*

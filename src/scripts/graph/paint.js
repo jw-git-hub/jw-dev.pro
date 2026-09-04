@@ -7,11 +7,8 @@
  * в одном месте — tokens.css, где её и сторожит check-css.
  */
 
-/** Цвета узлов: пять акцентов палитры. */
-const NODE_TOKENS = ['cyan', 'violet', 'indigo', 'amber', 'rose'];
-
-/** Плюс служебный mint: его может попросить якорь через data-nxc. */
-const TINT_TOKENS = [...NODE_TOKENS, 'mint'];
+/** Пять акцентов палитры плюс служебный mint: им красятся импульсы. */
+const TINT_TOKENS = ['cyan', 'violet', 'indigo', 'amber', 'rose', 'mint'];
 
 const HEX = 16;
 const BYTE = 255;
@@ -26,10 +23,8 @@ function readToken(name) {
   return [(value >> RED_SHIFT) & BYTE, (value >> GREEN_SHIFT) & BYTE, value & BYTE];
 }
 
-/** Имя акцента → тройка RGB. Имена те же, что в data-acc и data-nxc. */
+/** Имя акцента → тройка RGB. Имена те же, что в data-acc. */
 export const TINTS = Object.fromEntries(TINT_TOKENS.map((name) => [name, readToken(name)]));
-
-export const NODE_COLORS = NODE_TOKENS.map((name) => TINTS[name]);
 
 export const rgba = (color, alpha) => `rgba(${color[0]},${color[1]},${color[2]},${alpha})`;
 

@@ -7,8 +7,6 @@
  * повторяет то, что рядом сказано текстом. Фокусируемых элементов внутри
  * нет — иначе aria-hidden превратился бы в ловушку для клавиатуры.
  *
- * Окна висят на фоновой сети через `data-nx` (§9) и связаны между собой
- * группой `hero`: это то место, ради которого граф вообще существует.
  */
 import { localeFromUrl, useTranslations } from '../../i18n';
 import { SITE } from '../../data/site';
@@ -32,22 +30,22 @@ const botName = `@${SITE.bot.split('/').pop()}`;
     <span class="caustic cB" data-par="1.2"></span>
     <span class="caustic cC" data-par="1.8"></span>
 
-    <HeroWindow place="wA" drift="drift1" amp={7} accent="cyan" side="left" title={t('hero.site')}>
+    <HeroWindow place="wA" drift="drift1" amp={7} title={t('hero.site')}>
       <ShotSlot class="tone-cyan"><SiteMock /></ShotSlot>
     </HeroWindow>
 
-    <HeroWindow place="wB" drift="drift2" amp={9} accent="violet" side="right" title={botName}>
+    <HeroWindow place="wB" drift="drift2" amp={9} title={botName}>
       <ShotSlot class="tg tone-violet"><ChatMock /></ShotSlot>
     </HeroWindow>
 
-    <HeroWindow place="wC" drift="drift3" amp={12} accent="indigo" side="right" panel>
+    <HeroWindow place="wC" drift="drift3" amp={12} panel>
       <MetricPanel title={t('hero.panel')} value={OPEN_REPOS} note={t('hero.panelNote')} />
     </HeroWindow>
 
     <div class="hudwrap">
       {
         HUD_PILLS.map((pill) => (
-          <span class:list={['hud', pill.place]} data-amp={pill.amp} data-nx data-nxc={pill.accent}>
+          <span class:list={['hud', pill.place]} data-amp={pill.amp}>
             <b class="k">{t(`${pill.key}.k`)}</b>
             <i>/</i>
             <b>{t(`${pill.key}.v`)}</b>

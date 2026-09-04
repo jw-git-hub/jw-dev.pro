@@ -1,90 +1,92 @@
 /**
- * Импульсы — DESIGN-GUIDE §9. По рёбрам бегут искры: сеть должна выглядеть
- * работающей, а не нарисованной.
+ * Импульсы по дорожкам — DESIGN-GUIDE §9.
  *
- * Порог рождения и потолок числа обязательны. Без них искры плодятся каждый
- * кадр и спокойный фон превращается в мигающую гирлянду.
+ * Единственное, что на фоне движется, и единственное, что носит цвет:
+ * разводка серая и статичная, акцент секции живёт здесь. Импульс — короткий
+ * светящийся отрезок, идущий вдоль дорожки от начала к концу; дойдя до
+ * площадки, он гаснет и рождается заново на другой дорожке.
+ *
+ * Хвост рисуется несколькими звеньями с растущей прозрачностью, а не
+ * градиентом вдоль пути: градиент на канвасе строится в экранных координатах
+ * и его пришлось бы пересоздавать каждый кадр для каждого импульса.
  */
-import { neighbours } from './field.js';
-import { NODE_COLORS, rgba, line, dot } from './paint.js';
+import { rgba, dot } from './paint.js';
+import { pointAt } from './traces.js';
 
-/** Не чаще одной искры в 820 мс (§16). */
-export const SPAWN_EVERY = 820;
+/** Не чаще одного рождения в этот срок и не больше ЖИВЫХ штук одновременно. */
+export const SPAWN_EVERY = 900; // мс
+const ALIVE_MAX = 5;
 
-const MAX_ALIVE = 10;
-const MIN_SPEED = 0.006; // доля ребра за кадр
-const SPEED_SPREAD = 0.006;
-const MAX_HOPS = 5; // после пяти переходов искра гаснет
+/** Скорость в пикселях за кадр. Медленнее — фон засыпает, быстрее — мельтешит. */
+const SPEED_MIN = 1.5;
+const SPEED_SPAN = 1.3;
 
-const CORE_RADIUS = 2.2;
-const CORE_ALPHA = 0.95;
-const HALO_RADIUS = 7.5;
-const HALO_ALPHA = 0.18;
-const TAIL_ALPHA = 0.36;
-const TAIL_WIDTH = 1.35;
+/** Длина хвоста и на сколько звеньев он разбит. */
+const TAIL = 54;
+const TAIL_STEPS = 6;
+const TAIL_ALPHA = 0.5;
 
-const pick = (list) => list[Math.floor(Math.random() * list.length)];
+const HEAD_RADIUS = 1.9;
+const HEAD_ALPHA = 0.95;
+const GLOW_RADIUS = 5;
+const GLOW_ALPHA = 0.16;
 
-export function spawn(pulses, nodes, limit) {
-  if (!nodes.length || pulses.length >= MAX_ALIVE) return;
+const LINE_WIDTH = 1.6;
 
-  const from = Math.floor(Math.random() * nodes.length);
-  const reachable = neighbours(nodes, from, limit);
-  if (!reachable.length) return;
+export function spawn(sparks, traces) {
+  if (sparks.length >= ALIVE_MAX || !traces.length) return;
 
-  pulses.push({
-    from,
-    to: pick(reachable),
-    progress: 0,
-    speed: MIN_SPEED + Math.random() * SPEED_SPREAD,
-    color: pick(NODE_COLORS),
-    hops: 0,
+  const trace = traces[Math.floor(Math.random() * traces.length)];
+  if (trace.length <= TAIL) return;
+
+  sparks.push({
+    trace,
+    at: 0,
+    speed: SPEED_MIN + Math.random() * SPEED_SPAN,
   });
 }
 
-/** Дошла до узла — уходит на соседнее ребро. Некуда или нечем — гаснет. */
-function hop(pulse, nodes, limit) {
-  pulse.hops += 1;
-  if (pulse.hops > MAX_HOPS) return false;
-
-  const reachable = neighbours(nodes, pulse.to, limit);
-  if (!reachable.length) return false;
-
-  pulse.from = pulse.to;
-  pulse.to = pick(reachable);
-  pulse.progress = 0;
-  return true;
-}
-
-/** Идём с конца: удаление по индексу не сдвигает ещё не просмотренные искры. */
-export function step(pulses, nodes, limit) {
-  for (let i = pulses.length - 1; i >= 0; i--) {
-    const pulse = pulses[i];
-    pulse.progress += pulse.speed;
-    if (pulse.progress >= 1 && !hop(pulse, nodes, limit)) pulses.splice(i, 1);
+export function step(sparks) {
+  for (let i = sparks.length - 1; i >= 0; i -= 1) {
+    const spark = sparks[i];
+    spark.at += spark.speed;
+    if (spark.at > spark.trace.length) sparks.splice(i, 1);
   }
 }
 
-function drawSpark(ctx, pulse, from, x, y) {
-  ctx.fillStyle = rgba(pulse.color, HALO_ALPHA);
-  dot(ctx, x, y, HALO_RADIUS);
-  ctx.fillStyle = rgba(pulse.color, CORE_ALPHA);
-  dot(ctx, x, y, CORE_RADIUS);
-  ctx.strokeStyle = rgba(pulse.color, TAIL_ALPHA);
-  ctx.lineWidth = TAIL_WIDTH;
-  line(ctx, from.x, from.y, x, y);
+/**
+ * Хвост звеньями: каждое следующее ближе к голове и ярче. Ломаная повторяет
+ * дорожку сама собой — точки берутся с неё же, а не по прямой между концами.
+ */
+function tail(ctx, spark, color) {
+  const stepLength = TAIL / TAIL_STEPS;
+
+  for (let i = 0; i < TAIL_STEPS; i += 1) {
+    const from = pointAt(spark.trace, spark.at - stepLength * (i + 1));
+    const to = pointAt(spark.trace, spark.at - stepLength * i);
+    if (!from || !to) continue;
+
+    ctx.strokeStyle = rgba(color, TAIL_ALPHA * (1 - i / TAIL_STEPS));
+    ctx.beginPath();
+    ctx.moveTo(from[0], from[1]);
+    ctx.lineTo(to[0], to[1]);
+    ctx.stroke();
+  }
 }
 
-export function draw(ctx, pulses, nodes) {
-  for (const pulse of pulses) {
-    const from = nodes[pulse.from];
-    const to = nodes[pulse.to];
-    drawSpark(
-      ctx,
-      pulse,
-      from,
-      from.x + (to.x - from.x) * pulse.progress,
-      from.y + (to.y - from.y) * pulse.progress,
-    );
+export function draw(ctx, sparks, color) {
+  ctx.lineWidth = LINE_WIDTH;
+  ctx.lineCap = 'round';
+
+  for (const spark of sparks) {
+    const head = pointAt(spark.trace, spark.at);
+    if (!head) continue;
+
+    tail(ctx, spark, color);
+
+    ctx.fillStyle = rgba(color, GLOW_ALPHA);
+    dot(ctx, head[0], head[1], GLOW_RADIUS);
+    ctx.fillStyle = rgba(color, HEAD_ALPHA);
+    dot(ctx, head[0], head[1], HEAD_RADIUS);
   }
 }
