@@ -70,11 +70,18 @@ healthcheck. Перезагрузка nginx его не читает вовсе.
 образ собран из старых исходников, и `restart` поднимет ровно его.
 
 ```bash
-rsync -az --inplace --delete \
+rsync -az --inplace --delete --chmod=D755,F644 --exclude __pycache__ \
   server/contact-api/ john_wick@165.232.168.160:/srv/jw-dev.pro/server/contact-api/
 ssh john_wick@165.232.168.160 \
   'cd /srv/jw-dev.pro/deploy && docker compose up -d --build contact-api'
 ```
+
+**`--chmod=D755,F644` обязателен.** `rsync -a` переносит права как есть, а в рабочем
+каталоге они могут быть `600`. Образ собирается из этих файлов и запускается не под
+root — питон внутри контейнера просто не сможет прочитать `app.py`. Проверено 04.09.2026
+собственной ошибкой: контейнер ушёл в бесконечный перезапуск с
+`can't open file '/app/app.py': [Errno 13] Permission denied`, `/api/` отдавал 502.
+Сайт при этом жил — статику раздаёт nginx, приёмник нужен одной форме.
 
 Проверка, что приёмник живой после пересборки:
 

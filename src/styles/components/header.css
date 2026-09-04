@@ -1,12 +1,17 @@
 /**
- * Шапка — DESIGN-GUIDE §13. Фиксированная, стеклянная, при прокрутке
- * ужимается: класс `stuck` вешает header.js при scrollY > 18.
+ * Шапка — DESIGN-GUIDE §13. Фиксированная, сплошная, одной высоты на всей
+ * прокрутке: тонкая тёмная полоса, а не стеклянная панель.
+ *
+ * Стекла здесь нет намеренно (решение владельца от 04.09.2026). Полупрозрачная
+ * шапка над контентом читалась как брак: на первом экране заголовок героя лез
+ * сквозь пункты меню, а размытие, которым это должно было прикрываться,
+ * доезжает только до Safari. Сплошная полоса решает обе беды разом и заодно
+ * снимает с шапки backdrop-filter — самый дорогой слой на странице.
  *
  * Высота бара вынесена в --bar, потому что от неё зависит не только сама
  * шапка, но и высота мобильной шторки. Два места с одним числом разъезжаются.
- *
- * Стекло собрано на псевдоэлементах, а не на фоне: заливка и шум должны
- * менять прозрачность независимо друг от друга при переходе в `stuck`.
+ * Ужимания при прокрутке больше нет: полоса и так тонкая, а прыгающая высота
+ * спорит со словом «минималистичная».
  */
 
 .hdr {
@@ -17,42 +22,20 @@
   right: 0;
   left: 0;
   z-index: 50;
-  backdrop-filter: blur(11px) saturate(122%);
-  -webkit-backdrop-filter: blur(11px) saturate(122%);
-}
-
-.hdr.stuck {
-  --bar: 52px;
-
-  backdrop-filter: blur(14px) saturate(130%);
-  -webkit-backdrop-filter: blur(14px) saturate(130%);
 }
 
 /**
- * Пока шторка открыта, шапка отдаёт блюр ей.
- * Элемент с backdrop-filter создаёт backdrop root: вложенный фильтр видит
- * только содержимое родителя и страницу под ним уже не размывает.
- * Это же правило в макете называется html.noblur (§5).
+ * Подложка непрозрачная на всей прокрутке. Градиент от --panel к --panel2 даёт
+ * полосе глубину, блик сверху и линия акцента снизу — рамку. Линия красится
+ * акцентом секции и перетекает вместе с содержимым.
  */
-.hdr:has(.mnav-holder[open]) {
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
 .hdr::before {
   content: '';
   position: absolute;
   inset: 0;
-  border-bottom: 1px solid rgb(255 255 255 / 8%);
-  background: rgb(255 255 255 / 4%);
-  box-shadow:
-    inset 0 1px 0 rgb(255 255 255 / 22%),
-    0 20px 44px -34px rgb(0 0 0 / 95%);
-  opacity: 0.42;
-  transition:
-    opacity 0.5s var(--e),
-    background 0.5s var(--e),
-    border-color 0.5s var(--e);
+  border-bottom: 1px solid color-mix(in srgb, var(--acc-ink) 32%, transparent);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
+  box-shadow: inset 0 1px 0 rgb(255 255 255 / 8%);
 }
 
 .hdr::after {
@@ -60,57 +43,14 @@
   position: absolute;
   inset: 0;
   background-image: var(--noise);
-  opacity: 0.02;
+  opacity: 0.025;
   mix-blend-mode: overlay;
-  transition: opacity 0.5s var(--e);
   pointer-events: none;
 }
 
-/**
- * Непрозрачная подложка, а не размытие. Заливка в 4% белого контент не прячет,
- * а размазывает: под шапкой ползут призраки заголовков и картинок.
- *
- * Прозрачности здесь нет намеренно, ни процента. Замер трёх движков показал,
- * что блюр доезжает до Safari и не доезжает до Chrome и Firefox, — значит
- * крыть обязана одна заливка. На 96% текст под баром ещё вычитывался при
- * увеличении, а обещано было «не видно вообще».
- *
- * Плоской полоса при этом не выглядит: градиент от --panel к --panel2 даёт
- * ей глубину, блик сверху и линия акцента снизу — рамку.
- *
- * Граница взята из акцента секции вместо белой: при прокрутке главной линия
- * перетекает вместе с содержимым, и шапка читается как часть страницы,
- * а не как чужая планка поверх неё.
- */
-.hdr.stuck::before {
-  border-bottom-color: color-mix(in srgb, var(--acc-ink) 32%, transparent);
-  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
-  opacity: 1;
-}
-
-.hdr.stuck::after {
-  opacity: 0.03;
-}
-
-/**
- * Шапка на узком экране: плотность вместо размытия, рецепт §5. Она липкая
- * и висит над канвасом графа, поэтому её размытие пересчитывалось каждый
- * кадр фона — то есть постоянно, независимо от прокрутки.
- *
- * Ступень между обычным состоянием и `.stuck` остаётся прежней, меняется
- * только материал подложки: непрозрачность поднята, потому что панель
- * на 72% кроет слабее, чем размытие плюс блик.
- */
-@media (max-width: 900px) {
-  .hdr {
-    backdrop-filter: none;
-    -webkit-backdrop-filter: none;
-  }
-
-  .hdr::before {
-    background: color-mix(in srgb, var(--panel) 72%, transparent);
-    opacity: 0.62;
-  }
+/* Тень появляется, только когда под шапкой действительно что-то проехало. */
+.hdr.stuck {
+  box-shadow: 0 18px 40px -34px rgb(0 0 0 / 95%);
 }
 
 .hdr > * {
@@ -121,9 +61,8 @@
 .hdr-in {
   display: flex;
   align-items: center;
-  gap: 18px;
+  gap: 16px;
   height: var(--bar);
-  transition: height 0.5s var(--e);
 }
 
 .brand {
@@ -135,8 +74,8 @@
 
 /* Знак в баре 52px: 34px из §13 съедали его почти целиком. */
 .brand .mark {
-  width: 30px;
-  height: 30px;
+  width: 26px;
+  height: 26px;
 }
 
 .nav {
@@ -148,10 +87,10 @@
 
 .nav a {
   position: relative;
-  padding: 8px 13px;
+  padding: 7px 12px;
   border-radius: 999px;
   color: var(--ink2);
-  font-size: 13.5px;
+  font-size: 13px;
   font-weight: 520;
 
   /* Пункт из двух слов не имеет права разъехаться на две строки: бар 70px. */
@@ -163,9 +102,9 @@
 .nav a::after {
   content: '';
   position: absolute;
-  right: 13px;
-  bottom: 5px;
-  left: 13px;
+  right: 12px;
+  bottom: 4px;
+  left: 12px;
   height: 1px;
   background: var(--acc-ink);
   transform: scaleX(0);
@@ -199,12 +138,12 @@
  * которым нельзя писать по стеклу (§1). Здесь именно текст и обводка.
  */
 .hdr-cta {
-  gap: 7px;
-  padding: 8px 16px;
+  gap: 6px;
+  padding: 6px 14px;
   border-color: color-mix(in srgb, var(--acc-ink) 42%, transparent);
   background: color-mix(in srgb, var(--acc-ink) 8%, transparent);
   color: var(--acc-ink);
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 600;
 }
 
