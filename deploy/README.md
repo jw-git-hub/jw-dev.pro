@@ -5,8 +5,13 @@
 ```
 /srv/jw-dev.pro/
 ├── dist/     статика, приезжает из CI по rsync
+├── server/   исходники приёмника: из них docker собирает contact-api
 └── deploy/   копия этого каталога плюс .env и certbot-webroot/
 ```
+
+`server/` в дереве не декоративный: `docker-compose.yml` собирает `contact-api`
+из `../server/contact-api`, то есть из копии на сервере, а не из репозитория.
+Правка в `server/contact-api/` сама туда не приезжает — выкат заливает один `dist/`.
 
 ## Что откуда берётся
 
@@ -58,8 +63,32 @@ healthcheck. Перезагрузка nginx его не читает вовсе.
 
 Что адрес закрыт снаружи, проверяют ворота `npm run check:prod` в выкате.
 
-`.env` живёт только на сервере: в нём токен бота и пароль почты,
-а репозиторий публичный. Образец полей — `.env.example`.
+## Обновление приёмника формы
+
+Код `server/contact-api/` в CI не выкатывается — его копируют так же руками,
+как и стенд, и после копии контейнер надо **пересобрать**, а не перезапустить:
+образ собран из старых исходников, и `restart` поднимет ровно его.
+
+```bash
+rsync -az --inplace --delete \
+  server/contact-api/ john_wick@165.232.168.160:/srv/jw-dev.pro/server/contact-api/
+ssh john_wick@165.232.168.160 \
+  'cd /srv/jw-dev.pro/deploy && docker compose up -d --build contact-api'
+```
+
+Проверка, что приёмник живой после пересборки:
+
+```bash
+ssh john_wick@165.232.168.160 'docker inspect -f "{{.State.Health.Status}}" jw-dev-contact'
+```
+
+`.env` живёт только на сервере и лежит рядом с `docker-compose.yml`,
+в `/srv/jw-dev.pro/deploy/.env`: `env_file` считается от файла компоуза,
+а не от корня стенда. В нём токен бота и пароль почты, а репозиторий публичный.
+Образец полей — `.env.example`.
+
+Значения из `.env` читаются при старте контейнера, поэтому смена получателя
+заявок пересборки не требует — хватит `docker compose up -d contact-api`.
 
 ## Сертификат
 
