@@ -35,6 +35,9 @@ const t = useTranslations(locale);
           </a>
         )
       }
+      <a href={`mailto:${SITE.email}`} aria-label={t('footer.email')}>
+        <Icon name="mail" size={17} />
+      </a>
       <a href={SITE.telegram} target="_blank" rel="noopener" aria-label={t('footer.telegram')}>
         <Icon name="tg" size={17} />
       </a>

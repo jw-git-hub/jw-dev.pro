@@ -52,6 +52,7 @@ function personNode(locale: Locale, site: Site): Node {
     description: t('about.p'),
     url: absolute(homePath(locale), site),
     knowsLanguage: ['ru', 'en'],
+    email: SITE.email,
     sameAs: [SITE.github, SITE.telegram],
   };
 }

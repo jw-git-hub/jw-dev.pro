@@ -162,6 +162,15 @@ const KINDS = ['form.k1', 'form.k2', 'form.k3', 'form.k4'];
         </div>
 
         <div class="ctalist">
+          {
+            /* Почта первой: Telegram есть не у всех, а письмо напишет кто угодно.
+              rel/target здесь не нужны — mailto открывает почтовый клиент, а не вкладку. */
+          }
+          <a class="btn s trav" href={`mailto:${SITE.email}`}>
+            <Icon name="mail" size={18} />
+            <span>{t('contact.email')} → {SITE.email}</span>
+          </a>
+
           <a class="btn s trav" href={SITE.telegram} target="_blank" rel="noopener">
             <Icon name="tg" size={18} />
             <span>Telegram → {SITE.telegramName}</span>
