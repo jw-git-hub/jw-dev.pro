@@ -1,6 +1,6 @@
 ---
 /**
- * Шапка. Фиксированная, стеклянная, при прокрутке ужимается до 60px
+ * Шапка. Фиксированная, стеклянная, при прокрутке ужимается до 52px
  * (класс `stuck` вешает header.js).
  *
  * Бургер — <summary> настоящего <details>, а не кнопка с обработчиком:
@@ -10,6 +10,7 @@
 import { NAV_ITEMS } from '../../data/nav';
 import { SITE } from '../../data/site';
 import { localeFromUrl, useTranslations, homePath, sectionPath } from '../../i18n';
+import Icon from './Icon.astro';
 import Mark from './Mark.astro';
 import LangSwitch from './LangSwitch.astro';
 import MobileNav from './MobileNav.astro';
@@ -57,7 +58,10 @@ const brandZone = SITE.name.slice(dot);
 
     <div class="hdr-r">
       <LangSwitch path={langPath} />
-      <a class="btn p hdr-cta" href={sectionPath(locale, 'contact')}>{t('cta.header')}</a>
+      <a class="btn hdr-cta" href={sectionPath(locale, 'contact')}>
+        {t('cta.header')}
+        <Icon name="arr" size={14} />
+      </a>
 
       <details class="mnav-holder" id="menu">
         <summary class="burger" aria-label={t('a11y.menu')}>

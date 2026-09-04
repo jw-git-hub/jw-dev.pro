@@ -45,7 +45,7 @@ main > section {
   position: relative;
   z-index: 3;
   padding: clamp(64px, 7vw, 112px) 0;
-  scroll-margin-top: 88px;
+  scroll-margin-top: 82px;
 }
 
 /* Секция вплотную к предыдущей: статистика читается как продолжение героя. */

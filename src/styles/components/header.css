@@ -22,7 +22,7 @@
 }
 
 .hdr.stuck {
-  --bar: 60px;
+  --bar: 52px;
 
   backdrop-filter: blur(14px) saturate(130%);
   -webkit-backdrop-filter: blur(14px) saturate(130%);
@@ -49,7 +49,10 @@
     inset 0 1px 0 rgb(255 255 255 / 22%),
     0 20px 44px -34px rgb(0 0 0 / 95%);
   opacity: 0.42;
-  transition: opacity 0.5s var(--e);
+  transition:
+    opacity 0.5s var(--e),
+    background 0.5s var(--e),
+    border-color 0.5s var(--e);
 }
 
 .hdr::after {
@@ -63,7 +66,25 @@
   pointer-events: none;
 }
 
+/**
+ * Непрозрачная подложка, а не размытие. Заливка в 4% белого контент не прячет,
+ * а размазывает: под шапкой ползут призраки заголовков и картинок.
+ *
+ * Прозрачности здесь нет намеренно, ни процента. Замер трёх движков показал,
+ * что блюр доезжает до Safari и не доезжает до Chrome и Firefox, — значит
+ * крыть обязана одна заливка. На 96% текст под баром ещё вычитывался при
+ * увеличении, а обещано было «не видно вообще».
+ *
+ * Плоской полоса при этом не выглядит: градиент от --panel к --panel2 даёт
+ * ей глубину, блик сверху и линия акцента снизу — рамку.
+ *
+ * Граница взята из акцента секции вместо белой: при прокрутке главной линия
+ * перетекает вместе с содержимым, и шапка читается как часть страницы,
+ * а не как чужая планка поверх неё.
+ */
 .hdr.stuck::before {
+  border-bottom-color: color-mix(in srgb, var(--acc-ink) 32%, transparent);
+  background: linear-gradient(180deg, var(--panel) 0%, var(--panel2) 100%);
   opacity: 1;
 }
 
@@ -112,6 +133,12 @@
   gap: 10px;
 }
 
+/* Знак в баре 52px: 34px из §13 съедали его почти целиком. */
+.brand .mark {
+  width: 30px;
+  height: 30px;
+}
+
 .nav {
   display: flex;
   align-items: center;
@@ -121,10 +148,10 @@
 
 .nav a {
   position: relative;
-  padding: 9px 14px;
+  padding: 8px 13px;
   border-radius: 999px;
   color: var(--ink2);
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 520;
 
   /* Пункт из двух слов не имеет права разъехаться на две строки: бар 70px. */
@@ -136,9 +163,9 @@
 .nav a::after {
   content: '';
   position: absolute;
-  right: 14px;
+  right: 13px;
   bottom: 5px;
-  left: 14px;
+  left: 13px;
   height: 1px;
   background: var(--acc-ink);
   transform: scaleX(0);
@@ -160,6 +187,30 @@
   align-items: center;
   gap: 9px;
   margin-left: auto;
+}
+
+/**
+ * Кнопка в шапке — контур, а не заливка. Градиентная `.p` из §7 в тонком баре
+ * перетягивала внимание на себя со знака и меню: главное действие сайта живёт
+ * в герое и в доке, шапка о нём только напоминает. Заливка не потеряна —
+ * она возвращается на ховере (блок в конце файла).
+ *
+ * Цвет берётся из `--acc-ink`, а не `--acc`: этой парой разведён индиго,
+ * которым нельзя писать по стеклу (§1). Здесь именно текст и обводка.
+ */
+.hdr-cta {
+  gap: 7px;
+  padding: 8px 16px;
+  border-color: color-mix(in srgb, var(--acc-ink) 42%, transparent);
+  background: color-mix(in srgb, var(--acc-ink) 8%, transparent);
+  color: var(--acc-ink);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.hdr-cta svg {
+  width: 14px;
+  height: 14px;
 }
 
 /* Меню разделов существует только там, где спрятана строка навигации. */
@@ -254,6 +305,12 @@
 @media (hover: hover) and (pointer: fine) {
   .nav a:hover {
     color: var(--ink);
+  }
+
+  .hdr-cta:hover {
+    border-color: transparent;
+    background: var(--acc-ink);
+    color: var(--on-light);
   }
 
   .nav a:hover::after {
